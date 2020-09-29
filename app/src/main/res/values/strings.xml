@@ -1,0 +1,20 @@
+<resources>
+    <string name="app_name">Погода</string>
+
+    <string name="open_weather_map_api_key">61a25b412bb7c531e7fc8d4ca71457e5</string>
+    <string name="temperature">\u00B0</string>
+
+    <string name="insert_new_city">Введите название города</string>
+    <string name="no_internet_access">Нет доступа в Интернет</string>
+    <string name="city_not_found">Такого города не существует</string>
+    <string name="city_exist">Такой город уже есть</string>
+
+    <!-- days of the week -->
+    <string name="monday">Пн</string>
+    <string name="tuesday">Вт</string>
+    <string name="wednesday">Ср</string>
+    <string name="thursday">Чт</string>
+    <string name="friday">Пт</string>
+    <string name="saturday">Сб</string>
+    <string name="sunday">Вс</string>
+</resources>
