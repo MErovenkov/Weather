@@ -22,13 +22,12 @@
         android:id="@+id/dw_rec_icon_weather"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-
+        android:contentDescription="TODO"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toStartOf="@+id/dw_rec_temperature_max"
-        app:layout_constraintStart_toEndOf="@+id/dw_rec_day_week"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.0"
-        android:contentDescription="TODO" />
+        app:layout_constraintVertical_bias="0.0" />
 
     <TextView
         android:id="@+id/dw_rec_temperature_min"

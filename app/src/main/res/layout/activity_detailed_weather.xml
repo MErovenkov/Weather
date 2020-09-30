@@ -56,7 +56,6 @@
             android:id="@+id/adw_recycler_view"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:paddingTop="20dp"
             tools:layout_editor_absoluteY="486dp" />
     </LinearLayout>
 </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
