@@ -46,7 +46,7 @@ class WeatherActivity : AppCompatActivity() {
         weatherCityList = ArrayList(dataBaseHelper.getWeatherCityDao().queryForAll())
         initRecyclerView()
 
-        if (!weatherCityList.equals(null)) {
+        if (weatherCityList.isNotEmpty()) {
             adapterRecyclerView.update(weatherCityList)
 
             if (CheckStatus.isNetworkAvailable(this)) {
