@@ -7,7 +7,6 @@ import android.util.Log
 import android.view.View
 import android.widget.EditText
 import android.widget.TextView
-import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -116,7 +115,7 @@ class WeatherActivity : AppCompatActivity() {
                         val newWeatherCity =
                             withContext(Dispatchers.IO) { weatherApi.getWeatherCity(nameCity) }
 
-                        if (weatherCityList.stream().noneMatch { oldWeatherCity ->
+                        if (weatherCityList.none { oldWeatherCity ->
                                 oldWeatherCity.nameCity == newWeatherCity.nameCity
                             }) {
                             adapterRecyclerView.addItem(newWeatherCity)

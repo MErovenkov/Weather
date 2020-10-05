@@ -69,17 +69,17 @@ class OrmLiteHelper(context: Context)
         val oldWeatherCityList = ArrayList(this.getWeatherCityDao().queryForAll())
 
         for (oldWeatherCity in oldWeatherCityList) {
-            if (newWeatherCityList.stream().noneMatch{ weatherCity ->
+            if (newWeatherCityList.none { weatherCity ->
                     weatherCity.nameCity == oldWeatherCity.nameCity }) {
                 this.deletedWeatherCity(oldWeatherCity)
             }
         }
 
         for (weatherCity in newWeatherCityList) {
-            if (oldWeatherCityList.stream().noneMatch{ oldWeatherCity ->
+            if (oldWeatherCityList.none { oldWeatherCity ->
                     oldWeatherCity.nameCity == weatherCity.nameCity}) {
                 this.createCity(weatherCity)
-            } else if (oldWeatherCityList.stream().anyMatch{ oldWeatherCity ->
+            } else if (oldWeatherCityList.any { oldWeatherCity ->
                     oldWeatherCity.nameCity == weatherCity.nameCity}) {
                 this.updateCity(weatherCity)
             }
