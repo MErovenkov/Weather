@@ -85,7 +85,6 @@ class WeatherActivity : AppCompatActivity() {
             weatherCityList = ArrayList(adapterRecyclerView.getItemList())
         } catch (e: SSLException) {
             Log.w(e.toString(), Thread.currentThread().stackTrace[2].toString())
-            weatherCityList = ArrayList(adapterRecyclerView.getItemList())
         }
     }
 
