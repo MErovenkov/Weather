@@ -65,8 +65,6 @@ class WeatherActivity : AppCompatActivity() {
                     swipeRefreshLayout.isRefreshing = false
                 }
             } else {
-                ShowToast.getToast(this,
-                    this.resources.getString(R.string.no_internet_access))
                 swipeRefreshLayout.isRefreshing = false
             }
         }
@@ -77,13 +75,22 @@ class WeatherActivity : AppCompatActivity() {
             weatherCityList =
                 withContext(Dispatchers.IO) { weatherApi.getUpdatedWeatherCityList(weatherCityList) }
             adapterRecyclerView.update(weatherCityList)
+
         } catch (e: ConcurrentModificationException) {
-            Log.w(e.toString(), Thread.currentThread().stackTrace[2].toString())
             weatherCityList = ArrayList(adapterRecyclerView.getItemList())
+
+            ShowToast.getToast(this,
+                this.resources.getString(R.string.city_weather_update_failed))
+            Log.w(e.toString(), Thread.currentThread().stackTrace[2].toString())
         } catch (e: ConnectException) {
-            Log.w(e.toString(), Thread.currentThread().stackTrace[2].toString())
             weatherCityList = ArrayList(adapterRecyclerView.getItemList())
+
+            ShowToast.getToast(this,
+                this.resources.getString(R.string.lost_internet_access))
+            Log.w(e.toString(), Thread.currentThread().stackTrace[2].toString())
         } catch (e: SSLException) {
+            ShowToast.getToast(this,
+                this.resources.getString(R.string.city_weather_update_failed))
             Log.w(e.toString(), Thread.currentThread().stackTrace[2].toString())
         }
     }
@@ -118,6 +125,8 @@ class WeatherActivity : AppCompatActivity() {
                                 oldWeatherCity.nameCity == newWeatherCity.nameCity
                             }) {
                             adapterRecyclerView.addItem(newWeatherCity)
+                            ShowToast.getToast(this@WeatherActivity,
+                            this@WeatherActivity.resources.getString(R.string.city_added))
                         } else ShowToast.getToast(
                             this@WeatherActivity,
                             this@WeatherActivity.resources.getString(R.string.city_exist)
@@ -134,8 +143,7 @@ class WeatherActivity : AppCompatActivity() {
                     }
                 }
             }
-        } else ShowToast.getToast(this@WeatherActivity,
-            this.resources.getString(R.string.no_internet_access))
+        }
     }
 
     fun openWeatherDetailed(view: View) {

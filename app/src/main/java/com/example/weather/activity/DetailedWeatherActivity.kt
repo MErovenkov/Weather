@@ -75,8 +75,6 @@ class DetailedWeatherActivity: AppCompatActivity()  {
                     swipeRefreshLayout.isRefreshing = false
                 }
             } else {
-                ShowToast.getToast(this,
-                    this.resources.getString(R.string.no_internet_access))
                 swipeRefreshLayout.isRefreshing = false
             }
         }
@@ -92,12 +90,19 @@ class DetailedWeatherActivity: AppCompatActivity()  {
             iconWeatherCurrent.setImageResource(resources.getIdentifier(
                         weatherCity.weatherCurrent.nameIconWeather, "drawable",
                         packageName))
+
         } catch (e: ConnectException) {
-            Log.w(e.toString(), Thread.currentThread().stackTrace[2].toString())
             weatherCity.weatherFutureList = ArrayList(adapterRecyclerView.getItemList())
+
+            ShowToast.getToast(this,
+                this.resources.getString(R.string.lost_internet_access))
+            Log.w(e.toString(), Thread.currentThread().stackTrace[2].toString())
         } catch (e: SSLException) {
-            Log.w(e.toString(), Thread.currentThread().stackTrace[2].toString())
             weatherCity.weatherFutureList = ArrayList(adapterRecyclerView.getItemList())
+
+            ShowToast.getToast(this,
+                this.resources.getString(R.string.city_weather_update_failed))
+            Log.w(e.toString(), Thread.currentThread().stackTrace[2].toString())
         }
     }
 
