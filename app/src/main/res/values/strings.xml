@@ -5,9 +5,15 @@
     <string name="temperature">\u00B0</string>
 
     <string name="insert_new_city">Введите название города</string>
+
+    <!-- Toast messages -->
     <string name="no_internet_access">Нет доступа в Интернет</string>
+    <string name="lost_internet_access">Потерян доступа в Интернет</string>
     <string name="city_not_found">Такого города не существует</string>
     <string name="city_exist">Такой город уже есть</string>
+    <string name="city_weather_data_updated">Данные обновленны</string>
+    <string name="city_weather_update_failed">При обновлении произошла ошибка</string>
+    <string name="city_added">Город добавлен</string>
 
     <!-- days of the week -->
     <string name="monday">Пн</string>
