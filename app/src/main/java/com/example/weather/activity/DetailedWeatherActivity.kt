@@ -14,7 +14,7 @@ import com.example.weather.dao.OrmLiteHelper
 import com.example.weather.model.WeatherCity
 import com.example.weather.model.WeatherFuture
 import com.example.weather.utils.CheckStatus
-import com.example.weather.utils.api.WeatherApi
+import com.example.weather.utils.WeatherData
 import com.example.weather.view.recycler.GenericAdapter
 import com.example.weather.view.recycler.toast.ShowToast
 import kotlinx.coroutines.Dispatchers
@@ -35,7 +35,7 @@ class DetailedWeatherActivity: AppCompatActivity()  {
     private lateinit var temperature: TextView
     private lateinit var iconWeatherCurrent: ImageView
 
-    private lateinit var weatherApi: WeatherApi
+    private lateinit var weatherData: WeatherData
 
     private lateinit var gotNameCity: String
     private lateinit var weatherCity: WeatherCity
@@ -45,7 +45,7 @@ class DetailedWeatherActivity: AppCompatActivity()  {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_detailed_weather)
 
-        weatherApi =  WeatherApi(this)
+        weatherData =  WeatherData(this)
 
         dataBaseHelper = OrmLiteHelper(this)
         initRecyclerView()
@@ -83,7 +83,7 @@ class DetailedWeatherActivity: AppCompatActivity()  {
     private suspend fun updateRecyclerViewValidData(){
         try {
             weatherCity =
-                withContext(Dispatchers.IO) { weatherApi.getWeatherCity(weatherCity.nameCity) }
+                withContext(Dispatchers.IO) { weatherData.getWeatherCity(weatherCity.nameCity) }
             adapterRecyclerView.update(ArrayList(weatherCity.weatherFutureList))
             nameCityText.text = weatherCity.nameCity
             temperature.text = weatherCity.weatherCurrent.temperature

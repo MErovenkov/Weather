@@ -15,7 +15,7 @@ import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
 import com.example.weather.R
 import com.example.weather.dao.OrmLiteHelper
 import com.example.weather.model.WeatherCity
-import com.example.weather.utils.api.WeatherApi
+import com.example.weather.utils.WeatherData
 import com.example.weather.utils.CheckStatus
 import com.example.weather.view.recycler.GenericAdapter
 import com.example.weather.view.recycler.SwipeToDeleteCallback
@@ -30,7 +30,7 @@ class WeatherActivity : AppCompatActivity() {
     private lateinit var adapterRecyclerView: GenericAdapter<WeatherCity>
     private lateinit var addingNewCity: EditText
     private lateinit var swipeRefreshLayout: SwipeRefreshLayout
-    private lateinit var weatherApi: WeatherApi
+    private lateinit var weatherData: WeatherData
     private var weatherCityList: ArrayList<WeatherCity> = ArrayList()
 
     @SuppressLint("ResourceType")
@@ -40,7 +40,7 @@ class WeatherActivity : AppCompatActivity() {
 
         addingNewCity = findViewById(R.id.aw_adding_new_city)
 
-        weatherApi = WeatherApi(this)
+        weatherData = WeatherData(this)
 
         dataBaseHelper = OrmLiteHelper(this)
         weatherCityList = ArrayList(dataBaseHelper.getWeatherCityDao().queryForAll())
@@ -73,7 +73,7 @@ class WeatherActivity : AppCompatActivity() {
     private suspend fun updateRecyclerViewValidData(){
         try {
             weatherCityList =
-                withContext(Dispatchers.IO) { weatherApi.getUpdatedWeatherCityList(weatherCityList) }
+                withContext(Dispatchers.IO) { weatherData.getUpdatedWeatherCityList(weatherCityList) }
             adapterRecyclerView.update(weatherCityList)
 
         } catch (e: ConcurrentModificationException) {
@@ -119,7 +119,7 @@ class WeatherActivity : AppCompatActivity() {
                 GlobalScope.launch(Dispatchers.Main) {
                     try {
                         val newWeatherCity =
-                            withContext(Dispatchers.IO) { weatherApi.getWeatherCity(nameCity) }
+                            withContext(Dispatchers.IO) { weatherData.getWeatherCity(nameCity) }
 
                         if (weatherCityList.none { oldWeatherCity ->
                                 oldWeatherCity.nameCity == newWeatherCity.nameCity
@@ -136,8 +136,7 @@ class WeatherActivity : AppCompatActivity() {
                             this@WeatherActivity,
                             this@WeatherActivity.resources.getString(R.string.city_not_found)
                         )
-                        Log.w(
-                            "$e nameCity: $nameCity", Thread.currentThread()
+                        Log.w("$e nameCity: $nameCity", Thread.currentThread()
                                 .stackTrace[2].toString()
                         )
                     }

@@ -12,35 +12,30 @@ import kotlin.collections.ArrayList
 
 class MapperWeatherData(private val context: Context) {
 
-    fun getWeatherCity(
-        weatherCurrentDto: WeatherCurrentDto,
-        weatherCurrentDtoList: ArrayList<WeatherFutureDto>
-    ): WeatherCity {
-        return WeatherCity(
-            weatherCurrentDto.nameCity,
-            getWeatherCurrent(weatherCurrentDto),
-            getWeatherFutureList(weatherCurrentDtoList)
-        )
+    fun getWeatherCity(weatherCurrentDto: WeatherCurrentDto,
+                       weatherFutureDto: WeatherFutureDto): WeatherCity {
+        return WeatherCity(weatherCurrentDto.nameCity, getWeatherCurrent(weatherCurrentDto),
+            getWeatherFutureList(weatherFutureDto))
     }
 
     private fun getWeatherCurrent(weatherCurrentDto: WeatherCurrentDto): WeatherCurrent {
         return WeatherCurrent(
-            getTemperatureCelsius(weatherCurrentDto.currentTemperature),
-            getValidNameIcon(weatherCurrentDto.nameIconWeather)
+            getTemperatureCelsius(weatherCurrentDto.currentTemperature.temp),
+            getValidNameIcon(weatherCurrentDto.weatherInfo[0].nameIconWeather)
         )
     }
 
-    private fun getWeatherFutureList(weatherCurrentDtoList: ArrayList<WeatherFutureDto>)
+    private fun getWeatherFutureList(weatherCurrentDto: WeatherFutureDto)
             : ArrayList<WeatherFuture> {
         val weatherFutureList: ArrayList<WeatherFuture> = ArrayList()
 
-        for (weatherFutureDto in weatherCurrentDtoList) {
+        for (dayFuture in weatherCurrentDto.days) {
             weatherFutureList.add(
                 WeatherFuture(
-                    getNameDay(weatherFutureDto.date),
-                    getTemperatureCelsius(weatherFutureDto.temperatureMax),
-                    getTemperatureCelsius(weatherFutureDto.temperatureMin),
-                    getValidNameIcon(weatherFutureDto.nameIconWeather)
+                    getNameDay(dayFuture.date),
+                    getTemperatureCelsius(dayFuture.temperature.max),
+                    getTemperatureCelsius(dayFuture.temperature.min),
+                    getValidNameIcon(dayFuture.weatherInfo[0].nameIconWeather)
                 )
             )
         }

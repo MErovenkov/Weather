@@ -16,6 +16,11 @@ android {
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }
 
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
+    }
+
     buildTypes {
         release {
             minifyEnabled false
@@ -32,8 +37,11 @@ dependencies {
     implementation 'androidx.navigation:navigation-ui-ktx:2.3.0'
     implementation 'androidx.swiperefreshlayout:swiperefreshlayout:1.1.0'
     implementation 'androidx.core:core:1.3.2'
-    //json parser
-    implementation 'com.beust:klaxon:5.0.1'
     //orm
     implementation 'com.j256.ormlite:ormlite-android:4.46'
+    //moshi-kotlin
+    implementation 'com.squareup.moshi:moshi-kotlin:1.11.0'
+    //retrofit
+    implementation 'com.squareup.retrofit2:converter-moshi:2.9.0'
+    implementation 'com.squareup.retrofit2:retrofit:2.9.0'
 }

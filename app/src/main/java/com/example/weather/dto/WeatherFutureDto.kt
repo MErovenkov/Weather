@@ -1,17 +1,30 @@
 package com.example.weather.dto
 
-import com.beust.klaxon.Json
+import com.squareup.moshi.Json
+import com.squareup.moshi.JsonClass
 
-class WeatherFutureDto (
-    @Json(name = "dt")
-    var date: Long,
+@JsonClass(generateAdapter = true)
+data class WeatherFutureDto (
+    @Json(name = "daily")
+    val days: List<Day>
+) {
+    data class Day(
+        @Json(name = "dt")
+        val date: Long,
 
-    @Json(path = "$.temp.max")
-    var temperatureMax: Double,
+        @Json(name = "temp")
+        val temperature: Temp,
 
-    @Json(path = "$.temp.min")
-    var temperatureMin: Double,
+        @Json(name = "weather")
+        val weatherInfo: List<Weather>,
+    ) {
+        data class Temp(
+            @Json(name = "max") val max: Double,
+            @Json(name = "min") val min: Double
+        )
 
-    @Json(path = "$.weather[0].icon")
-    var nameIconWeather: String
-)
+        data class Weather (
+            @Json(name = "icon") val nameIconWeather: String
+        )
+    }
+}

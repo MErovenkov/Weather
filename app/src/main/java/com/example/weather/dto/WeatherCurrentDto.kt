@@ -1,20 +1,33 @@
 package com.example.weather.dto
 
-import com.beust.klaxon.Json
+import com.squareup.moshi.Json
+import com.squareup.moshi.JsonClass
 
-class WeatherCurrentDto (
+@JsonClass(generateAdapter = true)
+data class WeatherCurrentDto (
+
     @Json(name = "name")
-    var nameCity: String,
+    val nameCity: String,
 
-    @Json(path = "$.coord.lat")
-    var lat: Double,
+    @Json(name = "coord")
+    val coordinatesCity: Coordinates,
 
-    @Json(path = "$.coord.lon")
-    var lon: Double,
+    @Json(name = "main")
+    var currentTemperature: CurrentTemperature,
 
-    @Json(path = "$.main.temp")
-    var currentTemperature: Double,
+    @Json(name = "weather")
+    val weatherInfo: List<Weather>,
+) {
+    data class Coordinates(
+        @Json(name = "lat") val lat: String,
+        @Json(name = "lon") val lon: String
+    )
 
-    @Json(path = "$.weather[0].icon")
-    var nameIconWeather: String,
-)
+    data class CurrentTemperature (
+        @Json(name = "temp") val temp: Double
+    )
+
+    data class Weather (
+        @Json(name = "icon") val nameIconWeather: String
+    )
+}
