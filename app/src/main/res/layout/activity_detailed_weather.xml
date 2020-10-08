@@ -37,7 +37,7 @@
         <ImageView
             android:id="@+id/adw_icon_current_weather"
             android:layout_width="match_parent"
-            android:layout_height="160dp"
+            android:layout_height="wrap_content"
             android:layout_marginBottom="5dp"
             android:elevation="10dp" />
 
@@ -50,7 +50,6 @@
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/adw_recycler_view"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            tools:layout_editor_absoluteY="486dp" />
+            android:layout_height="wrap_content" />
     </LinearLayout>
 </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>

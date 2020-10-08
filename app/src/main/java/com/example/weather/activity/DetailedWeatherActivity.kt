@@ -60,7 +60,7 @@ class DetailedWeatherActivity: AppCompatActivity()  {
         nameCityText.text = weatherCity.nameCity
         temperature.text = weatherCity.weatherCurrent.temperature
         iconWeatherCurrent.setImageResource(resources
-            .getIdentifier(weatherCity.weatherCurrent.nameIconWeather,
+            .getIdentifier("ic_current_${weatherCity.weatherCurrent.nameIconWeather}",
                 "drawable", packageName))
 
         weatherFutureList = ArrayList(weatherCity.weatherFutureList)
@@ -88,7 +88,7 @@ class DetailedWeatherActivity: AppCompatActivity()  {
             nameCityText.text = weatherCity.nameCity
             temperature.text = weatherCity.weatherCurrent.temperature
             iconWeatherCurrent.setImageResource(resources.getIdentifier(
-                        weatherCity.weatherCurrent.nameIconWeather, "drawable",
+                "ic_current_${weatherCity.weatherCurrent.nameIconWeather}", "drawable",
                         packageName))
 
         } catch (e: ConnectException) {

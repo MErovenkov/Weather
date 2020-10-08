@@ -19,7 +19,7 @@ class WeatherFutureViewHolder(view: View): RecyclerView.ViewHolder(view), Generi
             temperatureMax.text = data.temperatureMax
             temperatureMin.text = data.temperatureMin
             iconWeatherFuture.setImageResource(resources
-                .getIdentifier(data.nameIconWeather,"drawable",
+                .getIdentifier("ic_future_${data.nameIconWeather}","drawable",
                     "com.example.weather"))
         }
     }
