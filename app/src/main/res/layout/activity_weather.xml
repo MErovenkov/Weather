@@ -20,7 +20,10 @@
             android:id="@+id/aw_recycler_view"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:paddingBottom="48dp">
+            android:paddingBottom="48dp"
+            android:requiresFadingEdge="vertical"
+            android:fadingEdgeLength="25dp"
+            android:overScrollMode="ifContentScrolls">
         </androidx.recyclerview.widget.RecyclerView>
 
         <EditText

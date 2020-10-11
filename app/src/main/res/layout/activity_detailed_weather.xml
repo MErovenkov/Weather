@@ -39,7 +39,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginBottom="5dp"
-            android:elevation="10dp" />
+            android:elevation="10dp"/>
 
         <View
             android:layout_width="match_parent"
@@ -50,6 +50,9 @@
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/adw_recycler_view"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content" />
+            android:layout_height="wrap_content"
+            android:requiresFadingEdge="vertical"
+            android:fadingEdgeLength="25dp"
+            android:overScrollMode="ifContentScrolls"/>
     </LinearLayout>
 </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
