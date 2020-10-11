@@ -1,24 +1,18 @@
 package com.example.weather.view.recycler
 
-import android.view.View
-import android.widget.ImageView
-import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
-import com.example.weather.R
+import com.example.weather.databinding.DwRecWeatherFutureBinding
 import com.example.weather.model.WeatherFuture
 
-class WeatherFutureViewHolder(view: View): RecyclerView.ViewHolder(view), GenericAdapter.Binder<WeatherFuture> {
-    private var nameDay: TextView = view.findViewById(R.id.dw_rec_day_week)
-    private var temperatureMax: TextView = view.findViewById(R.id.dw_rec_temperature_max)
-    private var temperatureMin: TextView = view.findViewById(R.id.dw_rec_temperature_min)
-    private var iconWeatherFuture: ImageView = view.findViewById(R.id.dw_rec_icon_weather)
+class WeatherFutureViewHolder(private val weatherFutureBinding: DwRecWeatherFutureBinding):
+    RecyclerView.ViewHolder(weatherFutureBinding.root), GenericAdapter.Binder<WeatherFuture> {
 
     override fun bind(data: WeatherFuture) {
         itemView.apply {
-            nameDay.text = data.nameDay
-            temperatureMax.text = data.temperatureMax
-            temperatureMin.text = data.temperatureMin
-            iconWeatherFuture.setImageResource(resources
+            weatherFutureBinding.dwRecDayWeek.text = data.nameDay
+            weatherFutureBinding.dwRecTemperatureMax.text = data.temperatureMax
+            weatherFutureBinding.dwRecTemperatureMin.text = data.temperatureMin
+            weatherFutureBinding.dwRecIconWeather.setImageResource(resources
                 .getIdentifier("ic_future_${data.nameIconWeather}","drawable",
                     "com.example.weather"))
         }

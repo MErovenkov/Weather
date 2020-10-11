@@ -10,16 +10,17 @@ import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
-import androidx.recyclerview.widget.RecyclerView
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
 import com.example.weather.R
 import com.example.weather.dao.OrmLiteHelper
+import com.example.weather.databinding.ActivityWeatherBinding
+import com.example.weather.databinding.WRecWeatherCurrentBinding
 import com.example.weather.model.WeatherCity
 import com.example.weather.utils.WeatherData
 import com.example.weather.utils.CheckStatus
 import com.example.weather.view.recycler.GenericAdapter
 import com.example.weather.view.recycler.SwipeToDeleteCallback
-import com.example.weather.view.recycler.toast.ShowToast
+import com.example.weather.view.toast.ShowToast
 import kotlinx.coroutines.*
 import java.io.FileNotFoundException
 import java.net.ConnectException
@@ -27,21 +28,24 @@ import javax.net.ssl.SSLException
 
 class WeatherActivity : AppCompatActivity() {
     private lateinit var dataBaseHelper: OrmLiteHelper
-    private lateinit var adapterRecyclerView: GenericAdapter<WeatherCity>
+
+    private lateinit var binding: ActivityWeatherBinding
     private lateinit var addingNewCity: EditText
+    private lateinit var adapterRecyclerView: GenericAdapter<WeatherCity>
     private lateinit var swipeRefreshLayout: SwipeRefreshLayout
+
     private lateinit var weatherData: WeatherData
     private var weatherCityList: ArrayList<WeatherCity> = ArrayList()
 
     @SuppressLint("ResourceType")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_weather)
+        binding = ActivityWeatherBinding.inflate(layoutInflater)
+        setContentView(binding.root)
 
-        addingNewCity = findViewById(R.id.aw_adding_new_city)
+        addingNewCity = binding.awAddingNewCity
 
         weatherData = WeatherData(this)
-
         dataBaseHelper = OrmLiteHelper(this)
         weatherCityList = ArrayList(dataBaseHelper.getWeatherCityDao().queryForAll())
         initRecyclerView()
@@ -56,7 +60,7 @@ class WeatherActivity : AppCompatActivity() {
             }
         }
 
-        swipeRefreshLayout = findViewById(R.id.aw_swipe_fresh)
+        swipeRefreshLayout = binding.awSwipeFresh
         swipeRefreshLayout.setOnRefreshListener {
             if (CheckStatus.isNetworkAvailable(this)) {
                 GlobalScope.launch(Dispatchers.Main) {
@@ -97,8 +101,7 @@ class WeatherActivity : AppCompatActivity() {
 
     private fun initRecyclerView() {
         adapterRecyclerView = object : GenericAdapter<WeatherCity>(){}
-        @Suppress("UNUSED_PARAMETER") val recyclerView =
-            findViewById<RecyclerView>(R.id.aw_recycler_view).apply {
+        @Suppress("UNUSED_PARAMETER") val recyclerView = binding.awRecyclerView.apply {
             setHasFixedSize(false)
             layoutManager = LinearLayoutManager(this@WeatherActivity)
             adapter = adapterRecyclerView
@@ -129,16 +132,13 @@ class WeatherActivity : AppCompatActivity() {
                             this@WeatherActivity.resources.getString(R.string.city_added))
                         } else ShowToast.getToast(
                             this@WeatherActivity,
-                            this@WeatherActivity.resources.getString(R.string.city_exist)
-                        )
+                            this@WeatherActivity.resources.getString(R.string.city_exist))
                     } catch (e: FileNotFoundException) {
                         ShowToast.getToast(
                             this@WeatherActivity,
-                            this@WeatherActivity.resources.getString(R.string.city_not_found)
-                        )
+                            this@WeatherActivity.resources.getString(R.string.city_not_found))
                         Log.w("$e nameCity: $nameCity", Thread.currentThread()
-                                .stackTrace[2].toString()
-                        )
+                                .stackTrace[2].toString())
                     }
                 }
             }

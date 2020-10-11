@@ -1,4 +1,4 @@
-package com.example.weather.view.recycler.toast
+package com.example.weather.view.toast
 
 import android.content.Context
 import android.widget.Toast

@@ -7,16 +7,16 @@ import android.widget.ImageView
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.LinearLayoutManager
-import androidx.recyclerview.widget.RecyclerView
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
 import com.example.weather.R
 import com.example.weather.dao.OrmLiteHelper
+import com.example.weather.databinding.ActivityDetailedWeatherBinding
 import com.example.weather.model.WeatherCity
 import com.example.weather.model.WeatherFuture
 import com.example.weather.utils.CheckStatus
 import com.example.weather.utils.WeatherData
 import com.example.weather.view.recycler.GenericAdapter
-import com.example.weather.view.recycler.toast.ShowToast
+import com.example.weather.view.toast.ShowToast
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
@@ -27,23 +27,22 @@ import javax.net.ssl.SSLException
 class DetailedWeatherActivity: AppCompatActivity()  {
     private lateinit var dataBaseHelper: OrmLiteHelper
 
-    private lateinit var swipeRefreshLayout: SwipeRefreshLayout
-
-    private lateinit var adapterRecyclerView: GenericAdapter<WeatherFuture>
-
+    private lateinit var binding: ActivityDetailedWeatherBinding
     private lateinit var nameCityText: TextView
     private lateinit var temperature: TextView
     private lateinit var iconWeatherCurrent: ImageView
+    private lateinit var adapterRecyclerView: GenericAdapter<WeatherFuture>
+    private lateinit var swipeRefreshLayout: SwipeRefreshLayout
 
     private lateinit var weatherData: WeatherData
-
     private lateinit var gotNameCity: String
     private lateinit var weatherCity: WeatherCity
     private lateinit var weatherFutureList: ArrayList<WeatherFuture>
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_detailed_weather)
+        binding = ActivityDetailedWeatherBinding.inflate(layoutInflater)
+        setContentView(binding.root)
 
         weatherData =  WeatherData(this)
 
@@ -53,9 +52,9 @@ class DetailedWeatherActivity: AppCompatActivity()  {
         gotNameCity = intent.extras?.getString("nameCity").toString()
         weatherCity = dataBaseHelper.getWeatherCityDao().getWeatherCityByName(gotNameCity)
 
-        nameCityText = findViewById(R.id.adw_city_name)
-        temperature = findViewById(R.id.adw_current_temperature)
-        iconWeatherCurrent = findViewById(R.id.adw_icon_current_weather)
+        nameCityText = binding.adwCityName
+        temperature = binding.adwCurrentTemperature
+        iconWeatherCurrent = binding.adwIconCurrentWeather
 
         nameCityText.text = weatherCity.nameCity
         temperature.text = weatherCity.weatherCurrent.temperature
@@ -67,7 +66,7 @@ class DetailedWeatherActivity: AppCompatActivity()  {
 
         adapterRecyclerView.update(weatherFutureList)
 
-        swipeRefreshLayout = findViewById(R.id.adw_swipe_fresh)
+        swipeRefreshLayout = binding.adwSwipeFresh
         swipeRefreshLayout.setOnRefreshListener {
             if (CheckStatus.isNetworkAvailable(this)) {
                 GlobalScope.launch(Dispatchers.Main) {
@@ -108,8 +107,7 @@ class DetailedWeatherActivity: AppCompatActivity()  {
 
     private fun initRecyclerView() {
         adapterRecyclerView = object : GenericAdapter<WeatherFuture>() {}
-        @Suppress("UNUSED_VARIABLE") val recyclerView =
-            findViewById<RecyclerView>(R.id.adw_recycler_view).apply {
+        @Suppress("UNUSED_VARIABLE") val recyclerView = binding.adwRecyclerView.apply {
             setHasFixedSize(true)
             layoutManager = LinearLayoutManager(this@DetailedWeatherActivity)
             adapter = adapterRecyclerView

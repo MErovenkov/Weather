@@ -1,6 +1,5 @@
 package com.example.weather.view.recycler
 
-import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
@@ -12,14 +11,11 @@ abstract class GenericAdapter<T>
     private var itemList = ArrayList<T>()
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
-        return getViewHolder(
-            LayoutInflater.from(parent.context)
-                .inflate(viewType, parent, false), viewType
-        )
+          return getViewHolder(parent, viewType)
     }
 
     protected open fun getViewHolder(view: View, viewType: Int): RecyclerView.ViewHolder {
-        return ViewHolderFactory.create(view, viewType)
+        return ViewHolderFactory.create(view as ViewGroup, viewType)
     }
 
     @Suppress("UNCHECKED_CAST")

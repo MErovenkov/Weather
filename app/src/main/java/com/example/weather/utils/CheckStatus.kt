@@ -6,7 +6,7 @@ import android.net.ConnectivityManager
 import android.os.Build
 import androidx.core.net.ConnectivityManagerCompat
 import com.example.weather.R
-import com.example.weather.view.recycler.toast.ShowToast
+import com.example.weather.view.toast.ShowToast
 
 object CheckStatus {
     @SuppressLint("ServiceCast")
