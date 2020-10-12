@@ -62,7 +62,6 @@ class WeatherActivity : AppCompatActivity() {
         swipeRefreshLayout.setOnRefreshListener {
             if (CheckStatus.isNetworkAvailable(this)) {
                 GlobalScope.launch(Dispatchers.Main) {
-                    weatherCityList = ArrayList(adapterRecyclerView.getItemList())
                     updateRecyclerViewValidData()
                     swipeRefreshLayout.isRefreshing = false
                 }
@@ -75,18 +74,15 @@ class WeatherActivity : AppCompatActivity() {
     private suspend fun updateRecyclerViewValidData(){
         try {
             weatherCityList =
-                withContext(Dispatchers.IO) { weatherData.getUpdatedWeatherCityList(weatherCityList) }
+                withContext(Dispatchers.IO) { weatherData
+                        .getUpdatedWeatherCityList(ArrayList(adapterRecyclerView.getItemList())) }
             adapterRecyclerView.update(weatherCityList)
-
+            dataBaseHelper.changesAllData(weatherCityList)
         } catch (e: ConcurrentModificationException) {
-            weatherCityList = ArrayList(adapterRecyclerView.getItemList())
-
             ShowToast.getToast(this,
                 this.resources.getString(R.string.city_weather_update_failed))
             Log.w(e.toString(), Thread.currentThread().stackTrace[2].toString())
         } catch (e: ConnectException) {
-            weatherCityList = ArrayList(adapterRecyclerView.getItemList())
-
             ShowToast.getToast(this,
                 this.resources.getString(R.string.lost_internet_access))
             Log.w(e.toString(), Thread.currentThread().stackTrace[2].toString())

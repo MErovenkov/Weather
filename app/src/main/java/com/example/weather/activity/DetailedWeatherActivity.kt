@@ -92,14 +92,10 @@ class DetailedWeatherActivity: AppCompatActivity()  {
                         packageName))
 
         } catch (e: ConnectException) {
-            weatherCity.weatherFutureList = ArrayList(adapterRecyclerView.getItemList())
-
             ShowToast.getToast(this,
                 this.resources.getString(R.string.lost_internet_access))
             Log.w(e.toString(), Thread.currentThread().stackTrace[2].toString())
         } catch (e: SSLException) {
-            weatherCity.weatherFutureList = ArrayList(adapterRecyclerView.getItemList())
-
             ShowToast.getToast(this,
                 this.resources.getString(R.string.city_weather_update_failed))
             Log.w(e.toString(), Thread.currentThread().stackTrace[2].toString())
