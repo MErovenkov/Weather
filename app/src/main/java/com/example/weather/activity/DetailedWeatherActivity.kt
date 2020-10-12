@@ -83,14 +83,14 @@ class DetailedWeatherActivity: AppCompatActivity()  {
     private suspend fun updateRecyclerViewValidData(){
         try {
             weatherCity =
-                withContext(Dispatchers.IO) { weatherData.getWeatherCity(weatherCity.nameCity) }
+                withContext(Dispatchers.IO) { weatherData.getUpdateWeatherCity(weatherCity) }
             adapterRecyclerView.update(ArrayList(weatherCity.weatherFutureList))
             nameCityText.text = weatherCity.nameCity
             temperature.text = weatherCity.weatherCurrent.temperature
             iconWeatherCurrent.setImageResource(resources.getIdentifier(
                 "ic_current_${weatherCity.weatherCurrent.nameIconWeather}", "drawable",
                         packageName))
-
+            dataBaseHelper.updateCity(weatherCity)
         } catch (e: ConnectException) {
             ShowToast.getToast(this,
                 this.resources.getString(R.string.lost_internet_access))
@@ -117,13 +117,13 @@ class DetailedWeatherActivity: AppCompatActivity()  {
     }
 
     override fun onPause() {
-        dataBaseHelper.updateCity(weatherCity)
         super.onPause()
+        dataBaseHelper.updateCity(weatherCity)
     }
 
     override fun onDestroy() {
-        dataBaseHelper.close()
         super.onDestroy()
+        dataBaseHelper.close()
     }
 
     companion object {

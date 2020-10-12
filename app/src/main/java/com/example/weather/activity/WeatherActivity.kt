@@ -20,7 +20,6 @@ import com.example.weather.view.recycler.GenericAdapter
 import com.example.weather.view.recycler.SwipeToDeleteCallback
 import com.example.weather.view.toast.ShowToast
 import kotlinx.coroutines.*
-import java.io.FileNotFoundException
 import java.net.ConnectException
 import javax.net.ssl.SSLException
 
@@ -146,13 +145,18 @@ class WeatherActivity : AppCompatActivity() {
             .putExtra("nameCity", bindings.wRecCityName.text))
     }
 
+    override fun onResume() {
+        super.onResume()
+        adapterRecyclerView.update(ArrayList(dataBaseHelper.getWeatherCityDao().queryForAll()))
+    }
+
     override fun onPause() {
-        dataBaseHelper.changesAllData(ArrayList(adapterRecyclerView.getItemList()))
         super.onPause()
+        dataBaseHelper.changesAllData(ArrayList(adapterRecyclerView.getItemList()))
     }
 
     override fun onDestroy() {
-        dataBaseHelper.close()
         super.onDestroy()
+        dataBaseHelper.close()
     }
 }

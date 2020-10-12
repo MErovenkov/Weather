@@ -13,7 +13,7 @@ data class WeatherCurrentDto (
     val coordinatesCity: Coordinates,
 
     @Json(name = "main")
-    var currentTemperature: CurrentTemperature,
+    val currentTemperature: CurrentTemperature,
 
     @Json(name = "weather")
     val weatherInfo: List<Weather>,
