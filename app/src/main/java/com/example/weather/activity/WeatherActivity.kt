@@ -1,12 +1,10 @@
 package com.example.weather.activity
 
 import android.annotation.SuppressLint
-import android.content.Intent
 import android.os.Bundle
 import android.util.Log
 import android.view.View
 import android.widget.EditText
-import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -146,11 +144,10 @@ class WeatherActivity : AppCompatActivity() {
     }
 
     fun openWeatherDetailed(view: View) {
-        val nameCity: TextView = view.findViewById(R.id.w_rec_city_name)
-        val intent = Intent(this, DetailedWeatherActivity::class.java);
-        intent.putExtra("nameCity", nameCity.text)
-        startActivity(intent)
-        finish()
+        val bindings: WRecWeatherCurrentBinding = WRecWeatherCurrentBinding.bind(view)
+
+        startActivity(DetailedWeatherActivity.createIntent(this)
+            .putExtra("nameCity", bindings.wRecCityName.text))
     }
 
     override fun onPause() {

@@ -1,5 +1,6 @@
 package com.example.weather.activity
 
+import android.content.Context
 import android.content.Intent
 import android.os.Bundle
 import android.util.Log
@@ -49,7 +50,7 @@ class DetailedWeatherActivity: AppCompatActivity()  {
         dataBaseHelper = OrmLiteHelper(this)
         initRecyclerView()
 
-        gotNameCity = intent.extras?.getString("nameCity").toString()
+        gotNameCity = intent.getStringExtra("nameCity").toString()
         weatherCity = dataBaseHelper.getWeatherCityDao().getWeatherCityByName(gotNameCity)
 
         nameCityText = binding.adwCityName
@@ -116,8 +117,6 @@ class DetailedWeatherActivity: AppCompatActivity()  {
 
     override fun onBackPressed() {
         super.onBackPressed()
-        val intent = Intent(this, WeatherActivity::class.java);
-        startActivity(intent)
         finish()
     }
 
@@ -129,5 +128,11 @@ class DetailedWeatherActivity: AppCompatActivity()  {
     override fun onDestroy() {
         dataBaseHelper.close()
         super.onDestroy()
+    }
+
+    companion object {
+        fun createIntent(context: Context): Intent {
+            return Intent(context, DetailedWeatherActivity::class.java)
+        }
     }
 }
