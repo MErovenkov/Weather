@@ -127,7 +127,7 @@ class WeatherActivity : AppCompatActivity() {
                         } else ShowToast.getToast(
                             this@WeatherActivity,
                             this@WeatherActivity.resources.getString(R.string.city_exist))
-                    } catch (e: FileNotFoundException) {
+                    } catch (e: NullPointerException) {
                         ShowToast.getToast(
                             this@WeatherActivity,
                             this@WeatherActivity.resources.getString(R.string.city_not_found))

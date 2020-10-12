@@ -21,9 +21,9 @@ class WeatherData(context: Context) {
                 weatherCurrentDto.coordinatesCity.lat, weatherCurrentDto.coordinatesCity.lon)
 
            return mapperWeatherData.getWeatherCity(weatherCurrentDto, weatherFutureDto)
-       } catch (e: FileNotFoundException) {
+       } catch (e: NullPointerException) {
             Log.w("$e nameCity: $nameCity", Thread.currentThread().stackTrace[2].toString())
-            throw FileNotFoundException()
+            throw NullPointerException()
        } catch (e: ConnectException) {
            Log.w(e.toString(), Thread.currentThread().stackTrace[2].toString())
            throw ConnectException()
