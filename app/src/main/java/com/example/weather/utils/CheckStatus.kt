@@ -9,10 +9,12 @@ import com.example.weather.R
 import com.example.weather.view.toast.ShowToast
 
 object CheckStatus {
+    private var mContext: Context? = null
+
     @SuppressLint("ServiceCast")
-    fun isNetworkAvailable(context: Context): Boolean {
+    fun isNetworkAvailable(): Boolean {
         val connectivityManager =
-            context.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
+            mContext!!.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
         val isActive: Boolean
 
         isActive = if (Build.VERSION.SDK_INT >= 23) {
@@ -22,10 +24,12 @@ object CheckStatus {
         }
 
         if (!isActive) {
-            ShowToast.getToast(
-                context,
-                context.resources.getString(R.string.no_internet_access))
+            ShowToast.getToast(mContext!!.resources.getString(R.string.no_internet_access))
         }
         return isActive
+    }
+
+    fun setContext(context: Context) {
+        this.mContext = context
     }
 }

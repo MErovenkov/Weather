@@ -10,12 +10,13 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
 import com.example.weather.R
+import com.example.weather.dao.DBHelper
 import com.example.weather.dao.OrmLiteHelper
 import com.example.weather.databinding.ActivityDetailedWeatherBinding
 import com.example.weather.model.WeatherCity
 import com.example.weather.model.WeatherFuture
 import com.example.weather.utils.CheckStatus
-import com.example.weather.utils.WeatherData
+import com.example.weather.utils.WeatherDataHelper
 import com.example.weather.view.recycler.GenericAdapter
 import com.example.weather.view.toast.ShowToast
 import kotlinx.coroutines.Dispatchers
@@ -26,7 +27,7 @@ import java.net.ConnectException
 import javax.net.ssl.SSLException
 
 class DetailedWeatherActivity: AppCompatActivity()  {
-    private lateinit var dataBaseHelper: OrmLiteHelper
+    private var dataBaseHelper: OrmLiteHelper? = null
 
     private lateinit var binding: ActivityDetailedWeatherBinding
     private lateinit var nameCityText: TextView
@@ -35,7 +36,6 @@ class DetailedWeatherActivity: AppCompatActivity()  {
     private lateinit var adapterRecyclerView: GenericAdapter<WeatherFuture>
     private lateinit var swipeRefreshLayout: SwipeRefreshLayout
 
-    private lateinit var weatherData: WeatherData
     private lateinit var gotNameCity: String
     private lateinit var weatherCity: WeatherCity
     private lateinit var weatherFutureList: ArrayList<WeatherFuture>
@@ -45,13 +45,11 @@ class DetailedWeatherActivity: AppCompatActivity()  {
         binding = ActivityDetailedWeatherBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        weatherData =  WeatherData(this)
-
-        dataBaseHelper = OrmLiteHelper(this)
+        dataBaseHelper = DBHelper.getDB()
         initRecyclerView()
 
         gotNameCity = intent.getStringExtra("nameCity").toString()
-        weatherCity = dataBaseHelper.getWeatherCityDao().getWeatherCityByName(gotNameCity)
+        weatherCity = dataBaseHelper!!.getWeatherCityDao().getWeatherCityByName(gotNameCity)
 
         nameCityText = binding.adwCityName
         temperature = binding.adwCurrentTemperature
@@ -69,7 +67,7 @@ class DetailedWeatherActivity: AppCompatActivity()  {
 
         swipeRefreshLayout = binding.adwSwipeFresh
         swipeRefreshLayout.setOnRefreshListener {
-            if (CheckStatus.isNetworkAvailable(this)) {
+            if (CheckStatus.isNetworkAvailable()) {
                 GlobalScope.launch(Dispatchers.Main) {
                     updateRecyclerViewValidData()
                     swipeRefreshLayout.isRefreshing = false
@@ -83,21 +81,20 @@ class DetailedWeatherActivity: AppCompatActivity()  {
     private suspend fun updateRecyclerViewValidData(){
         try {
             weatherCity =
-                withContext(Dispatchers.IO) { weatherData.getUpdateWeatherCity(weatherCity) }
+                withContext(Dispatchers.IO) {
+                    WeatherDataHelper.getWeatherData().getUpdateWeatherCity(weatherCity) }
             adapterRecyclerView.update(ArrayList(weatherCity.weatherFutureList))
             nameCityText.text = weatherCity.nameCity
             temperature.text = weatherCity.weatherCurrent.temperature
             iconWeatherCurrent.setImageResource(resources.getIdentifier(
                 "ic_current_${weatherCity.weatherCurrent.nameIconWeather}", "drawable",
                         packageName))
-            dataBaseHelper.updateCity(weatherCity)
+            dataBaseHelper!!.updateCity(weatherCity)
         } catch (e: ConnectException) {
-            ShowToast.getToast(this,
-                this.resources.getString(R.string.lost_internet_access))
+            ShowToast.getToast(applicationContext.getString(R.string.lost_internet_access))
             Log.w(e.toString(), Thread.currentThread().stackTrace[2].toString())
         } catch (e: SSLException) {
-            ShowToast.getToast(this,
-                this.resources.getString(R.string.city_weather_update_failed))
+            ShowToast.getToast(applicationContext.getString(R.string.city_weather_update_failed))
             Log.w(e.toString(), Thread.currentThread().stackTrace[2].toString())
         }
     }
@@ -106,7 +103,7 @@ class DetailedWeatherActivity: AppCompatActivity()  {
         adapterRecyclerView = object : GenericAdapter<WeatherFuture>() {}
         @Suppress("UNUSED_VARIABLE") val recyclerView = binding.adwRecyclerView.apply {
             setHasFixedSize(true)
-            layoutManager = LinearLayoutManager(this@DetailedWeatherActivity)
+            layoutManager = LinearLayoutManager(this.context)
             adapter = adapterRecyclerView
         }
     }
@@ -114,16 +111,6 @@ class DetailedWeatherActivity: AppCompatActivity()  {
     override fun onBackPressed() {
         super.onBackPressed()
         finish()
-    }
-
-    override fun onPause() {
-        super.onPause()
-        dataBaseHelper.updateCity(weatherCity)
-    }
-
-    override fun onDestroy() {
-        super.onDestroy()
-        dataBaseHelper.close()
     }
 
     companion object {
