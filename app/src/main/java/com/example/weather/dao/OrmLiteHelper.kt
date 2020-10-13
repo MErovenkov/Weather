@@ -14,9 +14,9 @@ import java.sql.SQLException
 class OrmLiteHelper(context: Context)
     : OrmLiteSqliteOpenHelper(context, DATABASE_NAME, null, DATABASE_VERSION) {
 
-    private var weatherCityDao: WeatherCityDao = WeatherCityDao(this.connectionSource)
-    private var weatherCurrentDao: WeatherCurrentDao = WeatherCurrentDao(this.connectionSource)
-    private var weatherFutureDao: WeatherFutureDao = WeatherFutureDao(this.connectionSource)
+    private val weatherCityDao: WeatherCityDao = WeatherCityDao(this.connectionSource)
+    private val weatherCurrentDao: WeatherCurrentDao = WeatherCurrentDao(this.connectionSource)
+    private val weatherFutureDao: WeatherFutureDao = WeatherFutureDao(this.connectionSource)
 
     companion object {
         const val DATABASE_VERSION = 1
