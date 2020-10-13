@@ -141,7 +141,7 @@ class WeatherActivity : AppCompatActivity() {
     fun openWeatherDetailed(view: View) {
         val bindings: WRecWeatherCurrentBinding = WRecWeatherCurrentBinding.bind(view)
 
-        startActivity(DetailedWeatherActivity.createIntent(applicationContext)
+        startActivity(DetailedWeatherActivity.createIntent(this)
             .putExtra("nameCity", bindings.wRecCityName.text))
     }
 
