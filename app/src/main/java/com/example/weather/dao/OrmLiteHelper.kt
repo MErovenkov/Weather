@@ -12,7 +12,7 @@ import com.j256.ormlite.table.TableUtils
 import java.sql.SQLException
 
 class OrmLiteHelper(context: Context)
-    : OrmLiteSqliteOpenHelper(context, DATABASE_NAME, null, DATABASE_VERSION) {
+    : OrmLiteSqliteOpenHelper(context.applicationContext, DATABASE_NAME, null, DATABASE_VERSION) {
 
     private val weatherCityDao: WeatherCityDao = WeatherCityDao(this.connectionSource)
     private val weatherCurrentDao: WeatherCurrentDao = WeatherCurrentDao(this.connectionSource)

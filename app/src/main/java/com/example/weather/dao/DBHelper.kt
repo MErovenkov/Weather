@@ -11,7 +11,7 @@ object DBHelper {
     }
 
     fun setContext(context: Context) {
-        databaseHelper = OpenHelperManager.getHelper(context, OrmLiteHelper::class.java)
+        databaseHelper = OpenHelperManager.getHelper(context.applicationContext, OrmLiteHelper::class.java)
     }
 
     fun releaseDB() {
