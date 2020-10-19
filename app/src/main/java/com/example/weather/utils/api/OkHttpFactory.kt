@@ -1,43 +1,38 @@
 package com.example.weather.utils.api
 
-import android.annotation.SuppressLint
 import android.util.Log
 import okhttp3.OkHttpClient
-import java.security.SecureRandom
-import java.security.cert.X509Certificate
+import java.io.InputStream
+import java.security.KeyStore
+import java.security.cert.Certificate
+import java.security.cert.CertificateFactory
 import javax.net.ssl.*
 
 object OkHttpFactory {
-    fun getCustomOkHttpClient(protocol: String, hostName: String): OkHttpClient {
+    fun getCustomOkHttpClient(protocol: String, certificate: InputStream): OkHttpClient {
         try {
-            val trustAllCerts: Array<TrustManager> = arrayOf(
-                object : X509TrustManager {
-                    @SuppressLint("TrustAllX509TrustManager")
-                    override fun checkClientTrusted(chain: Array<X509Certificate>,
-                        authType: String) {}
+            val cf: CertificateFactory = CertificateFactory.getInstance("X.509")
+            val ca: Certificate = cf.generateCertificate(certificate)
 
-                    @SuppressLint("TrustAllX509TrustManager")
-                    override fun checkServerTrusted(chain: Array<X509Certificate>,
-                        authType: String) {}
+            val keyStoreType: String = KeyStore.getDefaultType()
+            val keyStore: KeyStore = KeyStore.getInstance(keyStoreType)
+            keyStore.load(null)
+            keyStore.setCertificateEntry("ca", ca)
 
-                    override fun getAcceptedIssuers(): Array<X509Certificate> { return arrayOf() }
-                }
-            )
+            val tmfAlgorithm = TrustManagerFactory.getDefaultAlgorithm()
+            val tmf = TrustManagerFactory.getInstance(tmfAlgorithm)
+            tmf.init(keyStore)
 
             val sslContext = SSLContext.getInstance(protocol)
-            sslContext.init(null, trustAllCerts, SecureRandom())
+            sslContext.init(null, tmf.trustManagers, null)
 
             val sslSocketFactory: SSLSocketFactory = sslContext.socketFactory
             val builder = OkHttpClient.Builder()
             builder.sslSocketFactory(
                 sslSocketFactory,
-                (trustAllCerts.first { trustManager -> trustManager is X509TrustManager }
+                tmf.trustManagers.first { trustManager -> trustManager is X509TrustManager }
                         as X509TrustManager)
-            )
-            builder.hostnameVerifier { _, session ->
-                val hostnameVerifier = HttpsURLConnection.getDefaultHostnameVerifier()
-                hostnameVerifier.verify(hostName, session)
-            }
+
             return builder.build()
         } catch (e: Exception) {
             Log.w(e.toString(), Thread.currentThread().stackTrace[2].toString())
