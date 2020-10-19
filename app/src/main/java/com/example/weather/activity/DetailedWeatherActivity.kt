@@ -48,7 +48,7 @@ class DetailedWeatherActivity: AppCompatActivity()  {
         dataBaseHelper = DBHelper.getDB()
         initRecyclerView()
 
-        gotNameCity = intent.getStringExtra("nameCity").toString()
+        gotNameCity = mIntent.getStringExtra("nameCity").toString()
         weatherCity = dataBaseHelper!!.getWeatherCityDao().getWeatherCityByName(gotNameCity)
 
         nameCityText = binding.adwCityName
@@ -114,8 +114,10 @@ class DetailedWeatherActivity: AppCompatActivity()  {
     }
 
     companion object {
-        fun createIntent(context: Context): Intent {
-            return Intent(context, DetailedWeatherActivity::class.java)
+        private lateinit var mIntent: Intent
+
+        fun createIntent(kay: String, values: String) {
+            mIntent = Intent().putExtra(kay, values)
         }
     }
 }
