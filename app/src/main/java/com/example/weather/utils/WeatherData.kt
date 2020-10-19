@@ -4,22 +4,41 @@ import android.content.Context
 import android.util.Log
 import com.example.weather.R
 import com.example.weather.model.WeatherCity
+import com.example.weather.utils.api.NetworkService
 import com.example.weather.utils.api.WeatherApiRequester
 import java.net.ConnectException
 import kotlin.collections.ArrayList
 
-class WeatherData(context: Context) {
-    private val weatherApiRequester =
-        WeatherApiRequester(context.getString(R.string.open_weather_map_api_key))
-    private val mapperWeatherData = MapperWeatherData(context)
+class WeatherData private constructor() {
+    private var weatherApiRequester: WeatherApiRequester? = null
+    private var mapperWeatherData: MapperWeatherData? = null
+
+    private object HOLDER {
+        val INSTANCE: WeatherData = WeatherData()
+    }
+
+    companion object {
+        private var mContext: Context? = null
+        val instance: WeatherData by lazy { HOLDER.INSTANCE }
+
+        fun setContext(context: Context) {
+            this.mContext = context.applicationContext
+        }
+    }
+
+    init {
+        weatherApiRequester = WeatherApiRequester(NetworkService(mContext!!.resources.openRawResource(
+            R.raw.certificate_openweathermap)), mContext!!.getString(R.string.open_weather_map_api_key))
+        mapperWeatherData = MapperWeatherData(mContext!!)
+    }
 
     fun getWeatherCity(nameCity: String): WeatherCity {
        try {
-            val weatherCurrentDto = weatherApiRequester.getWeatherCurrentDto(nameCity)
-            val weatherFutureDto = weatherApiRequester.getWeatherFutureDto(
+            val weatherCurrentDto = weatherApiRequester!!.getWeatherCurrentDto(nameCity)
+            val weatherFutureDto = weatherApiRequester!!.getWeatherFutureDto(
                 weatherCurrentDto.coordinatesCity.lat, weatherCurrentDto.coordinatesCity.lon)
 
-           return mapperWeatherData.getWeatherCity(weatherCurrentDto, weatherFutureDto)
+           return mapperWeatherData!!.getWeatherCity(weatherCurrentDto, weatherFutureDto)
        } catch (e: NullPointerException) {
             Log.w("$e nameCity: $nameCity", Thread.currentThread().stackTrace[2].toString())
             throw NullPointerException()

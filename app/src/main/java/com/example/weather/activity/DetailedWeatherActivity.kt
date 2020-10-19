@@ -15,8 +15,8 @@ import com.example.weather.dao.OrmLiteHelper
 import com.example.weather.databinding.ActivityDetailedWeatherBinding
 import com.example.weather.model.WeatherCity
 import com.example.weather.model.WeatherFuture
-import com.example.weather.utils.CheckStatus
-import com.example.weather.utils.WeatherDataHelper
+import com.example.weather.utils.CheckStatusNetwork
+import com.example.weather.utils.WeatherData
 import com.example.weather.view.recycler.GenericAdapter
 import com.example.weather.view.toast.ShowToast
 import kotlinx.coroutines.Dispatchers
@@ -82,7 +82,7 @@ class DetailedWeatherActivity: AppCompatActivity()  {
         try {
             weatherCity =
                 withContext(Dispatchers.IO) {
-                    WeatherDataHelper.getWeatherData().getUpdateWeatherCity(weatherCity) }
+                    WeatherData.instance.getUpdateWeatherCity(weatherCity) }
             adapterRecyclerView.update(ArrayList(weatherCity.weatherFutureList))
             nameCityText.text = weatherCity.nameCity
             temperature.text = weatherCity.weatherCurrent.temperature

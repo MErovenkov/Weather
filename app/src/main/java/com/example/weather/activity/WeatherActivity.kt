@@ -16,8 +16,7 @@ import com.example.weather.databinding.ActivityWeatherBinding
 import com.example.weather.databinding.WRecWeatherCurrentBinding
 import com.example.weather.model.WeatherCity
 import com.example.weather.utils.WeatherData
-import com.example.weather.utils.CheckStatus
-import com.example.weather.utils.WeatherDataHelper
+import com.example.weather.utils.CheckStatusNetwork
 import com.example.weather.view.recycler.GenericAdapter
 import com.example.weather.view.recycler.SwipeToDeleteCallback
 import com.example.weather.view.toast.ShowToast
@@ -33,7 +32,6 @@ class WeatherActivity : AppCompatActivity() {
     private lateinit var adapterRecyclerView: GenericAdapter<WeatherCity>
     private lateinit var swipeRefreshLayout: SwipeRefreshLayout
 
-    private lateinit var weatherData: WeatherData
     private var weatherCityList: ArrayList<WeatherCity> = ArrayList()
 
     @SuppressLint("ResourceType")
@@ -45,7 +43,7 @@ class WeatherActivity : AppCompatActivity() {
         DBHelper.setContext(applicationContext)
         dataBaseHelper = DBHelper.getDB()
 
-        CheckStatus.setContext(applicationContext)
+        WeatherData.setContext(applicationContext)
         ShowToast.setContext(applicationContext)
 
         WeatherDataHelper.setContext(applicationContext)
@@ -82,7 +80,7 @@ class WeatherActivity : AppCompatActivity() {
     private suspend fun updateRecyclerViewValidData(){
         try {
             weatherCityList =
-                withContext(Dispatchers.IO) { weatherData
+                withContext(Dispatchers.IO) { WeatherData.instance
                         .getUpdatedWeatherCityList(ArrayList(adapterRecyclerView.getItemList())) }
             adapterRecyclerView.update(weatherCityList)
             dataBaseHelper.changesAllData(weatherCityList)
@@ -121,7 +119,8 @@ class WeatherActivity : AppCompatActivity() {
                 GlobalScope.launch(Dispatchers.Main) {
                     try {
                         val newWeatherCity =
-                            withContext(Dispatchers.IO) { weatherData.getWeatherCity(nameCity) }
+                            withContext(Dispatchers.IO) {
+                                WeatherData.instance.getWeatherCity(nameCity) }
 
                         if (weatherCityList.none { oldWeatherCity ->
                                 oldWeatherCity.nameCity == newWeatherCity.nameCity }) {
