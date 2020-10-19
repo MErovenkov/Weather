@@ -28,8 +28,8 @@ android {
         targetCompatibility JavaVersion.VERSION_1_8
     }
 
-    viewBinding {
-        enabled = true
+    buildFeatures {
+        viewBinding = true
     }
 }
 
@@ -38,9 +38,9 @@ dependencies {
     implementation "org.jetbrains.kotlin:kotlin-reflect:1.4.10"
     //support
     implementation 'androidx.constraintlayout:constraintlayout:2.0.2'
-    implementation 'androidx.navigation:navigation-ui-ktx:2.3.0'
+    implementation 'androidx.navigation:navigation-ui-ktx:2.3.1'
     implementation 'androidx.swiperefreshlayout:swiperefreshlayout:1.1.0'
-    implementation 'androidx.core:core:1.3.2'
+    implementation 'androidx.core:core-ktx:1.3.2'
     //orm
     implementation 'com.j256.ormlite:ormlite-android:4.46'
     //moshi-kotlin
