@@ -1,6 +1,5 @@
 package com.example.weather.activity
 
-import android.content.Context
 import android.content.Intent
 import android.os.Bundle
 import android.util.Log
@@ -38,7 +37,6 @@ class DetailedWeatherActivity: AppCompatActivity()  {
 
     private lateinit var gotNameCity: String
     private lateinit var weatherCity: WeatherCity
-    private lateinit var weatherFutureList: ArrayList<WeatherFuture>
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -58,16 +56,14 @@ class DetailedWeatherActivity: AppCompatActivity()  {
         nameCityText.text = weatherCity.nameCity
         temperature.text = weatherCity.weatherCurrent.temperature
         iconWeatherCurrent.setImageResource(resources
-            .getIdentifier("ic_current_${weatherCity.weatherCurrent.nameIconWeather}",
+            .getIdentifier("ic_current_w${weatherCity.weatherCurrent.nameIconWeather}",
                 "drawable", packageName))
 
-        weatherFutureList = ArrayList(weatherCity.weatherFutureList)
-
-        adapterRecyclerView.update(weatherFutureList)
+        adapterRecyclerView.update(ArrayList(weatherCity.weatherFutureList))
 
         swipeRefreshLayout = binding.adwSwipeFresh
         swipeRefreshLayout.setOnRefreshListener {
-            if (CheckStatus.isNetworkAvailable()) {
+            if (CheckStatusNetwork.isNetworkAvailable()) {
                 GlobalScope.launch(Dispatchers.Main) {
                     updateRecyclerViewValidData()
                     swipeRefreshLayout.isRefreshing = false
@@ -87,9 +83,11 @@ class DetailedWeatherActivity: AppCompatActivity()  {
             nameCityText.text = weatherCity.nameCity
             temperature.text = weatherCity.weatherCurrent.temperature
             iconWeatherCurrent.setImageResource(resources.getIdentifier(
-                "ic_current_${weatherCity.weatherCurrent.nameIconWeather}", "drawable",
+                "ic_current_w${weatherCity.weatherCurrent.nameIconWeather}", "drawable",
                         packageName))
             dataBaseHelper!!.updateCity(weatherCity)
+
+            ShowToast.getToast(applicationContext.getString(R.string.city_weather_data_updated))
         } catch (e: ConnectException) {
             ShowToast.getToast(applicationContext.getString(R.string.lost_internet_access))
             Log.w(e.toString(), Thread.currentThread().stackTrace[2].toString())
