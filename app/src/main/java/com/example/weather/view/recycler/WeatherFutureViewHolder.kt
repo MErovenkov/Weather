@@ -13,7 +13,7 @@ class WeatherFutureViewHolder(private val weatherFutureBinding: DwRecWeatherFutu
             weatherFutureBinding.dwRecTemperatureMax.text = data.temperatureMax
             weatherFutureBinding.dwRecTemperatureMin.text = data.temperatureMin
             weatherFutureBinding.dwRecIconWeather.setImageResource(resources
-                .getIdentifier("ic_future_${data.nameIconWeather}","drawable",
+                .getIdentifier("ic_future_w${data.nameIconWeather}","drawable",
                     "com.example.weather"))
         }
     }

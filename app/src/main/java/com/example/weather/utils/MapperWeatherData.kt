@@ -11,6 +11,7 @@ import java.util.*
 import kotlin.collections.ArrayList
 
 class MapperWeatherData(private val context: Context) {
+    private val soleElement = 0
 
     fun getWeatherCity(weatherCurrentDto: WeatherCurrentDto,
                        weatherFutureDto: WeatherFutureDto): WeatherCity {
@@ -21,7 +22,7 @@ class MapperWeatherData(private val context: Context) {
     private fun getWeatherCurrent(weatherCurrentDto: WeatherCurrentDto): WeatherCurrent {
         return WeatherCurrent(
             getTemperatureCelsius(weatherCurrentDto.currentTemperature.temp),
-            getValidNameIcon(weatherCurrentDto.weatherInfo[0].nameIconWeather)
+            weatherCurrentDto.weatherInfo[soleElement].nameIconWeather
         )
     }
 
@@ -35,7 +36,7 @@ class MapperWeatherData(private val context: Context) {
                     getNameDay(dayFuture.date),
                     getTemperatureCelsius(dayFuture.temperature.max),
                     getTemperatureCelsius(dayFuture.temperature.min),
-                    getValidNameIcon(dayFuture.weatherInfo[0].nameIconWeather)
+                    dayFuture.weatherInfo[soleElement].nameIconWeather
                 )
             )
         }
@@ -44,10 +45,6 @@ class MapperWeatherData(private val context: Context) {
 
     private fun getTemperatureCelsius(temperature: Double): String {
         return "${temperature.toInt()}${context.getString(R.string.temperature)}C"
-    }
-
-    private fun getValidNameIcon(nameIconWeather: String): String {
-        return "w$nameIconWeather"
     }
 
     private fun getNameDay(data: Long): String {
