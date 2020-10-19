@@ -1,6 +1,7 @@
 package com.example.weather.activity
 
 import android.annotation.SuppressLint
+import android.content.Intent
 import android.os.Bundle
 import android.util.Log
 import android.view.View
@@ -45,9 +46,7 @@ class WeatherActivity : AppCompatActivity() {
 
         WeatherData.setContext(applicationContext)
         ShowToast.setContext(applicationContext)
-
-        WeatherDataHelper.setContext(applicationContext)
-        weatherData = WeatherDataHelper.getWeatherData()
+        CheckStatusNetwork.registerNetworkCallback(applicationContext)
 
         addingNewCity = binding.awAddingNewCity
 
@@ -57,7 +56,7 @@ class WeatherActivity : AppCompatActivity() {
         if (weatherCityList.isNotEmpty()) {
             adapterRecyclerView.update(weatherCityList)
 
-            if (CheckStatus.isNetworkAvailable()) {
+            if (CheckStatusNetwork.isNetworkAvailable()) {
                 GlobalScope.launch(Dispatchers.Main) {
                     updateRecyclerViewValidData()
                 }
@@ -66,7 +65,7 @@ class WeatherActivity : AppCompatActivity() {
 
         swipeRefreshLayout = binding.awSwipeFresh
         swipeRefreshLayout.setOnRefreshListener {
-            if (CheckStatus.isNetworkAvailable()) {
+            if (CheckStatusNetwork.isNetworkAvailable()) {
                 GlobalScope.launch(Dispatchers.Main) {
                     updateRecyclerViewValidData()
                     swipeRefreshLayout.isRefreshing = false
@@ -84,6 +83,8 @@ class WeatherActivity : AppCompatActivity() {
                         .getUpdatedWeatherCityList(ArrayList(adapterRecyclerView.getItemList())) }
             adapterRecyclerView.update(weatherCityList)
             dataBaseHelper.changesAllData(weatherCityList)
+
+            ShowToast.getToast(applicationContext.getString(R.string.city_weather_data_updated))
         } catch (e: ConcurrentModificationException) {
             ShowToast.getToast(applicationContext.getString(R.string.city_weather_update_failed))
             Log.w(e.toString(), Thread.currentThread().stackTrace[2].toString())
@@ -111,7 +112,7 @@ class WeatherActivity : AppCompatActivity() {
         val nameCity = addingNewCity.text.toString()
         weatherCityList = ArrayList(adapterRecyclerView.getItemList())
 
-        if (CheckStatus.isNetworkAvailable()) {
+        if (CheckStatusNetwork.isNetworkAvailable()) {
             if (nameCity.trim().isNotEmpty()) {
                 addingNewCity.text.clear()
                 addingNewCity.isCursorVisible = false
@@ -157,5 +158,6 @@ class WeatherActivity : AppCompatActivity() {
     override fun onDestroy() {
         super.onDestroy()
         DBHelper.releaseDB()
+        CheckStatusNetwork.unregisterNetworkCallback()
     }
 }
