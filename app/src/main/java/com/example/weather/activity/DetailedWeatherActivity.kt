@@ -46,8 +46,8 @@ class DetailedWeatherActivity: AppCompatActivity()  {
         dataBaseHelper = DBHelper.getDB()
         initRecyclerView()
 
-        gotNameCity = mIntent.getStringExtra("nameCity").toString()
-        weatherCity = dataBaseHelper!!.getWeatherCityDao().getWeatherCityByName(gotNameCity)
+        gotNameCity = intent.getStringExtra("nameCity").toString()
+        weatherCity = dataBaseHelper.getWeatherCityDao().getWeatherCityByName(gotNameCity)
 
         nameCityText = binding.adwCityName
         temperature = binding.adwCurrentTemperature
@@ -112,10 +112,11 @@ class DetailedWeatherActivity: AppCompatActivity()  {
     }
 
     companion object {
-        private lateinit var mIntent: Intent
+        fun createIntent(context: Context, key: String, values: String): Intent  {
+            val intent = Intent(context, DetailedWeatherActivity::class.java)
+            intent.putExtra(key, values)
 
-        fun createIntent(kay: String, values: String) {
-            mIntent = Intent().putExtra(kay, values)
+            return intent
         }
     }
 }

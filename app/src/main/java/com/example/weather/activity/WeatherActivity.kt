@@ -141,8 +141,7 @@ class WeatherActivity : AppCompatActivity() {
     fun openWeatherDetailed(view: View) {
         val bindings: WRecWeatherCurrentBinding = WRecWeatherCurrentBinding.bind(view)
 
-        DetailedWeatherActivity.createIntent("nameCity", bindings.wRecCityName.text as String)
-        startActivity(Intent(this, DetailedWeatherActivity::class.java))
+        startActivity(DetailedWeatherActivity.createIntent(this, "nameCity", bindings.wRecCityName.text as String))
     }
 
     override fun onResume() {
