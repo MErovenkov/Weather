@@ -1,4 +1,4 @@
-package com.example.weather.utils.api.interfaces
+package com.example.weather.api.interfaces
 
 import com.example.weather.dto.WeatherCurrentDto
 import com.example.weather.dto.WeatherFutureDto

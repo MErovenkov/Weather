@@ -1,105 +1,68 @@
 package com.example.weather.activity
 
+import android.content.Context
 import android.content.Intent
 import android.os.Bundle
-import android.util.Log
-import android.widget.ImageView
-import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
+import androidx.lifecycle.Observer
+import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
-import com.example.weather.R
-import com.example.weather.dao.DBHelper
-import com.example.weather.dao.OrmLiteHelper
 import com.example.weather.databinding.ActivityDetailedWeatherBinding
-import com.example.weather.model.WeatherCity
+import com.example.weather.di.MyApplication
 import com.example.weather.model.WeatherFuture
 import com.example.weather.utils.CheckStatusNetwork
-import com.example.weather.utils.WeatherData
 import com.example.weather.view.recycler.GenericAdapter
-import com.example.weather.view.toast.ShowToast
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.GlobalScope
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
-import java.net.ConnectException
-import javax.net.ssl.SSLException
+import com.example.weather.viewmodel.DetailedWeatherViewModel
+import com.example.weather.viewmodel.ViewModelFactory
+import javax.inject.Inject
 
 class DetailedWeatherActivity: AppCompatActivity()  {
-    private var dataBaseHelper: OrmLiteHelper? = null
+
+    @Inject
+    lateinit var viewModelFactory: ViewModelFactory
+    private var detailedWeatherViewModel: DetailedWeatherViewModel? = null
 
     private lateinit var binding: ActivityDetailedWeatherBinding
-    private lateinit var nameCityText: TextView
-    private lateinit var temperature: TextView
-    private lateinit var iconWeatherCurrent: ImageView
     private lateinit var adapterRecyclerView: GenericAdapter<WeatherFuture>
     private lateinit var swipeRefreshLayout: SwipeRefreshLayout
 
-    private lateinit var gotNameCity: String
-    private lateinit var weatherCity: WeatherCity
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        (application as MyApplication).appComponent.activityComponent()
+            .create().inject(this)
+
         binding = ActivityDetailedWeatherBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        dataBaseHelper = DBHelper.getDB()
         initRecyclerView()
 
-        gotNameCity = intent.getStringExtra("nameCity").toString()
-        weatherCity = dataBaseHelper.getWeatherCityDao().getWeatherCityByName(gotNameCity)
-
-        nameCityText = binding.adwCityName
-        temperature = binding.adwCurrentTemperature
-        iconWeatherCurrent = binding.adwIconCurrentWeather
-
-        nameCityText.text = weatherCity.nameCity
-        temperature.text = weatherCity.weatherCurrent.temperature
-        iconWeatherCurrent.setImageResource(resources
-            .getIdentifier("ic_current_w${weatherCity.weatherCurrent.nameIconWeather}",
-                "drawable", packageName))
-
-        adapterRecyclerView.update(ArrayList(weatherCity.weatherFutureList))
+        detailedWeatherViewModel = ViewModelProvider(this, viewModelFactory)
+            .get(DetailedWeatherViewModel::class.java)
+        detailedWeatherViewModel!!.initLiveData(intent.getStringExtra("nameCity").toString())
+        detailedWeatherViewModel!!.getWeatherCity().observe(this, {
+                binding.adwCityName.text = it.nameCity
+                binding.adwCurrentTemperature.text = it.weatherCurrent.temperature
+                binding.adwIconCurrentWeather.setImageResource(resources
+                        .getIdentifier("ic_current_w${it.weatherCurrent.nameIconWeather}",
+                            "drawable", packageName))
+                adapterRecyclerView.update(ArrayList(it.weatherFutureList))
+        })
 
         swipeRefreshLayout = binding.adwSwipeFresh
         swipeRefreshLayout.setOnRefreshListener {
             if (CheckStatusNetwork.isNetworkAvailable()) {
-                GlobalScope.launch(Dispatchers.Main) {
-                    updateRecyclerViewValidData()
-                    swipeRefreshLayout.isRefreshing = false
-                }
+                detailedWeatherViewModel!!.updateWeatherData()
+                swipeRefreshLayout.isRefreshing = false
             } else {
                 swipeRefreshLayout.isRefreshing = false
             }
         }
     }
 
-    private suspend fun updateRecyclerViewValidData(){
-        try {
-            weatherCity =
-                withContext(Dispatchers.IO) {
-                    WeatherData.instance.getUpdateWeatherCity(weatherCity) }
-            adapterRecyclerView.update(ArrayList(weatherCity.weatherFutureList))
-            nameCityText.text = weatherCity.nameCity
-            temperature.text = weatherCity.weatherCurrent.temperature
-            iconWeatherCurrent.setImageResource(resources.getIdentifier(
-                "ic_current_w${weatherCity.weatherCurrent.nameIconWeather}", "drawable",
-                        packageName))
-            dataBaseHelper!!.updateCity(weatherCity)
-
-            ShowToast.getToast(applicationContext.getString(R.string.city_weather_data_updated))
-        } catch (e: ConnectException) {
-            ShowToast.getToast(applicationContext.getString(R.string.lost_internet_access))
-            Log.w(e.toString(), Thread.currentThread().stackTrace[2].toString())
-        } catch (e: SSLException) {
-            ShowToast.getToast(applicationContext.getString(R.string.city_weather_update_failed))
-            Log.w(e.toString(), Thread.currentThread().stackTrace[2].toString())
-        }
-    }
-
     private fun initRecyclerView() {
         adapterRecyclerView = object : GenericAdapter<WeatherFuture>() {}
-        @Suppress("UNUSED_VARIABLE") val recyclerView = binding.adwRecyclerView.apply {
+        binding.adwRecyclerView.apply {
             setHasFixedSize(true)
             layoutManager = LinearLayoutManager(this.context)
             adapter = adapterRecyclerView
@@ -109,6 +72,11 @@ class DetailedWeatherActivity: AppCompatActivity()  {
     override fun onBackPressed() {
         super.onBackPressed()
         finish()
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        detailedWeatherViewModel = null
     }
 
     companion object {

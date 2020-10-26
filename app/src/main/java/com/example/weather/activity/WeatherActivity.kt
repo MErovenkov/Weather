@@ -1,105 +1,69 @@
 package com.example.weather.activity
 
-import android.annotation.SuppressLint
-import android.content.Intent
 import android.os.Bundle
-import android.util.Log
 import android.view.View
-import android.widget.EditText
 import androidx.appcompat.app.AppCompatActivity
+import androidx.lifecycle.Observer
+import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
 import com.example.weather.R
-import com.example.weather.dao.DBHelper
-import com.example.weather.dao.OrmLiteHelper
 import com.example.weather.databinding.ActivityWeatherBinding
 import com.example.weather.databinding.WRecWeatherCurrentBinding
+import com.example.weather.di.MyApplication
 import com.example.weather.model.WeatherCity
-import com.example.weather.utils.WeatherData
 import com.example.weather.utils.CheckStatusNetwork
 import com.example.weather.view.recycler.GenericAdapter
 import com.example.weather.view.recycler.SwipeToDeleteCallback
 import com.example.weather.view.toast.ShowToast
-import kotlinx.coroutines.*
-import java.net.ConnectException
-import javax.net.ssl.SSLException
+import com.example.weather.viewmodel.ViewModelFactory
+import com.example.weather.viewmodel.WeatherViewModel
+import javax.inject.Inject
 
-class WeatherActivity : AppCompatActivity() {
-    private lateinit var dataBaseHelper: OrmLiteHelper
+class WeatherActivity: AppCompatActivity() {
+
+    @Inject
+    lateinit var viewModelFactory: ViewModelFactory
+    private var weatherViewModel: WeatherViewModel? = null
 
     private lateinit var binding: ActivityWeatherBinding
-    private lateinit var addingNewCity: EditText
     private lateinit var adapterRecyclerView: GenericAdapter<WeatherCity>
     private lateinit var swipeRefreshLayout: SwipeRefreshLayout
 
-    private var weatherCityList: ArrayList<WeatherCity> = ArrayList()
-
-    @SuppressLint("ResourceType")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        (application as MyApplication).appComponent.activityComponent().create()
+            .inject(this)
+
         binding = ActivityWeatherBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        DBHelper.setContext(applicationContext)
-        dataBaseHelper = DBHelper.getDB()
-
-        WeatherData.setContext(applicationContext)
-        ShowToast.setContext(applicationContext)
-        CheckStatusNetwork.registerNetworkCallback(applicationContext)
-
-        addingNewCity = binding.awAddingNewCity
-
-        weatherCityList = ArrayList(dataBaseHelper.getWeatherCityDao().queryForAll())
         initRecyclerView()
 
-        if (weatherCityList.isNotEmpty()) {
-            adapterRecyclerView.update(weatherCityList)
-
-            if (CheckStatusNetwork.isNetworkAvailable()) {
-                GlobalScope.launch(Dispatchers.Main) {
-                    updateRecyclerViewValidData()
-                }
-            }
-        }
+        weatherViewModel = ViewModelProvider(this, viewModelFactory)[WeatherViewModel::class.java]
+        weatherViewModel!!.getWeatherCityList().observe(this, {
+            adapterRecyclerView.update(it)
+        })
 
         swipeRefreshLayout = binding.awSwipeFresh
         swipeRefreshLayout.setOnRefreshListener {
             if (CheckStatusNetwork.isNetworkAvailable()) {
-                GlobalScope.launch(Dispatchers.Main) {
-                    updateRecyclerViewValidData()
-                    swipeRefreshLayout.isRefreshing = false
-                }
+                weatherViewModel!!.updateWeatherData()
+                swipeRefreshLayout.isRefreshing = false
             } else {
                 swipeRefreshLayout.isRefreshing = false
             }
         }
     }
 
-    private suspend fun updateRecyclerViewValidData(){
-        try {
-            weatherCityList =
-                withContext(Dispatchers.IO) { WeatherData.instance
-                        .getUpdatedWeatherCityList(ArrayList(adapterRecyclerView.getItemList())) }
-            adapterRecyclerView.update(weatherCityList)
-            dataBaseHelper.changesAllData(weatherCityList)
-
-            ShowToast.getToast(applicationContext.getString(R.string.city_weather_data_updated))
-        } catch (e: ConcurrentModificationException) {
-            ShowToast.getToast(applicationContext.getString(R.string.city_weather_update_failed))
-            Log.w(e.toString(), Thread.currentThread().stackTrace[2].toString())
-        } catch (e: ConnectException) {
-            ShowToast.getToast(applicationContext.getString(R.string.lost_internet_access))
-            Log.w(e.toString(), Thread.currentThread().stackTrace[2].toString())
-        } catch (e: SSLException) {
-            ShowToast.getToast(applicationContext.getString(R.string.city_weather_update_failed))
-            Log.w(e.toString(), Thread.currentThread().stackTrace[2].toString())
-        }
-    }
-
     private fun initRecyclerView() {
-        adapterRecyclerView = object : GenericAdapter<WeatherCity>(){}
-        @Suppress("UNUSED_PARAMETER") val recyclerView = binding.awRecyclerView.apply {
+        adapterRecyclerView = object : GenericAdapter<WeatherCity>(){
+            override fun <T> itemDismiss(data: T) {
+                weatherViewModel!!.deleteWeatherCity(data as WeatherCity)
+            }
+        }
+        val recyclerView = binding.awRecyclerView.apply {
             setHasFixedSize(false)
             layoutManager = LinearLayoutManager(this.context)
             adapter = adapterRecyclerView
@@ -108,55 +72,39 @@ class WeatherActivity : AppCompatActivity() {
         touchHelper.attachToRecyclerView(recyclerView)
     }
 
-    fun createNewCity(@Suppress("UNUSED_PARAMETER") view: View){
+
+    fun createNewCity(@Suppress("UNUSED_PARAMETER") view: View) {
+        val addingNewCity = binding.awAddingNewCity
         val nameCity = addingNewCity.text.toString()
-        weatherCityList = ArrayList(adapterRecyclerView.getItemList())
 
         if (CheckStatusNetwork.isNetworkAvailable()) {
             if (nameCity.trim().isNotEmpty()) {
                 addingNewCity.text.clear()
                 addingNewCity.isCursorVisible = false
 
-                GlobalScope.launch(Dispatchers.Main) {
-                    try {
-                        val newWeatherCity =
-                            withContext(Dispatchers.IO) {
-                                WeatherData.instance.getWeatherCity(nameCity) }
-
-                        if (weatherCityList.none { oldWeatherCity ->
-                                oldWeatherCity.nameCity == newWeatherCity.nameCity }) {
-                            adapterRecyclerView.addItem(newWeatherCity)
-                            ShowToast.getToast(applicationContext.resources.getString(R.string.city_added))
-                        } else ShowToast.getToast(applicationContext.getString(R.string.city_exist))
-                    } catch (e: NullPointerException) {
-                        ShowToast.getToast(applicationContext.getString(R.string.city_not_found))
-                        Log.w("$e nameCity: $nameCity", Thread.currentThread()
-                                .stackTrace[2].toString())
-                    }
-                }
-            }
+                weatherViewModel!!.createWeatherData(nameCity)
+            } else ShowToast.getToast(application.getString(R.string.city_name_not_empty))
         }
     }
 
     fun openWeatherDetailed(view: View) {
         val bindings: WRecWeatherCurrentBinding = WRecWeatherCurrentBinding.bind(view)
 
-        startActivity(DetailedWeatherActivity.createIntent(this, "nameCity", bindings.wRecCityName.text as String))
+        startActivity(
+            DetailedWeatherActivity.createIntent(
+                this, "nameCity",
+                bindings.wRecCityName.text as String
+            )
+        )
     }
 
     override fun onResume() {
         super.onResume()
-        adapterRecyclerView.update(ArrayList(dataBaseHelper.getWeatherCityDao().queryForAll()))
-    }
-
-    override fun onPause() {
-        super.onPause()
-        dataBaseHelper.changesAllData(ArrayList(adapterRecyclerView.getItemList()))
+        weatherViewModel!!.updateRequestDB()
     }
 
     override fun onDestroy() {
         super.onDestroy()
-        DBHelper.releaseDB()
-        CheckStatusNetwork.unregisterNetworkCallback()
+        weatherViewModel = null
     }
 }

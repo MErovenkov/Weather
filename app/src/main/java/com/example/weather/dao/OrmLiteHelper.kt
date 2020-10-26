@@ -2,6 +2,7 @@ package com.example.weather.dao
 
 import android.content.Context
 import android.database.sqlite.SQLiteDatabase
+import android.util.Log
 import com.example.weather.model.WeatherCity
 import com.example.weather.model.WeatherCurrent
 import com.example.weather.model.WeatherFuture
@@ -14,9 +15,9 @@ import java.sql.SQLException
 class OrmLiteHelper(context: Context)
     : OrmLiteSqliteOpenHelper(context.applicationContext, DATABASE_NAME, null, DATABASE_VERSION) {
 
-    private val weatherCityDao: WeatherCityDao = WeatherCityDao(this.connectionSource)
-    private val weatherCurrentDao: WeatherCurrentDao = WeatherCurrentDao(this.connectionSource)
-    private val weatherFutureDao: WeatherFutureDao = WeatherFutureDao(this.connectionSource)
+    private val weatherCityDao = WeatherCityDao(connectionSource)
+    private val weatherCurrentDao = WeatherCurrentDao(connectionSource)
+    private val weatherFutureDao = WeatherFutureDao(connectionSource)
 
     companion object {
         const val DATABASE_VERSION = 1
@@ -30,7 +31,7 @@ class OrmLiteHelper(context: Context)
             TableUtils.createTable(connectionSource, WeatherCurrent::class.java)
             TableUtils.createTable(connectionSource, WeatherFuture::class.java)
         } catch (e: SQLException) {
-            e.printStackTrace()
+            Log.w(e.toString(),  e.stackTraceToString())
         }
     }
 
@@ -52,11 +53,19 @@ class OrmLiteHelper(context: Context)
             )
             onCreate(database, connectionSource)
         } catch (e: SQLException) {
-            e.printStackTrace()
+            Log.w(e.toString(),  e.stackTraceToString())
         }
     }
 
-    fun updateCity(newWeatherCity: WeatherCity) {
+    fun createWeatherCity(newWeatherCity: WeatherCity) {
+        weatherCityDao.create(newWeatherCity)
+        for (future in newWeatherCity.weatherFutureList) {
+            future.weatherCity = newWeatherCity
+            weatherFutureDao.create(future)
+        }
+    }
+
+    fun updateWeatherCity(newWeatherCity: WeatherCity) {
         weatherCityDao.update(newWeatherCity)
         weatherCurrentDao.update(newWeatherCity.weatherCurrent)
         for (newWeatherFuture in newWeatherCity.weatherFutureList) {
@@ -65,44 +74,21 @@ class OrmLiteHelper(context: Context)
         }
     }
 
-    fun changesAllData(newWeatherCityList: ArrayList<WeatherCity>) {
-        val oldWeatherCityList = ArrayList(this.getWeatherCityDao().queryForAll())
-
-        for (oldWeatherCity in oldWeatherCityList) {
-            if (newWeatherCityList.none { weatherCity ->
-                    weatherCity.nameCity == oldWeatherCity.nameCity }) {
-                this.deletedWeatherCity(oldWeatherCity)
-            }
-        }
-
+    fun updateAllCitiesWeather(newWeatherCityList: ArrayList<WeatherCity>) {
         for (weatherCity in newWeatherCityList) {
-            if (oldWeatherCityList.none { oldWeatherCity ->
-                    oldWeatherCity.nameCity == weatherCity.nameCity}) {
-                this.createCity(weatherCity)
-            } else if (oldWeatherCityList.any { oldWeatherCity ->
-                    oldWeatherCity.nameCity == weatherCity.nameCity}) {
-                this.updateCity(weatherCity)
-            }
+            updateWeatherCity(weatherCity)
         }
     }
 
-    fun getWeatherCityDao(): WeatherCityDao {
-        return weatherCityDao
-    }
-
-    private fun createCity(newWeatherCity: WeatherCity) {
-        weatherCityDao.create(newWeatherCity)
-        for (future in newWeatherCity.weatherFutureList) {
-            future.weatherCity = newWeatherCity
-            weatherFutureDao.create(future)
-        }
-    }
-
-    private fun deletedWeatherCity(weatherCity: WeatherCity) {
+    fun deletedWeatherCity(weatherCity: WeatherCity) {
         weatherCityDao.deleteById(weatherCity.id)
         weatherCurrentDao.delete(weatherCity.weatherCurrent)
         for (weatherFuture in weatherCity.weatherFutureList) {
             weatherFutureDao.delete(weatherFuture)
         }
+    }
+
+    fun getWeatherCityDao(): WeatherCityDao {
+        return weatherCityDao
     }
 }

@@ -3,6 +3,7 @@
 
     <string name="open_weather_map_api_key">61a25b412bb7c531e7fc8d4ca71457e5</string>
     <string name="temperature">\u00B0</string>
+    <string name="protocol_tls">TLS</string>
 
     <string name="insert_new_city">Введите название города</string>
 
@@ -14,6 +15,7 @@
     <string name="city_weather_data_updated">Данные обновленны</string>
     <string name="city_weather_update_failed">При обновлении произошла ошибка</string>
     <string name="city_added">Город добавлен</string>
+    <string name="city_name_not_empty">Поле с названием не может быть пустым</string>
 
     <!-- days of the week -->
     <string name="monday">Пн</string>

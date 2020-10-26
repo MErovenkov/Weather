@@ -1,49 +1,26 @@
-package com.example.weather.utils
+package com.example.weather.api
 
-import android.content.Context
 import android.util.Log
-import com.example.weather.R
 import com.example.weather.model.WeatherCity
-import com.example.weather.utils.api.NetworkService
-import com.example.weather.utils.api.WeatherApiRequester
+import com.example.weather.utils.MapperWeatherData
 import java.net.ConnectException
 import kotlin.collections.ArrayList
 
-class WeatherData private constructor() {
-    private var weatherApiRequester: WeatherApiRequester? = null
-    private var mapperWeatherData: MapperWeatherData? = null
-
-    private object HOLDER {
-        val INSTANCE: WeatherData = WeatherData()
-    }
-
-    companion object {
-        private var mContext: Context? = null
-        val instance: WeatherData by lazy { HOLDER.INSTANCE }
-
-        fun setContext(context: Context) {
-            this.mContext = context.applicationContext
-        }
-    }
-
-    init {
-        weatherApiRequester = WeatherApiRequester(NetworkService(mContext!!.resources.openRawResource(
-            R.raw.certificate_openweathermap)), mContext!!.getString(R.string.open_weather_map_api_key))
-        mapperWeatherData = MapperWeatherData(mContext!!)
-    }
+class WeatherData(private val weatherApiRequester: WeatherApiRequester,
+                  private val mapperWeatherData: MapperWeatherData) {
 
     fun getWeatherCity(nameCity: String): WeatherCity {
        try {
-            val weatherCurrentDto = weatherApiRequester!!.getWeatherCurrentDto(nameCity)
-            val weatherFutureDto = weatherApiRequester!!.getWeatherFutureDto(
+           val weatherCurrentDto = weatherApiRequester.getWeatherCurrentDto(nameCity)
+            val weatherFutureDto = weatherApiRequester.getWeatherFutureDto(
                 weatherCurrentDto.coordinatesCity.lat, weatherCurrentDto.coordinatesCity.lon)
 
-           return mapperWeatherData!!.getWeatherCity(weatherCurrentDto, weatherFutureDto)
+           return mapperWeatherData.getWeatherCity(weatherCurrentDto, weatherFutureDto)
        } catch (e: NullPointerException) {
-            Log.w("$e nameCity: $nameCity", Thread.currentThread().stackTrace[2].toString())
+            Log.w("$e nameCity: $nameCity",  e.stackTraceToString())
             throw NullPointerException()
        } catch (e: ConnectException) {
-           Log.w(e.toString(), Thread.currentThread().stackTrace[2].toString())
+           Log.w(e.toString(),  e.stackTraceToString())
            throw ConnectException()
        }
     }
@@ -62,7 +39,7 @@ class WeatherData private constructor() {
             }
             return newWeatherCityList
         } catch (e: ConnectException) {
-            Log.w(e.toString(), Thread.currentThread().stackTrace[2].toString())
+            Log.w(e.toString(),  e.stackTraceToString())
             throw ConnectException()
         }
     }
