@@ -32,14 +32,9 @@ object CheckStatusNetwork {
         }
 
         networkRequest = NetworkRequest.Builder().build()
-
         connectivityManager.registerNetworkCallback(
             networkRequest,
             networkCallback)
-    }
-
-    fun unregisterNetworkCallback() {
-        connectivityManager.unregisterNetworkCallback(networkCallback)
     }
 
     fun isNetworkAvailable(): Boolean {
