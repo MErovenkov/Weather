@@ -6,12 +6,12 @@ import com.example.weather.di.component.DaggerApplicationComponent
 import com.example.weather.utils.CheckStatusNetwork
 import com.example.weather.view.toast.ShowToast
 
-open class MyApplication: Application() {
+class MyApplication: Application() {
     val appComponent: ApplicationComponent by lazy {
         initializeComponent()
     }
 
-    open fun initializeComponent(): ApplicationComponent {
+    private fun initializeComponent(): ApplicationComponent {
         return DaggerApplicationComponent.factory().create(applicationContext)
     }
 
