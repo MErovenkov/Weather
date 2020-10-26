@@ -29,9 +29,9 @@ abstract class GenericAdapter<T>
 
     override fun getItemCount(): Int = itemList.size
 
-    override fun getItemViewType(position: Int): Int = getLayoutId(position, itemList[position])
+    override fun getItemViewType(position: Int): Int = getLayoutId(itemList[position])
 
-    private fun getLayoutId(@Suppress("UNUSED_PARAMETER") position: Int, obj: T): Int {
+    private fun getLayoutId(obj: T): Int {
         return when(obj) {
             is WeatherCity -> R.layout.w_rec_weather_current
             else ->  R.layout.dw_rec_weather_future
@@ -39,23 +39,17 @@ abstract class GenericAdapter<T>
     }
 
     override fun onItemDismiss(position: Int) {
+        itemDismiss(itemList[position])
         itemList.removeAt(position)
         notifyItemRemoved(position)
-        notifyItemRangeChanged(position, itemCount);
+        notifyItemRangeChanged(position, itemCount)
     }
 
-    fun getItemList(): MutableList<T> {
-        return itemList
-    }
+    override fun <T> itemDismiss(data: T) {}
 
     fun update(items: ArrayList<T>) {
         itemList.clear();
         itemList = items
         notifyDataSetChanged()
-    }
-
-    fun addItem(item: T) {
-        itemList.add(item)
-        notifyItemInserted(itemCount - 1)
     }
 }
