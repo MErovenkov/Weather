@@ -91,10 +91,7 @@ class WeatherActivity: AppCompatActivity() {
         val bindings: WRecWeatherCurrentBinding = WRecWeatherCurrentBinding.bind(view)
 
         startActivity(
-            DetailedWeatherActivity.createIntent(
-                this, "nameCity",
-                bindings.wRecCityName.text as String
-            )
+            DetailedWeatherActivity.createIntent(this, bindings.wRecCityName.text as String)
         )
     }
 

@@ -4,7 +4,6 @@ import android.content.Context
 import android.content.Intent
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
-import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
@@ -39,7 +38,7 @@ class DetailedWeatherActivity: AppCompatActivity()  {
 
         detailedWeatherViewModel = ViewModelProvider(this, viewModelFactory)
             .get(DetailedWeatherViewModel::class.java)
-        detailedWeatherViewModel!!.initLiveData(intent.getStringExtra("nameCity").toString())
+        detailedWeatherViewModel!!.initLiveData(intent.getStringExtra("cityName").toString())
         detailedWeatherViewModel!!.getWeatherCity().observe(this, {
                 binding.adwCityName.text = it.nameCity
                 binding.adwCurrentTemperature.text = it.weatherCurrent.temperature
@@ -80,11 +79,12 @@ class DetailedWeatherActivity: AppCompatActivity()  {
     }
 
     companion object {
-        fun createIntent(context: Context, key: String, values: String): Intent  {
-            val intent = Intent(context, DetailedWeatherActivity::class.java)
-            intent.putExtra(key, values)
+        private const val CITY_NAME_KEY = "cityName"
 
-            return intent
+        fun createIntent(context: Context, cityName: String): Intent  {
+            return Intent(context, DetailedWeatherActivity::class.java).apply {
+                putExtra(CITY_NAME_KEY, cityName)
+            }
         }
     }
 }
