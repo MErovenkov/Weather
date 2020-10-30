@@ -42,9 +42,9 @@ class WeatherActivity: AppCompatActivity() {
         initRecyclerView()
 
         weatherViewModel = ViewModelProvider(this, viewModelFactory)[WeatherViewModel::class.java]
-        weatherViewModel!!.getWeatherCityList().observe(this, {
+        weatherViewModel!!.getWeatherCityList().observe(this) {
             adapterRecyclerView.update(it)
-        })
+        }
 
         swipeRefreshLayout = binding.awSwipeFresh
         swipeRefreshLayout.setOnRefreshListener {

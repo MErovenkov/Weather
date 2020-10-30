@@ -39,14 +39,16 @@ class DetailedWeatherActivity: AppCompatActivity()  {
         detailedWeatherViewModel = ViewModelProvider(this, viewModelFactory)
             .get(DetailedWeatherViewModel::class.java)
         detailedWeatherViewModel!!.initLiveData(intent.getStringExtra("cityName").toString())
-        detailedWeatherViewModel!!.getWeatherCity().observe(this, {
-                binding.adwCityName.text = it.nameCity
-                binding.adwCurrentTemperature.text = it.weatherCurrent.temperature
-                binding.adwIconCurrentWeather.setImageResource(resources
-                        .getIdentifier("ic_current_w${it.weatherCurrent.nameIconWeather}",
-                            "drawable", packageName))
-                adapterRecyclerView.update(ArrayList(it.weatherFutureList))
-        })
+        detailedWeatherViewModel!!.getWeatherCity().observe(this) {
+            binding.apply {
+                adwCityName.text = it.nameCity
+                adwCurrentTemperature.text = it.weatherCurrent.temperature
+                adwIconCurrentWeather.setImageResource(resources
+                    .getIdentifier("ic_current_w${it.weatherCurrent.nameIconWeather}",
+                        "drawable", packageName))
+            }
+            adapterRecyclerView.update(ArrayList(it.weatherFutureList))
+        }
 
         swipeRefreshLayout = binding.adwSwipeFresh
         swipeRefreshLayout.setOnRefreshListener {
