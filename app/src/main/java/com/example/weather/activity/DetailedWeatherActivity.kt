@@ -4,7 +4,6 @@ import android.content.Context
 import android.content.Intent
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
-import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
 import com.example.weather.databinding.ActivityDetailedWeatherBinding
@@ -13,14 +12,11 @@ import com.example.weather.model.WeatherFuture
 import com.example.weather.utils.CheckStatusNetwork
 import com.example.weather.view.recycler.GenericAdapter
 import com.example.weather.viewmodel.DetailedWeatherViewModel
-import com.example.weather.viewmodel.ViewModelFactory
 import javax.inject.Inject
 
 class DetailedWeatherActivity: AppCompatActivity()  {
-
     @Inject
-    lateinit var viewModelFactory: ViewModelFactory
-    private var detailedWeatherViewModel: DetailedWeatherViewModel? = null
+    lateinit var detailedWeatherViewModel: DetailedWeatherViewModel
 
     private lateinit var binding: ActivityDetailedWeatherBinding
     private lateinit var adapterRecyclerView: GenericAdapter<WeatherFuture>
@@ -29,17 +25,15 @@ class DetailedWeatherActivity: AppCompatActivity()  {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         (application as MyApplication).appComponent.activityComponent()
-            .create().inject(this)
+            .create(this).inject(this)
 
         binding = ActivityDetailedWeatherBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
         initRecyclerView()
 
-        detailedWeatherViewModel = ViewModelProvider(this, viewModelFactory)
-            .get(DetailedWeatherViewModel::class.java)
-        detailedWeatherViewModel!!.initLiveData(intent.getStringExtra("cityName").toString())
-        detailedWeatherViewModel!!.getWeatherCity().observe(this) {
+        detailedWeatherViewModel.initLiveData(intent.getStringExtra("cityName").toString())
+        detailedWeatherViewModel.getWeatherCity().observe(this) {
             binding.apply {
                 adwCityName.text = it.nameCity
                 adwCurrentTemperature.text = it.weatherCurrent.temperature
@@ -73,11 +67,6 @@ class DetailedWeatherActivity: AppCompatActivity()  {
     override fun onBackPressed() {
         super.onBackPressed()
         finish()
-    }
-
-    override fun onDestroy() {
-        super.onDestroy()
-        detailedWeatherViewModel = null
     }
 
     companion object {

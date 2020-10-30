@@ -3,8 +3,6 @@ package com.example.weather.activity
 import android.os.Bundle
 import android.view.View
 import androidx.appcompat.app.AppCompatActivity
-import androidx.lifecycle.Observer
-import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
@@ -17,15 +15,12 @@ import com.example.weather.utils.CheckStatusNetwork
 import com.example.weather.view.recycler.GenericAdapter
 import com.example.weather.view.recycler.SwipeToDeleteCallback
 import com.example.weather.view.toast.ShowToast
-import com.example.weather.viewmodel.ViewModelFactory
 import com.example.weather.viewmodel.WeatherViewModel
 import javax.inject.Inject
 
 class WeatherActivity: AppCompatActivity() {
-
     @Inject
-    lateinit var viewModelFactory: ViewModelFactory
-    private var weatherViewModel: WeatherViewModel? = null
+    lateinit var weatherViewModel: WeatherViewModel
 
     private lateinit var binding: ActivityWeatherBinding
     private lateinit var adapterRecyclerView: GenericAdapter<WeatherCity>
@@ -33,7 +28,7 @@ class WeatherActivity: AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        (application as MyApplication).appComponent.activityComponent().create()
+        (application as MyApplication).appComponent.activityComponent().create(this)
             .inject(this)
 
         binding = ActivityWeatherBinding.inflate(layoutInflater)
@@ -41,15 +36,14 @@ class WeatherActivity: AppCompatActivity() {
 
         initRecyclerView()
 
-        weatherViewModel = ViewModelProvider(this, viewModelFactory)[WeatherViewModel::class.java]
-        weatherViewModel!!.getWeatherCityList().observe(this) {
+        weatherViewModel.getWeatherCityList().observe(this) {
             adapterRecyclerView.update(it)
         }
 
         swipeRefreshLayout = binding.awSwipeFresh
         swipeRefreshLayout.setOnRefreshListener {
             if (CheckStatusNetwork.isNetworkAvailable()) {
-                weatherViewModel!!.updateWeatherData()
+                weatherViewModel.updateWeatherData()
                 swipeRefreshLayout.isRefreshing = false
             } else {
                 swipeRefreshLayout.isRefreshing = false
@@ -60,7 +54,7 @@ class WeatherActivity: AppCompatActivity() {
     private fun initRecyclerView() {
         adapterRecyclerView = object : GenericAdapter<WeatherCity>(){
             override fun <T> itemDismiss(data: T) {
-                weatherViewModel!!.deleteWeatherCity(data as WeatherCity)
+                weatherViewModel.deleteWeatherCity(data as WeatherCity)
             }
         }
         val recyclerView = binding.awRecyclerView.apply {
@@ -82,7 +76,7 @@ class WeatherActivity: AppCompatActivity() {
                 addingNewCity.text.clear()
                 addingNewCity.isCursorVisible = false
 
-                weatherViewModel!!.createWeatherData(nameCity)
+                weatherViewModel.createWeatherData(nameCity)
             } else ShowToast.getToast(application.getString(R.string.city_name_not_empty))
         }
     }
@@ -97,11 +91,6 @@ class WeatherActivity: AppCompatActivity() {
 
     override fun onResume() {
         super.onResume()
-        weatherViewModel!!.updateRequestDB()
-    }
-
-    override fun onDestroy() {
-        super.onDestroy()
-        weatherViewModel = null
+        weatherViewModel.updateRequestDB()
     }
 }

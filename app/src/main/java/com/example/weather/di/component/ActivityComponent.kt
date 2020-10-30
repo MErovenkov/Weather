@@ -1,9 +1,13 @@
 package com.example.weather.di.component
 
+import android.content.Context
 import com.example.weather.activity.DetailedWeatherActivity
 import com.example.weather.activity.WeatherActivity
 import com.example.weather.di.module.ViewModelModule
+import com.example.weather.di.qualifier.ActivityContext
+import com.example.weather.di.qualifier.ApplicationContext
 import com.example.weather.di.scope.ActivityScope
+import dagger.BindsInstance
 import dagger.Subcomponent
 
 @ActivityScope
@@ -11,7 +15,7 @@ import dagger.Subcomponent
 interface ActivityComponent {
     @Subcomponent.Factory
     interface Factory {
-        fun create(): ActivityComponent
+        fun create(@ActivityContext @BindsInstance context: Context): ActivityComponent
     }
 
     fun inject(weatherActivity: WeatherActivity)
