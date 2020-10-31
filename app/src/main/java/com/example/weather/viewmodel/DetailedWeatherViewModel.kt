@@ -1,15 +1,12 @@
 package com.example.weather.viewmodel
 
 import android.app.Application
-import android.content.Context
 import android.util.Log
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.MutableLiveData
-import com.example.weather.R
 import com.example.weather.dao.OrmLiteHelper
 import com.example.weather.model.WeatherCity
 import com.example.weather.api.WeatherData
-import com.example.weather.view.toast.ShowToast
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
@@ -37,16 +34,12 @@ class DetailedWeatherViewModel (application: Application,
                         weatherData.getUpdateWeatherCity(weatherCity.value!!)
                 }
                 dataBaseHelper.updateWeatherCity(weatherCity.value!!)
-                ShowToast.getToast((getApplication()
-                        as Context).getString(R.string.city_weather_data_updated))
             } catch (e: ConnectException) {
                 Log.w(e.toString(), e.stackTraceToString())
-                ShowToast.getToast((getApplication()
-                        as Context).getString(R.string.lost_internet_access))
+                throw ConnectException()
             } catch (e: SSLException) {
                 Log.w(e.toString(), e.stackTraceToString())
-                ShowToast.getToast((getApplication()
-                        as Context).getString(R.string.city_weather_update_failed))
+                throw SSLException("")
             }
         }
     }

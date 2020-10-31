@@ -1,6 +1,7 @@
 package com.example.weather.activity
 
 import android.os.Bundle
+import android.util.Log
 import android.view.View
 import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.ItemTouchHelper
@@ -16,7 +17,10 @@ import com.example.weather.view.recycler.GenericAdapter
 import com.example.weather.view.recycler.SwipeToDeleteCallback
 import com.example.weather.view.toast.ShowToast
 import com.example.weather.viewmodel.WeatherViewModel
+import java.net.ConnectException
+import java.sql.SQLException
 import javax.inject.Inject
+import javax.net.ssl.SSLException
 
 class WeatherActivity: AppCompatActivity() {
     @Inject
@@ -43,7 +47,7 @@ class WeatherActivity: AppCompatActivity() {
         swipeRefreshLayout = binding.awSwipeFresh
         swipeRefreshLayout.setOnRefreshListener {
             if (CheckStatusNetwork.isNetworkAvailable()) {
-                weatherViewModel.updateWeatherData()
+                updateWeatherData()
                 swipeRefreshLayout.isRefreshing = false
             } else {
                 ShowToast.getToast(application.resources.getString(R.string.no_internet_access))
@@ -77,9 +81,34 @@ class WeatherActivity: AppCompatActivity() {
                 addingNewCity.text.clear()
                 addingNewCity.isCursorVisible = false
 
-                weatherViewModel.createWeatherData(nameCity)
+                try {
+                    weatherViewModel.createWeatherData(nameCity)
+                    ShowToast.getToast(this.resources.getString(R.string.city_added))
+                } catch (e: NullPointerException) {
+                    Log.w("$e nameCity: $nameCity", e.stackTraceToString())
+                    ShowToast.getToast(this.getString(R.string.city_not_found))
+                } catch (e: SQLException) {
+                    Log.w("$e nameCity: $nameCity", e.stackTraceToString())
+                    ShowToast.getToast(this.getString(R.string.city_exist))
+                }
             } else ShowToast.getToast(application.getString(R.string.city_name_not_empty))
         } else ShowToast.getToast(application.resources.getString(R.string.no_internet_access))
+    }
+
+    private fun updateWeatherData() {
+        try {
+            weatherViewModel.updateWeatherData()
+            ShowToast.getToast(this.getString(R.string.city_weather_data_updated))
+        } catch (e: ConcurrentModificationException) {
+            Log.w(e.toString(), e.stackTraceToString())
+            ShowToast.getToast(this.getString(R.string.city_weather_update_failed))
+        } catch (e: ConnectException) {
+            Log.w(e.toString(),  e.stackTraceToString())
+            ShowToast.getToast(this.getString(R.string.lost_internet_access))
+        } catch (e: SSLException) {
+            Log.w(e.toString(),  e.stackTraceToString())
+            ShowToast.getToast(this.getString(R.string.city_weather_update_failed))
+        }
     }
 
     fun openWeatherDetailed(view: View) {

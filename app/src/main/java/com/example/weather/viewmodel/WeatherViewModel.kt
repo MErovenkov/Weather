@@ -41,12 +41,10 @@ class WeatherViewModel (application: Application,
                         as Context).resources.getString(R.string.city_added))
             } catch (e: NullPointerException) {
                 Log.w("$e nameCity: $nameCity", e.stackTraceToString())
-                ShowToast.getToast((getApplication()
-                        as Context).getString(R.string.city_not_found))
+                throw NullPointerException()
             } catch (e: SQLException) {
                 Log.w("$e nameCity: $nameCity", e.stackTraceToString())
-                ShowToast.getToast((getApplication()
-                        as Context).getString(R.string.city_exist))
+                throw SQLException("")
             }
         }
     }
@@ -65,16 +63,13 @@ class WeatherViewModel (application: Application,
                         as Context).getString(R.string.city_weather_data_updated))
             } catch (e: ConcurrentModificationException) {
                 Log.w(e.toString(), e.stackTraceToString())
-                ShowToast.getToast((getApplication()
-                        as Context).getString(R.string.city_weather_update_failed))
+                throw ConcurrentModificationException()
             } catch (e: ConnectException) {
                 Log.w(e.toString(),  e.stackTraceToString())
-                ShowToast.getToast((getApplication()
-                        as Context).getString(R.string.lost_internet_access))
+                throw ConnectException()
             } catch (e: SSLException) {
                 Log.w(e.toString(),  e.stackTraceToString())
-                ShowToast.getToast((getApplication()
-                        as Context).getString(R.string.city_weather_update_failed))
+                throw SSLException("")
             }
         }
     }
