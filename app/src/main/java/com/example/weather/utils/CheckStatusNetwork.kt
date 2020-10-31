@@ -4,8 +4,6 @@ import android.content.Context
 import android.net.ConnectivityManager
 import android.net.Network
 import android.net.NetworkRequest
-import com.example.weather.R
-import com.example.weather.view.toast.ShowToast
 
 object CheckStatusNetwork {
     private var isActive: Boolean = false
@@ -38,9 +36,6 @@ object CheckStatusNetwork {
     }
 
     fun isNetworkAvailable(): Boolean {
-        if (!isActive) {
-            ShowToast.getToast(mContext.resources.getString(R.string.no_internet_access))
-        }
         return isActive
     }
 }

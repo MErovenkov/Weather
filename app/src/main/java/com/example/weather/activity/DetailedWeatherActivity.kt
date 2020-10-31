@@ -6,11 +6,13 @@ import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
+import com.example.weather.R
 import com.example.weather.databinding.ActivityDetailedWeatherBinding
 import com.example.weather.di.MyApplication
 import com.example.weather.model.WeatherFuture
 import com.example.weather.utils.CheckStatusNetwork
 import com.example.weather.view.recycler.GenericAdapter
+import com.example.weather.view.toast.ShowToast
 import com.example.weather.viewmodel.DetailedWeatherViewModel
 import javax.inject.Inject
 
@@ -47,9 +49,10 @@ class DetailedWeatherActivity: AppCompatActivity()  {
         swipeRefreshLayout = binding.adwSwipeFresh
         swipeRefreshLayout.setOnRefreshListener {
             if (CheckStatusNetwork.isNetworkAvailable()) {
-                detailedWeatherViewModel!!.updateWeatherData()
+                detailedWeatherViewModel.updateWeatherData()
                 swipeRefreshLayout.isRefreshing = false
             } else {
+                ShowToast.getToast(application.resources.getString(R.string.no_internet_access))
                 swipeRefreshLayout.isRefreshing = false
             }
         }

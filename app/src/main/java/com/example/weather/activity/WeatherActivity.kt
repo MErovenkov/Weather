@@ -46,6 +46,7 @@ class WeatherActivity: AppCompatActivity() {
                 weatherViewModel.updateWeatherData()
                 swipeRefreshLayout.isRefreshing = false
             } else {
+                ShowToast.getToast(application.resources.getString(R.string.no_internet_access))
                 swipeRefreshLayout.isRefreshing = false
             }
         }
@@ -78,7 +79,7 @@ class WeatherActivity: AppCompatActivity() {
 
                 weatherViewModel.createWeatherData(nameCity)
             } else ShowToast.getToast(application.getString(R.string.city_name_not_empty))
-        }
+        } else ShowToast.getToast(application.resources.getString(R.string.no_internet_access))
     }
 
     fun openWeatherDetailed(view: View) {
