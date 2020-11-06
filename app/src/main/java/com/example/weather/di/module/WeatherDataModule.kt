@@ -4,9 +4,9 @@ import android.content.Context
 import com.example.weather.R
 import com.example.weather.di.qualifier.ApplicationContext
 import com.example.weather.utils.MapperWeatherData
-import com.example.weather.api.WeatherApiRequester
-import com.example.weather.api.WeatherData
-import com.example.weather.api.interfaces.IWeatherApi
+import com.example.weather.repository.api.WeatherApiRequester
+import com.example.weather.repository.api.WeatherData
+import com.example.weather.repository.api.interfaces.IWeatherApi
 import dagger.Module
 import dagger.Provides
 import javax.inject.Singleton

@@ -1,9 +1,9 @@
-package com.example.weather.api
+package com.example.weather.repository.api
 
 import android.util.Log
 import com.example.weather.dto.WeatherCurrentDto
 import com.example.weather.dto.WeatherFutureDto
-import com.example.weather.api.interfaces.IWeatherApi
+import com.example.weather.repository.api.interfaces.IWeatherApi
 import retrofit2.Call
 import java.net.SocketTimeoutException
 import javax.net.ssl.SSLException

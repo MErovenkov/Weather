@@ -1,12 +1,11 @@
 package com.example.weather.di.module
 
-import com.example.weather.api.interfaces.IWeatherApi
+import com.example.weather.repository.api.interfaces.IWeatherApi
 import com.squareup.moshi.Moshi
 import com.squareup.moshi.kotlin.reflect.KotlinJsonAdapterFactory
 import dagger.Module
 import dagger.Provides
 import okhttp3.OkHttpClient
-
 import retrofit2.Retrofit
 import retrofit2.converter.moshi.MoshiConverterFactory
 import javax.inject.Singleton

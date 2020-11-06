@@ -1,4 +1,4 @@
-package com.example.weather.api
+package com.example.weather.repository.api
 
 import android.util.Log
 import com.example.weather.model.WeatherCity
@@ -12,7 +12,7 @@ class WeatherData(private val weatherApiRequester: WeatherApiRequester,
     fun getWeatherCity(nameCity: String): WeatherCity {
        try {
            val weatherCurrentDto = weatherApiRequester.getWeatherCurrentDto(nameCity)
-            val weatherFutureDto = weatherApiRequester.getWeatherFutureDto(
+           val weatherFutureDto = weatherApiRequester.getWeatherFutureDto(
                 weatherCurrentDto.coordinatesCity.lat, weatherCurrentDto.coordinatesCity.lon)
 
            return mapperWeatherData.getWeatherCity(weatherCurrentDto, weatherFutureDto)

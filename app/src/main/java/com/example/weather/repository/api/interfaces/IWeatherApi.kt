@@ -1,8 +1,7 @@
-package com.example.weather.api.interfaces
+package com.example.weather.repository.api.interfaces
 
 import com.example.weather.dto.WeatherCurrentDto
 import com.example.weather.dto.WeatherFutureDto
-
 import retrofit2.Call
 import retrofit2.http.GET
 import retrofit2.http.Query
