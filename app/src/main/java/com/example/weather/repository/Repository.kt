@@ -26,8 +26,10 @@ class Repository(private val dataBaseHelper: OrmLiteHelper,
     }
 
     private fun updateWeatherCityMutableLiveData() {
-        weatherCities.value =
-            dataBaseHelper.getWeatherCityDao().queryForAll() as ArrayList<WeatherCity>?
+        GlobalScope.launch(Dispatchers.Main) {
+            weatherCities.value =
+                dataBaseHelper.getWeatherCityDao().queryForAll() as ArrayList<WeatherCity>?
+        }
     }
 
     fun getWeatherCities() = weatherCities
