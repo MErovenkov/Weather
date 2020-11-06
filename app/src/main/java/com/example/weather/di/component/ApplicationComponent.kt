@@ -4,6 +4,7 @@ import android.content.Context
 import com.example.weather.di.MyApplication
 import com.example.weather.di.module.*
 import com.example.weather.di.qualifier.ApplicationContext
+import com.example.weather.worker.UpdateWorker
 import dagger.BindsInstance
 import dagger.Component
 import javax.inject.Singleton
@@ -18,6 +19,7 @@ interface ApplicationComponent {
         fun create(@ApplicationContext @BindsInstance context: Context): ApplicationComponent
     }
 
+    fun inject(updateWorker: UpdateWorker)
     fun inject(application: MyApplication)
     fun activityComponent(): ActivityComponent.Factory
 }
