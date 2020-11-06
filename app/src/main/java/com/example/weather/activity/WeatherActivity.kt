@@ -1,8 +1,8 @@
 package com.example.weather.activity
 
 import android.os.Bundle
-import android.util.Log
 import android.view.View
+import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -10,17 +10,13 @@ import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
 import com.example.weather.R
 import com.example.weather.databinding.ActivityWeatherBinding
 import com.example.weather.databinding.WRecWeatherCurrentBinding
-import com.example.weather.di.MyApplication
 import com.example.weather.model.WeatherCity
 import com.example.weather.utils.CheckStatusNetwork
+import com.example.weather.utils.getActivityComponent
 import com.example.weather.view.recycler.GenericAdapter
 import com.example.weather.view.recycler.SwipeToDeleteCallback
-import com.example.weather.view.toast.ShowToast
 import com.example.weather.viewmodel.WeatherViewModel
-import java.net.ConnectException
-import java.sql.SQLException
 import javax.inject.Inject
-import javax.net.ssl.SSLException
 
 class WeatherActivity: AppCompatActivity() {
     @Inject
@@ -32,25 +28,35 @@ class WeatherActivity: AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        (application as MyApplication).appComponent.activityComponent().create(this)
-            .inject(this)
+        getActivityComponent(this).inject(this)
 
         binding = ActivityWeatherBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
         initRecyclerView()
 
-        weatherViewModel.getWeatherCityList().observe(this) {
-            adapterRecyclerView.update(it)
+        weatherViewModel.apply {
+            getWeatherCities().observe(this@WeatherActivity) {
+                adapterRecyclerView.update(it)
+            }
+
+            getEvent().observe(this@WeatherActivity) {
+                if (it != null) {
+                    Toast.makeText(this@WeatherActivity,
+                        this@WeatherActivity.getString(it), Toast.LENGTH_SHORT).show()
+                }
+            }
         }
 
         swipeRefreshLayout = binding.awSwipeFresh
         swipeRefreshLayout.setOnRefreshListener {
             if (CheckStatusNetwork.isNetworkAvailable()) {
-                updateWeatherData()
+                weatherViewModel.updateWeatherData()
                 swipeRefreshLayout.isRefreshing = false
             } else {
-                ShowToast.getToast(application.resources.getString(R.string.no_internet_access))
+                Toast.makeText(this,
+                    this.getString(R.string.no_internet_access),
+                    Toast.LENGTH_SHORT).show()
                 swipeRefreshLayout.isRefreshing = false
             }
         }
@@ -71,7 +77,6 @@ class WeatherActivity: AppCompatActivity() {
         touchHelper.attachToRecyclerView(recyclerView)
     }
 
-
     fun createNewCity(@Suppress("UNUSED_PARAMETER") view: View) {
         val addingNewCity = binding.awAddingNewCity
         val nameCity = addingNewCity.text.toString()
@@ -81,33 +86,16 @@ class WeatherActivity: AppCompatActivity() {
                 addingNewCity.text.clear()
                 addingNewCity.isCursorVisible = false
 
-                try {
-                    weatherViewModel.createWeatherData(nameCity)
-                    ShowToast.getToast(this.resources.getString(R.string.city_added))
-                } catch (e: NullPointerException) {
-                    Log.w("$e nameCity: $nameCity", e.stackTraceToString())
-                    ShowToast.getToast(this.getString(R.string.city_not_found))
-                } catch (e: SQLException) {
-                    Log.w("$e nameCity: $nameCity", e.stackTraceToString())
-                    ShowToast.getToast(this.getString(R.string.city_exist))
-                }
-            } else ShowToast.getToast(application.getString(R.string.city_name_not_empty))
-        } else ShowToast.getToast(application.resources.getString(R.string.no_internet_access))
-    }
-
-    private fun updateWeatherData() {
-        try {
-            weatherViewModel.updateWeatherData()
-            ShowToast.getToast(this.getString(R.string.city_weather_data_updated))
-        } catch (e: ConcurrentModificationException) {
-            Log.w(e.toString(), e.stackTraceToString())
-            ShowToast.getToast(this.getString(R.string.city_weather_update_failed))
-        } catch (e: ConnectException) {
-            Log.w(e.toString(),  e.stackTraceToString())
-            ShowToast.getToast(this.getString(R.string.lost_internet_access))
-        } catch (e: SSLException) {
-            Log.w(e.toString(),  e.stackTraceToString())
-            ShowToast.getToast(this.getString(R.string.city_weather_update_failed))
+                weatherViewModel.createWeatherData(nameCity)
+            } else {
+                Toast.makeText(this,
+                    this.getString(R.string.city_name_not_empty),
+                    Toast.LENGTH_SHORT).show()
+            }
+        } else {
+            Toast.makeText(this,
+                this.getString(R.string.no_internet_access),
+                Toast.LENGTH_SHORT).show()
         }
     }
 
@@ -117,10 +105,5 @@ class WeatherActivity: AppCompatActivity() {
         startActivity(
             DetailedWeatherActivity.createIntent(this, bindings.wRecCityName.text as String)
         )
-    }
-
-    override fun onResume() {
-        super.onResume()
-        weatherViewModel.updateRequestDB()
     }
 }

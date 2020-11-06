@@ -3,21 +3,18 @@ package com.example.weather.activity
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
-import android.util.Log
+import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
 import com.example.weather.R
 import com.example.weather.databinding.ActivityDetailedWeatherBinding
-import com.example.weather.di.MyApplication
 import com.example.weather.model.WeatherFuture
 import com.example.weather.utils.CheckStatusNetwork
+import com.example.weather.utils.getActivityComponent
 import com.example.weather.view.recycler.GenericAdapter
-import com.example.weather.view.toast.ShowToast
 import com.example.weather.viewmodel.DetailedWeatherViewModel
-import java.net.ConnectException
 import javax.inject.Inject
-import javax.net.ssl.SSLException
 
 class DetailedWeatherActivity: AppCompatActivity()  {
     @Inject
@@ -29,8 +26,7 @@ class DetailedWeatherActivity: AppCompatActivity()  {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        (application as MyApplication).appComponent.activityComponent()
-            .create(this).inject(this)
+        getActivityComponent(this).inject(this)
 
         binding = ActivityDetailedWeatherBinding.inflate(layoutInflater)
         setContentView(binding.root)
@@ -38,39 +34,41 @@ class DetailedWeatherActivity: AppCompatActivity()  {
         initRecyclerView()
 
         detailedWeatherViewModel.initLiveData(intent.getStringExtra("cityName").toString())
-        detailedWeatherViewModel.getWeatherCity().observe(this) {
-            binding.apply {
-                adwCityName.text = it.nameCity
-                adwCurrentTemperature.text = it.weatherCurrent.temperature
-                adwIconCurrentWeather.setImageResource(resources
-                    .getIdentifier("ic_current_w${it.weatherCurrent.nameIconWeather}",
-                        "drawable", packageName))
+        detailedWeatherViewModel.apply {
+            getWeatherCity().observe(this@DetailedWeatherActivity) {
+                binding.apply {
+                    adwCityName.text = it.nameCity
+                    adwCurrentTemperature.text = it.weatherCurrent.temperature
+                    adwIconCurrentWeather.setImageResource(
+                        resources
+                            .getIdentifier(
+                                "ic_current_w${it.weatherCurrent.nameIconWeather}",
+                                "drawable", packageName
+                            )
+                    )
+                }
+                adapterRecyclerView.update(ArrayList(it.weatherFutureList))
             }
-            adapterRecyclerView.update(ArrayList(it.weatherFutureList))
+
+            getEvent().observe(this@DetailedWeatherActivity) {
+                if (it != null) {
+                    Toast.makeText(this@DetailedWeatherActivity,
+                        this@DetailedWeatherActivity.getString(it), Toast.LENGTH_SHORT).show()
+                }
+            }
         }
 
         swipeRefreshLayout = binding.adwSwipeFresh
         swipeRefreshLayout.setOnRefreshListener {
             if (CheckStatusNetwork.isNetworkAvailable()) {
-                updateWeatherData()
+                detailedWeatherViewModel.updateWeatherData()
                 swipeRefreshLayout.isRefreshing = false
             } else {
-                ShowToast.getToast(this.resources.getString(R.string.no_internet_access))
+                Toast.makeText(this,
+                    this.getString(R.string.no_internet_access),
+                    Toast.LENGTH_SHORT).show()
                 swipeRefreshLayout.isRefreshing = false
             }
-        }
-    }
-
-    private fun updateWeatherData() {
-        try {
-            detailedWeatherViewModel.updateWeatherData()
-            ShowToast.getToast(this.getString(R.string.city_weather_data_updated))
-        } catch (e: ConnectException) {
-            Log.w(e.toString(), e.stackTraceToString())
-            ShowToast.getToast(this.getString(R.string.lost_internet_access))
-        } catch (e: SSLException) {
-            Log.w(e.toString(), e.stackTraceToString())
-            ShowToast.getToast(this.getString(R.string.city_weather_update_failed))
         }
     }
 
