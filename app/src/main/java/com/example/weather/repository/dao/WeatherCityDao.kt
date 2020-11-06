@@ -1,4 +1,4 @@
-package com.example.weather.dao
+package com.example.weather.repository.dao
 
 import com.example.weather.model.WeatherCity
 import com.j256.ormlite.dao.BaseDaoImpl
@@ -10,11 +10,5 @@ class WeatherCityDao @Throws(SQLException::class) constructor(connectionSource: 
     init {
         setConnectionSource(connectionSource)
         initialize()
-    }
-
-    fun getWeatherCityByName(nameCity: String): WeatherCity {
-        return this.queryForFirst(
-            this.queryBuilder()
-            .where().eq("name_city", nameCity).prepare())
     }
 }

@@ -1,4 +1,4 @@
-package com.example.weather.dao
+package com.example.weather.repository.dao
 
 import android.content.Context
 import android.database.sqlite.SQLiteDatabase
@@ -58,10 +58,15 @@ class OrmLiteHelper(context: Context)
     }
 
     fun createWeatherCity(newWeatherCity: WeatherCity) {
-        weatherCityDao.create(newWeatherCity)
-        for (future in newWeatherCity.weatherFutureList) {
-            future.weatherCity = newWeatherCity
-            weatherFutureDao.create(future)
+        try {
+            weatherCityDao.create(newWeatherCity)
+            for (future in newWeatherCity.weatherFutureList) {
+                future.weatherCity = newWeatherCity
+                weatherFutureDao.create(future)
+            }
+        } catch (e: SQLException) {
+            Log.w(e.toString() , e.stackTraceToString())
+            throw SQLException()
         }
     }
 
