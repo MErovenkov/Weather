@@ -1,23 +1,19 @@
 package com.example.weather.viewmodel
 
-import android.app.Application
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
-import com.example.weather.dao.OrmLiteHelper
-import com.example.weather.api.WeatherData
+import com.example.weather.repository.Repository
 
-class ViewModelFactory(private val application: Application,
-                       private val dataBaseHelper: OrmLiteHelper,
-                       private val weatherData: WeatherData) :
-    ViewModelProvider.AndroidViewModelFactory(application) {
+class ViewModelFactory(private val repository: Repository
+    ) : ViewModelProvider.NewInstanceFactory() {
 
     @Suppress("UNCHECKED_CAST")
     override fun <T : ViewModel?> create(modelClass: Class<T>): T {
         return when(modelClass) {
             WeatherViewModel::class.java ->
-                WeatherViewModel(application, dataBaseHelper, weatherData) as T
+                WeatherViewModel(repository) as T
             DetailedWeatherViewModel::class.java ->
-                DetailedWeatherViewModel(application, dataBaseHelper, weatherData) as T
+                DetailedWeatherViewModel(repository) as T
             else -> super.create(modelClass)
         }
     }

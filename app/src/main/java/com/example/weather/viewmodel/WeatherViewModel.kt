@@ -1,84 +1,30 @@
 package com.example.weather.viewmodel
 
-import android.app.Application
-import android.content.Context
-import android.util.Log
-import androidx.lifecycle.AndroidViewModel
-import androidx.lifecycle.MutableLiveData
-import com.example.weather.R
-import com.example.weather.api.WeatherData
-import com.example.weather.dao.OrmLiteHelper
+import androidx.lifecycle.MediatorLiveData
+import com.example.weather.repository.Repository
 import com.example.weather.model.WeatherCity
-import com.example.weather.view.toast.ShowToast
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.GlobalScope
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
-import java.net.ConnectException
-import java.sql.SQLException
-import javax.net.ssl.SSLException
 
-class WeatherViewModel (application: Application,
-                        private val dataBaseHelper: OrmLiteHelper,
-                        private val weatherData: WeatherData): AndroidViewModel(application) {
-    private var weatherCityList : MutableLiveData<ArrayList<WeatherCity>> = MutableLiveData()
+class WeatherViewModel (private val repository: Repository): EventStatusViewModel(repository) {
+
+    private var weatherCities : MediatorLiveData<ArrayList<WeatherCity>> = MediatorLiveData()
 
     init {
-        updateRequestDB()
+        weatherCities.addSource(repository.getWeatherCities()) {
+            weatherCities.postValue(it)
+        }
     }
 
-    fun getWeatherCityList() = weatherCityList
+    fun getWeatherCities() = weatherCities
 
     fun createWeatherData(nameCity: String) {
-        GlobalScope.launch(Dispatchers.Main) {
-            try {
-                val newWeatherCity =
-                    withContext(Dispatchers.IO) { weatherData.getWeatherCity(nameCity) }
-
-                dataBaseHelper.createWeatherCity(newWeatherCity)
-                updateRequestDB()
-                ShowToast.getToast((getApplication()
-                        as Context).resources.getString(R.string.city_added))
-            } catch (e: NullPointerException) {
-                Log.w("$e nameCity: $nameCity", e.stackTraceToString())
-                throw NullPointerException()
-            } catch (e: SQLException) {
-                Log.w("$e nameCity: $nameCity", e.stackTraceToString())
-                throw SQLException("")
-            }
-        }
+        repository.createWeatherCity(nameCity)
     }
 
     fun updateWeatherData() {
-        GlobalScope.launch(Dispatchers.Main) {
-            try {
-                weatherCityList.value = withContext(Dispatchers.IO) {
-                    weatherData.getUpdatedWeatherCityList(weatherCityList.value
-                            as ArrayList<WeatherCity>)
-                }
-                dataBaseHelper.updateAllCitiesWeather(weatherCityList.value
-                        as ArrayList<WeatherCity>)
-
-                ShowToast.getToast((getApplication()
-                        as Context).getString(R.string.city_weather_data_updated))
-            } catch (e: ConcurrentModificationException) {
-                Log.w(e.toString(), e.stackTraceToString())
-                throw ConcurrentModificationException()
-            } catch (e: ConnectException) {
-                Log.w(e.toString(),  e.stackTraceToString())
-                throw ConnectException()
-            } catch (e: SSLException) {
-                Log.w(e.toString(),  e.stackTraceToString())
-                throw SSLException("")
-            }
-        }
-    }
-
-    fun updateRequestDB() {
-        weatherCityList.value = dataBaseHelper.getWeatherCityDao().queryForAll() as ArrayList<WeatherCity>?
+        repository.updateAllCitiesWeather()
     }
 
     fun deleteWeatherCity(weatherCity: WeatherCity) {
-        dataBaseHelper.deletedWeatherCity(weatherCity)
+        repository.deletedWeatherCity(weatherCity)
     }
 }
