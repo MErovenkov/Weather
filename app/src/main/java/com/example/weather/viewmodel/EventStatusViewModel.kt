@@ -1,5 +1,6 @@
 package com.example.weather.viewmodel
 
+import androidx.lifecycle.LiveData
 import androidx.lifecycle.MediatorLiveData
 import androidx.lifecycle.ViewModel
 import com.example.weather.repository.Repository
@@ -14,5 +15,5 @@ abstract class EventStatusViewModel(repository: Repository): ViewModel() {
         }
     }
 
-    fun getEvent() = eventStatus
+    fun getEvent(): LiveData<Int> = eventStatus
 }

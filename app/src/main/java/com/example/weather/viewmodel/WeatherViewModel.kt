@@ -1,5 +1,6 @@
 package com.example.weather.viewmodel
 
+import androidx.lifecycle.LiveData
 import androidx.lifecycle.MediatorLiveData
 import com.example.weather.repository.Repository
 import com.example.weather.model.WeatherCity
@@ -14,7 +15,7 @@ class WeatherViewModel (private val repository: Repository): EventStatusViewMode
         }
     }
 
-    fun getWeatherCities() = weatherCities
+    fun getWeatherCities(): LiveData<ArrayList<WeatherCity>> = weatherCities
 
     fun createWeatherData(nameCity: String) {
         repository.createWeatherCity(nameCity)

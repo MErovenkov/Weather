@@ -1,6 +1,7 @@
 package com.example.weather.repository
 
 import android.util.Log
+import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import com.example.weather.repository.api.WeatherData
 import com.example.weather.repository.dao.OrmLiteHelper
@@ -32,8 +33,8 @@ class Repository(private val dataBaseHelper: OrmLiteHelper,
         }
     }
 
-    fun getWeatherCities() = weatherCities
-    fun getEventStatus() = eventStatus
+    fun getWeatherCities(): LiveData<ArrayList<WeatherCity>> = weatherCities
+    fun getEventStatus(): LiveData<Event<Int>> = eventStatus
 
     fun createWeatherCity(nameCity: String) {
         GlobalScope.launch(Dispatchers.Main) {
