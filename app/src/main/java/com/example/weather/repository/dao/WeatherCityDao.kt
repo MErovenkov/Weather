@@ -11,4 +11,10 @@ class WeatherCityDao @Throws(SQLException::class) constructor(connectionSource: 
         setConnectionSource(connectionSource)
         initialize()
     }
+
+    fun getWeatherCityByName(nameCity: String): WeatherCity {
+        return this.queryForFirst(
+            this.queryBuilder()
+                .where().eq("name_city", nameCity).prepare())
+    }
 }
