@@ -4,6 +4,7 @@ import android.os.Bundle
 import android.view.View
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
+import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
@@ -16,6 +17,8 @@ import com.example.weather.utils.getActivityComponent
 import com.example.weather.view.recycler.GenericAdapter
 import com.example.weather.view.recycler.SwipeToDeleteCallback
 import com.example.weather.viewmodel.WeatherViewModel
+import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 class WeatherActivity: AppCompatActivity() {
@@ -35,15 +38,15 @@ class WeatherActivity: AppCompatActivity() {
 
         initRecyclerView()
 
-        weatherViewModel.apply {
-            getWeatherCities().observe(this@WeatherActivity) {
-                adapterRecyclerView.update(it)
-            }
+        lifecycleScope.launch {
+            weatherViewModel.getResource().collect { resource ->
+                resource.getData()?.let { weatherCities ->
+                    adapterRecyclerView.update(weatherCities)
+                }
 
-            getEvent().observe(this@WeatherActivity) {
-                if (it != null) {
+                resource.getEvent()?.let { event ->
                     Toast.makeText(this@WeatherActivity,
-                        this@WeatherActivity.getString(it), Toast.LENGTH_SHORT).show()
+                    this@WeatherActivity.getString(event), Toast.LENGTH_SHORT).show()
                 }
             }
         }

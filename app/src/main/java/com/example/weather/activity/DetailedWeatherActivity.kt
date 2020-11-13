@@ -5,6 +5,7 @@ import android.content.Intent
 import android.os.Bundle
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
+import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
 import com.example.weather.R
@@ -14,6 +15,8 @@ import com.example.weather.utils.CheckStatusNetwork
 import com.example.weather.utils.getActivityComponent
 import com.example.weather.view.recycler.GenericAdapter
 import com.example.weather.viewmodel.DetailedWeatherViewModel
+import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 class DetailedWeatherActivity: AppCompatActivity()  {
@@ -33,27 +36,27 @@ class DetailedWeatherActivity: AppCompatActivity()  {
 
         initRecyclerView()
 
-        detailedWeatherViewModel.initLiveData(intent.getStringExtra("cityName").toString())
-        detailedWeatherViewModel.apply {
-            getWeatherCity().observe(this@DetailedWeatherActivity) {
-                binding.apply {
-                    adwCityName.text = it.nameCity
-                    adwCurrentTemperature.text = it.weatherCurrent.temperature
-                    adwIconCurrentWeather.setImageResource(
-                        resources
-                            .getIdentifier(
-                                "ic_current_w${it.weatherCurrent.nameIconWeather}",
+        lifecycleScope.launch {
+            detailedWeatherViewModel.initLiveData(intent.getStringExtra("cityName").toString())
+            detailedWeatherViewModel.getResource().collect { resource ->
+                resource.getData()?.let { weatherCity ->
+                    binding.apply {
+                        adwCityName.text = weatherCity.nameCity
+                        adwCurrentTemperature.text = weatherCity.weatherCurrent.temperature
+                        adwIconCurrentWeather.setImageResource(
+                            resources.getIdentifier(
+                                "ic_current_w${weatherCity.weatherCurrent.nameIconWeather}",
                                 "drawable", packageName
                             )
-                    )
+                        )
+                    }
+                    adapterRecyclerView
+                        .update(ArrayList(weatherCity.weatherFutureList))
                 }
-                adapterRecyclerView.update(ArrayList(it.weatherFutureList))
-            }
 
-            getEvent().observe(this@DetailedWeatherActivity) {
-                if (it != null) {
-                    Toast.makeText(this@DetailedWeatherActivity,
-                        this@DetailedWeatherActivity.getString(it), Toast.LENGTH_SHORT).show()
+                resource.getEvent()?.let {
+                    event -> Toast.makeText(this@DetailedWeatherActivity,
+                    this@DetailedWeatherActivity.getString(event), Toast.LENGTH_SHORT).show()
                 }
             }
         }

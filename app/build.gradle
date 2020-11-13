@@ -37,6 +37,7 @@ android {
 dependencies {
     implementation "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version"
     implementation "org.jetbrains.kotlin:kotlin-reflect:1.4.10"
+    implementation "org.jetbrains.kotlinx:kotlinx-coroutines-android:1.4.0"
     //support
     implementation 'androidx.constraintlayout:constraintlayout:2.0.4'
     implementation 'androidx.navigation:navigation-ui-ktx:2.3.1'
@@ -45,6 +46,7 @@ dependencies {
     implementation 'androidx.lifecycle:lifecycle-viewmodel-ktx:2.2.0'
     implementation 'androidx.work:work-runtime-ktx:2.4.0'
     implementation 'androidx.work:work-gcm:2.4.0'
+    implementation 'androidx.lifecycle:lifecycle-livedata-ktx:2.2.0'
     //orm
     implementation 'com.j256.ormlite:ormlite-android:4.46'
     //moshi-kotlin

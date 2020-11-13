@@ -1,16 +1,15 @@
 package com.example.weather.repository
 
 import android.util.Log
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.MutableLiveData
 import com.example.weather.repository.api.WeatherData
 import com.example.weather.repository.dao.OrmLiteHelper
 import com.example.weather.model.WeatherCity
-import com.example.weather.utils.Event
 import com.example.weather.utils.EventStatus
+import com.example.weather.utils.Resource
+import com.example.weather.utils.getWeatherCities
+import com.example.weather.utils.getWeatherCityByName
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.GlobalScope
-import kotlinx.coroutines.launch
+import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.withContext
 import java.net.ConnectException
 import java.sql.SQLException
@@ -19,83 +18,78 @@ import javax.net.ssl.SSLException
 class Repository(private val dataBaseHelper: OrmLiteHelper,
                  private val weatherData: WeatherData) {
 
-    private var eventStatus = MutableLiveData<Event<Int>>()
-    private var weatherCities : MutableLiveData<ArrayList<WeatherCity>> = MutableLiveData()
+    fun getWeatherCities(): StateFlow<ArrayList<WeatherCity>> = MutableStateFlow(
+        dataBaseHelper.getWeatherCities())
 
-    init {
-        updateWeatherCityMutableLiveData()
-    }
+    fun getWeatherCityByName(nameCity: String): StateFlow<WeatherCity> = MutableStateFlow(
+        dataBaseHelper.getWeatherCityByName(nameCity))
 
-    private fun updateWeatherCityMutableLiveData() {
-        GlobalScope.launch(Dispatchers.Main) {
-            weatherCities.value =
-                dataBaseHelper.getWeatherCityDao().queryForAll() as ArrayList<WeatherCity>?
-        }
-    }
-
-    fun getWeatherCities(): LiveData<ArrayList<WeatherCity>> = weatherCities
-    fun getEventStatus(): LiveData<Event<Int>> = eventStatus
-
-    fun createWeatherCity(nameCity: String) {
-        GlobalScope.launch(Dispatchers.Main) {
-            try {
-                val newWeatherCity = withContext(Dispatchers.IO) {
-                        weatherData.getWeatherCity(nameCity)
-                }
-                dataBaseHelper.createWeatherCity(newWeatherCity)
-                updateWeatherCityMutableLiveData()
-                eventStatus.value = Event(EventStatus.CITY_ADDED)
-            } catch (e: NullPointerException) {
-                eventStatus.value = Event(EventStatus.CITY_NOT_FOUND)
-                Log.w("$e nameCity: $nameCity", e.stackTraceToString())
-            } catch (e: SQLException) {
-                eventStatus.value = Event(EventStatus.CITY_EXIST)
-                Log.w("$e nameCity: $nameCity", e.stackTraceToString())
+    fun createWeatherCity(nameCity: String) = flow {
+            val newWeatherCity = withContext(Dispatchers.IO) {
+                    weatherData.getWeatherCity(nameCity)
             }
-        }
+            dataBaseHelper.createWeatherCity(newWeatherCity)
+            emit(Resource(EventStatus.CITY_ADDED, dataBaseHelper.getWeatherCities()))
+        }.catch { e ->
+            when(e) {
+                is NullPointerException -> {
+                    Log.w("$e nameCity: $nameCity", e.stackTraceToString())
+                    emit(Resource(EventStatus.CITY_NOT_FOUND, null))
+                }
+
+                is SQLException -> {
+                    Log.w("$e nameCity: $nameCity", e.stackTraceToString())
+                    emit(Resource(EventStatus.CITY_EXIST))
+                }
+            }
     }
 
-    fun updateWeatherCity(weatherCity: WeatherCity) {
-        GlobalScope.launch(Dispatchers.Main) {
-            try {
-                val newWeatherCity = withContext(Dispatchers.IO) {
-                    weatherData.getUpdateWeatherCity(weatherCity)
-                }
-                dataBaseHelper.updateWeatherCity(newWeatherCity)
-                updateAllCitiesWeather()
-                eventStatus.value = Event(EventStatus.CITY_WEATHER_DATA_UPDATED)
-            } catch (e: ConnectException) {
-                eventStatus.value = Event(EventStatus.LOST_INTERNET_ACCESS)
-                Log.e(e.toString(), e.stackTraceToString())
-            } catch (e: SSLException) {
-                eventStatus.value = Event(EventStatus.CITY_WEATHER_UPDATE_FAILED)
-                Log.w(e.toString(), e.stackTraceToString())
+    fun updateWeatherCity(weatherCity: WeatherCity) = flow {
+            val newWeatherCity = withContext(Dispatchers.IO) {
+                weatherData.getUpdateWeatherCity(weatherCity)
             }
-        }
+            dataBaseHelper.updateWeatherCity(newWeatherCity)
+            emit(Resource(EventStatus.CITY_WEATHER_DATA_UPDATED,
+                dataBaseHelper.getWeatherCityByName(weatherCity.nameCity)))
+        }.catch { e ->
+            when(e) {
+                is ConnectException -> {
+                    Log.e(e.toString(), e.stackTraceToString())
+                    emit(Resource(EventStatus.LOST_INTERNET_ACCESS))
+                }
+
+                is SSLException -> {
+                    Log.w(e.toString(), e.stackTraceToString())
+                    emit(Resource(EventStatus.CITY_WEATHER_UPDATE_FAILED))
+                }
+            }
     }
 
-    fun updateAllCitiesWeather() {
-        GlobalScope.launch(Dispatchers.Main) {
-            try {
-                val weatherCityList = withContext(Dispatchers.IO) {
-                    weatherData.getUpdatedWeatherCityList(weatherCities.value!!)
-                }
-                if (weatherCityList.isNotEmpty()) {
-                    dataBaseHelper.updateAllCitiesWeather(weatherCityList)
-                    updateWeatherCityMutableLiveData()
-                    eventStatus.value = Event(EventStatus.CITY_WEATHER_DATA_UPDATED)
-                }
-            } catch (e: ConcurrentModificationException) {
-                eventStatus.value = Event(EventStatus.CITY_WEATHER_UPDATE_FAILED)
-                Log.w(e.toString(), e.stackTraceToString())
-            } catch (e: ConnectException) {
-                eventStatus.value = Event(EventStatus.LOST_INTERNET_ACCESS)
-                Log.w(e.toString(), e.stackTraceToString())
-            } catch (e: SSLException) {
-                eventStatus.value = Event(EventStatus.CITY_WEATHER_UPDATE_FAILED)
-                Log.w(e.toString(), e.stackTraceToString())
+    fun updateAllCitiesWeather() = flow {
+            val weatherCityList = withContext(Dispatchers.IO) {
+                weatherData.getUpdatedWeatherCityList(dataBaseHelper.getWeatherCities())
             }
-        }
+            if (weatherCityList.isNotEmpty()) {
+                dataBaseHelper.updateAllCitiesWeather(weatherCityList)
+                emit(Resource(EventStatus.CITY_WEATHER_DATA_UPDATED, dataBaseHelper.getWeatherCities()))
+            }
+        }.catch { e ->
+            when (e) {
+                is ConcurrentModificationException -> {
+                    Log.e(e.toString(), e.stackTraceToString())
+                    emit(Resource(EventStatus.CITY_WEATHER_UPDATE_FAILED))
+                }
+
+                is ConnectException -> {
+                    Log.w(e.toString(), e.stackTraceToString())
+                    emit(Resource(EventStatus.LOST_INTERNET_ACCESS))
+                }
+
+                is SSLException -> {
+                    Log.w(e.toString(), e.stackTraceToString())
+                    emit(Resource(EventStatus.CITY_WEATHER_UPDATE_FAILED))
+                }
+            }
     }
 
     fun deletedWeatherCity(weatherCity: WeatherCity) {
