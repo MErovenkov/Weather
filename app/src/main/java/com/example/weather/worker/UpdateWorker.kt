@@ -4,7 +4,7 @@ import android.content.Context
 import android.util.Log
 import androidx.work.Worker
 import androidx.work.WorkerParameters
-import com.example.weather.di.MyApplication
+import com.example.weather.MyApplication
 import com.example.weather.repository.Repository
 import java.lang.Exception
 import javax.inject.Inject
