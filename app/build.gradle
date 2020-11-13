@@ -46,7 +46,6 @@ dependencies {
     implementation 'androidx.lifecycle:lifecycle-viewmodel-ktx:2.2.0'
     implementation 'androidx.work:work-runtime-ktx:2.4.0'
     implementation 'androidx.work:work-gcm:2.4.0'
-    implementation 'androidx.lifecycle:lifecycle-livedata-ktx:2.2.0'
     //orm
     implementation 'com.j256.ormlite:ormlite-android:4.46'
     //moshi-kotlin
