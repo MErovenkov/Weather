@@ -10,7 +10,7 @@ import kotlinx.coroutines.launch
 class WeatherViewModel(private val repository: Repository): ViewModel() {
 
     private var resource: MutableStateFlow<Resource<ArrayList<WeatherCity>>>
-            = MutableStateFlow(Resource(repository.getWeatherCities().value))
+            = MutableStateFlow(Resource(repository.getWeatherCities()))
 
     fun getResource(): StateFlow<Resource<ArrayList<WeatherCity>>> = resource.asStateFlow()
 

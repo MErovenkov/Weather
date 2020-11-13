@@ -18,11 +18,11 @@ import javax.net.ssl.SSLException
 class Repository(private val dataBaseHelper: OrmLiteHelper,
                  private val weatherData: WeatherData) {
 
-    fun getWeatherCities(): StateFlow<ArrayList<WeatherCity>> = MutableStateFlow(
-        dataBaseHelper.getWeatherCities())
+    fun getWeatherCities(): ArrayList<WeatherCity> =
+        dataBaseHelper.getWeatherCities()
 
-    fun getWeatherCityByName(nameCity: String): StateFlow<WeatherCity> = MutableStateFlow(
-        dataBaseHelper.getWeatherCityByName(nameCity))
+    fun getWeatherCityByName(nameCity: String): WeatherCity =
+        dataBaseHelper.getWeatherCityByName(nameCity)
 
     fun createWeatherCity(nameCity: String) = flow {
             val newWeatherCity = withContext(Dispatchers.IO) {

@@ -16,7 +16,7 @@ class DetailedWeatherViewModel(private val repository: Repository): ViewModel() 
     private lateinit var resource: MutableStateFlow<Resource<WeatherCity>>
 
     fun initLiveData(nameCity: String) {
-        resource = MutableStateFlow(Resource(repository.getWeatherCityByName(nameCity).value))
+        resource = MutableStateFlow(Resource(repository.getWeatherCityByName(nameCity)))
     }
 
     fun getResource(): StateFlow<Resource<WeatherCity>> = resource.asStateFlow()
