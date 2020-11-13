@@ -1,4 +1,4 @@
-package com.example.weather.di
+package com.example.weather
 
 import android.app.Application
 import androidx.work.*
