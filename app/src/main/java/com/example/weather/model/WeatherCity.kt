@@ -12,8 +12,11 @@ class WeatherCity {
     @DatabaseField(generatedId = true, columnName = DBNaming.WeatherCityEntry.COLUMN_ID)
     var id: Int = 0
 
-    @DatabaseField(columnName = DBNaming.WeatherCityEntry.COLUMN_NAME_CITY, unique = true)
+    @DatabaseField(uniqueCombo = true, columnName = DBNaming.WeatherCityEntry.COLUMN_NAME_CITY)
     lateinit var nameCity: String
+
+    @DatabaseField(uniqueCombo = true, columnName = DBNaming.WeatherCityEntry.COLUMN_IS_CURRENT_LOCATION)
+    var isCurrentLocation: Boolean = false
 
     @DatabaseField(columnName = DBNaming.WeatherCityEntry.COLUMN_WEATHER_CURRENT, foreign = true,
         foreignAutoRefresh = true, foreignAutoCreate = true)
