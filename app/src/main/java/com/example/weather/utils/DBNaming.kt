@@ -6,10 +6,11 @@ class DBNaming private constructor() {
     }
 
     object WeatherCityEntry {
-        const val TABLE_NAME = "city_weather"
+        const val TABLE_NAME = "tb_city_weather"
         const val COLUMN_ID = "id_city"
         const val COLUMN_NAME_CITY = "name_city"
         const val COLUMN_WEATHER_CURRENT = "weather_current"
+        const val COLUMN_IS_CURRENT_LOCATION = "is_current_location"
     }
 
     object WeatherCurrentEntry {
