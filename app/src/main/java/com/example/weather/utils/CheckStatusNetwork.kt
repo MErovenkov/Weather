@@ -17,7 +17,7 @@ object CheckStatusNetwork {
         connectivityManager =
             mContext.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
 
-        networkCallback = object :ConnectivityManager.NetworkCallback() {
+        networkCallback = object : ConnectivityManager.NetworkCallback() {
             override fun onAvailable(network: Network) {
                 super.onAvailable(network)
                 isActive = true

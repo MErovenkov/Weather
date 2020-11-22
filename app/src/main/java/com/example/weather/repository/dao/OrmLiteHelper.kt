@@ -60,6 +60,7 @@ class OrmLiteHelper(context: Context)
     fun createWeatherCity(newWeatherCity: WeatherCity) {
         try {
             weatherCityDao.create(newWeatherCity)
+            weatherCurrentDao.create(newWeatherCity.weatherCurrent)
             for (future in newWeatherCity.weatherFutureList) {
                 future.weatherCity = newWeatherCity
                 weatherFutureDao.create(future)
