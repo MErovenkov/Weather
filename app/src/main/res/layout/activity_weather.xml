@@ -1,5 +1,4 @@
 <?xml version="1.0" encoding="utf-8"?>
-
 <androidx.swiperefreshlayout.widget.SwipeRefreshLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/aw_swipe_fresh"
@@ -16,10 +15,42 @@
         android:paddingHorizontal="30dp"
         android:paddingVertical="30dp">
 
+        <TextView
+            android:id="@+id/title_current_location"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:lineSpacingExtra="2dp"
+            android:layout_marginBottom="16dp"
+            android:fontFamily="@font/merriweather"
+            android:gravity="center_horizontal"
+            android:maxLines="2"
+            android:textSize="18sp"
+            android:onClick="requestCurrentLocation"/>
+
+        <TextView
+            android:id="@+id/name_current_location"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="-6dp"
+            android:layout_marginBottom="16dp"
+            android:fontFamily="@font/merriweather"
+            android:gravity="center_horizontal"
+            android:textSize="20sp"
+            android:maxLines="1"
+            android:textColor="@color/black"
+            android:onClick="openWeatherCurrentLocation" />
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:background="#7b7b7b"
+            android:elevation="3dp"/>
+
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/aw_recycler_view"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:paddingTop="10dp"
             android:paddingBottom="48dp"
             android:requiresFadingEdge="vertical"
             android:fadingEdgeLength="25dp"
@@ -38,5 +69,7 @@
             android:onClick="createNewCity"
             android:textColor="@color/black"
             tools:ignore="LabelFor" />
+
+
     </LinearLayout>
 </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
