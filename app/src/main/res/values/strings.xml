@@ -6,16 +6,25 @@
     <string name="protocol_tls">TLS</string>
 
     <string name="insert_new_city">Введите название города</string>
+    <string name="weather_current_location">Погода в текущем населенном пункте</string>
 
     <!-- Toast messages -->
     <string name="no_internet_access">Нет доступа в Интернет</string>
     <string name="lost_internet_access">Потерян доступа в Интернет</string>
+
     <string name="city_not_found">Такого города не существует</string>
     <string name="city_exist">Такой город уже есть</string>
     <string name="city_weather_data_updated">Данные обновленны</string>
     <string name="city_weather_update_failed">При обновлении произошла ошибка</string>
     <string name="city_added">Город добавлен</string>
     <string name="city_name_not_empty">Поле с названием не может быть пустым</string>
+
+    <string name="gps_disabled">Gps выключен, вывод погоды по геоданным невозможен</string>>
+    <string name="location_definition">Определить местооложение</string>
+    <string name="loading_information">Информация скоро загрузится</string>
+    <string name="location_information_updated">Получена новая информация</string>
+    <string name="location_information_updated_failure">Ошибка обновления информации о местоположении</string>>
+    <string name="permission_denied">"Погода по геоданным будет недоступна"</string>
 
     <!-- days of the week -->
     <string name="monday">Пн</string>
