@@ -25,8 +25,11 @@ class WeatherData(private val weatherApiRequester: WeatherApiRequester,
        }
     }
 
+    /**
+     * Update WeatherCity
+     * */
     fun getUpdateWeatherCity(oldWeatherCity: WeatherCity): WeatherCity {
-        return changingId(oldWeatherCity, getWeatherCity(oldWeatherCity.nameCity))
+        return broadcastingImmutableData(oldWeatherCity, getWeatherCity(oldWeatherCity.nameCity))
     }
 
     fun getUpdatedWeatherCityList(oldWeatherCityList: ArrayList<WeatherCity>): ArrayList<WeatherCity>{
@@ -35,7 +38,7 @@ class WeatherData(private val weatherApiRequester: WeatherApiRequester,
 
             for (oldWeatherCity in oldWeatherCityList) {
                 val newWeatherCity = getWeatherCity(oldWeatherCity.nameCity)
-                newWeatherCityList.add(changingId(oldWeatherCity, newWeatherCity))
+                newWeatherCityList.add(broadcastingImmutableData(oldWeatherCity, newWeatherCity))
             }
             return newWeatherCityList
         } catch (e: ConnectException) {
@@ -44,9 +47,10 @@ class WeatherData(private val weatherApiRequester: WeatherApiRequester,
         }
     }
 
-    private fun changingId(oldWeatherCity: WeatherCity, newWeatherCity: WeatherCity)
+    private fun broadcastingImmutableData(oldWeatherCity: WeatherCity, newWeatherCity: WeatherCity)
             : WeatherCity {
         newWeatherCity.id = oldWeatherCity.id
+        newWeatherCity.isCurrentLocation = oldWeatherCity.isCurrentLocation
         newWeatherCity.weatherCurrent.id = oldWeatherCity.weatherCurrent.id
 
         val newWeatherFutureList = ArrayList(newWeatherCity.weatherFutureList)
