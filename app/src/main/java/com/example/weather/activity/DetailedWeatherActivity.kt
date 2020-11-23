@@ -12,7 +12,7 @@ import com.example.weather.R
 import com.example.weather.databinding.ActivityDetailedWeatherBinding
 import com.example.weather.model.WeatherFuture
 import com.example.weather.utils.CheckStatusNetwork
-import com.example.weather.utils.getActivityComponent
+import com.example.weather.utils.extension.getActivityComponent
 import com.example.weather.view.recycler.GenericAdapter
 import com.example.weather.viewmodel.DetailedWeatherViewModel
 import kotlinx.coroutines.flow.collect
@@ -27,6 +27,8 @@ class DetailedWeatherActivity: AppCompatActivity()  {
     private lateinit var adapterRecyclerView: GenericAdapter<WeatherFuture>
     private lateinit var swipeRefreshLayout: SwipeRefreshLayout
 
+    private var isCurrentLocation = false
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         getActivityComponent(this).inject(this)
@@ -36,8 +38,12 @@ class DetailedWeatherActivity: AppCompatActivity()  {
 
         initRecyclerView()
 
+        isCurrentLocation = intent.getBooleanExtra(IS_CURRENT_LOCATION_KEY, false)
+
         lifecycleScope.launch {
-            detailedWeatherViewModel.initLiveData(intent.getStringExtra("cityName").toString())
+            detailedWeatherViewModel.initLiveData(intent.getStringExtra(CITY_NAME_KEY).toString(),
+                intent.getBooleanExtra(IS_CURRENT_LOCATION_KEY, false))
+
             detailedWeatherViewModel.getResource().collect { resource ->
                 resource.getData()?.let { weatherCity ->
                     binding.apply {
@@ -64,7 +70,7 @@ class DetailedWeatherActivity: AppCompatActivity()  {
         swipeRefreshLayout = binding.adwSwipeFresh
         swipeRefreshLayout.setOnRefreshListener {
             if (CheckStatusNetwork.isNetworkAvailable()) {
-                detailedWeatherViewModel.updateWeatherData()
+                detailedWeatherViewModel.updateWeatherData(isCurrentLocation)
                 swipeRefreshLayout.isRefreshing = false
             } else {
                 Toast.makeText(this,
@@ -91,10 +97,12 @@ class DetailedWeatherActivity: AppCompatActivity()  {
 
     companion object {
         private const val CITY_NAME_KEY = "cityName"
+        private const val IS_CURRENT_LOCATION_KEY = "isCurrentLocation"
 
-        fun createIntent(context: Context, cityName: String): Intent  {
+        fun createIntent(context: Context, cityName: String, isCurrentLocation: Boolean): Intent  {
             return Intent(context, DetailedWeatherActivity::class.java).apply {
                 putExtra(CITY_NAME_KEY, cityName)
+                putExtra(IS_CURRENT_LOCATION_KEY, isCurrentLocation)
             }
         }
     }

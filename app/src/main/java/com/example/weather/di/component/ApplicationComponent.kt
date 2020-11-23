@@ -12,7 +12,7 @@ import javax.inject.Singleton
 @Singleton
 @Component(modules = [DataBaseHelperModule::class, OkHttpClientModule::class,
                       NetworkServiceModule::class, WeatherDataModule::class,
-                      SubComponentModule::class])
+                      SubComponentModule::class, LocationServiceModule::class])
 interface ApplicationComponent {
     @Component.Factory
     interface Factory {
