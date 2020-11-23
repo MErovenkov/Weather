@@ -22,7 +22,7 @@ class WeatherViewModel(private val repository: Repository): ViewModel() {
         }
     }
 
-    fun updateWeatherData() {
+    fun updateAllCitiesWeather() {
         viewModelScope.launch {
             repository.updateAllCitiesWeather().collect {
                 resource.value = it
@@ -32,5 +32,24 @@ class WeatherViewModel(private val repository: Repository): ViewModel() {
 
     fun deleteWeatherCity(weatherCity: WeatherCity) {
         repository.deletedWeatherCity(weatherCity)
+    }
+
+    /**
+     *  Current Location
+     * */
+    fun createWeatherCurrentLocation(nameCity: String) {
+        viewModelScope.launch {
+            repository.createWeatherCurrentLocation(nameCity).collect {
+                resource.value = it
+            }
+        }
+    }
+
+    fun updateWeatherCurrentLocation(nameCity: String) {
+        viewModelScope.launch {
+            repository.updateWeatherCurrentLocation(nameCity).collect {
+                resource.value = it
+            }
+        }
     }
 }
