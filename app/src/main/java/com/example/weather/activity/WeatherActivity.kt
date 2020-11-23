@@ -125,7 +125,9 @@ class WeatherActivity: AppCompatActivity() {
                         } else {
                             weatherViewModel.createWeatherCurrentLocation(nameCity)
                         }
-
+                        
+                        binding.nameCurrentLocation.isClickable = true
+                        binding.titleCurrentLocation.isClickable = true
                         isLocationInfoUpdated = true
                     }
 
@@ -183,6 +185,8 @@ class WeatherActivity: AppCompatActivity() {
                 )
             }
             CheckStatusNetwork.isNetworkAvailable() -> {
+                binding.nameCurrentLocation.isClickable = false
+                binding.titleCurrentLocation.isClickable = false
                 locationService.startLocationService(this)
             }
             else -> {
