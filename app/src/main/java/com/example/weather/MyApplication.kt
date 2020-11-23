@@ -10,6 +10,10 @@ import java.util.concurrent.TimeUnit
 
 class MyApplication: Application(){
 
+    companion object {
+        private const val WORKER_NAME = "updateWeatherData"
+    }
+
      val appComponent: ApplicationComponent by lazy {
         initializeComponent()
     }
@@ -32,14 +36,16 @@ class MyApplication: Application(){
 
         val myWorkRequest =  PeriodicWorkRequest.Builder(
             UpdateWorker::class.java,
-            4, TimeUnit.HOURS)
-            .addTag("updateWeatherData")
+            4, TimeUnit.HOURS
+        )
+            .addTag(WORKER_NAME)
             .setConstraints(constraints)
             .build()
 
         WorkManager.getInstance(applicationContext).enqueueUniquePeriodicWork(
-        "updateWeatherData",
-        ExistingPeriodicWorkPolicy.KEEP,
-        myWorkRequest)
+            WORKER_NAME,
+            ExistingPeriodicWorkPolicy.KEEP,
+            myWorkRequest
+        )
     }
 }
