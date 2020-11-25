@@ -1,4 +1,4 @@
-package com.example.weather.utils.extension
+package com.example.weather.utils.extensions
 
 import com.example.weather.model.WeatherCity
 import com.example.weather.repository.dao.OrmLiteHelper

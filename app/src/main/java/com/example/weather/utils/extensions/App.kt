@@ -1,4 +1,4 @@
-package com.example.weather.utils.extension
+package com.example.weather.utils.extensions
 
 import android.content.Context
 import androidx.appcompat.app.AppCompatActivity

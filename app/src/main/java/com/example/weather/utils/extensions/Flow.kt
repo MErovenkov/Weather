@@ -1,4 +1,4 @@
-package com.example.weather.utils.extension
+package com.example.weather.utils.extensions
 
 import android.util.Log
 import com.example.weather.utils.EventStatus

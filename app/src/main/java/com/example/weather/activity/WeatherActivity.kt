@@ -16,7 +16,7 @@ import com.example.weather.databinding.ActivityWeatherBinding
 import com.example.weather.databinding.WRecWeatherCurrentBinding
 import com.example.weather.model.WeatherCity
 import com.example.weather.utils.CheckStatusNetwork
-import com.example.weather.utils.extension.getActivityComponent
+import com.example.weather.utils.extensions.getActivityComponent
 import com.example.weather.location.LocationService
 import com.example.weather.view.recycler.GenericAdapter
 import com.example.weather.view.recycler.SwipeToDeleteCallback
@@ -125,7 +125,7 @@ class WeatherActivity: AppCompatActivity() {
                         } else {
                             weatherViewModel.createWeatherCurrentLocation(nameCity)
                         }
-                        
+
                         binding.nameCurrentLocation.isClickable = true
                         binding.titleCurrentLocation.isClickable = true
                         isLocationInfoUpdated = true

@@ -12,7 +12,7 @@ import com.example.weather.R
 import com.example.weather.databinding.ActivityDetailedWeatherBinding
 import com.example.weather.model.WeatherFuture
 import com.example.weather.utils.CheckStatusNetwork
-import com.example.weather.utils.extension.getActivityComponent
+import com.example.weather.utils.extensions.getActivityComponent
 import com.example.weather.view.recycler.GenericAdapter
 import com.example.weather.viewmodel.DetailedWeatherViewModel
 import kotlinx.coroutines.flow.collect

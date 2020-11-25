@@ -4,7 +4,7 @@ import com.example.weather.repository.api.WeatherData
 import com.example.weather.repository.dao.OrmLiteHelper
 import com.example.weather.model.WeatherCity
 import com.example.weather.utils.*
-import com.example.weather.utils.extension.*
+import com.example.weather.utils.extensions.*
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.withContext
