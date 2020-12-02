@@ -20,7 +20,7 @@ class OrmLiteHelper(context: Context)
     private val weatherFutureDao = WeatherFutureDao(connectionSource)
 
     companion object {
-        const val DATABASE_VERSION = 1
+        const val DATABASE_VERSION = 2
         const val DATABASE_NAME = DBNaming.DB.DATABASE_NAME
     }
 
@@ -39,19 +39,13 @@ class OrmLiteHelper(context: Context)
         oldVersion: Int, newVersion: Int
     ) {
         try {
-            TableUtils.dropTable<WeatherCity, Any>(
-                connectionSource,
-                WeatherCity::class.java, false
-            )
-            TableUtils.dropTable<WeatherCurrent, Any>(
-                connectionSource,
-                WeatherCurrent::class.java, false
-            )
-            TableUtils.dropTable<WeatherFuture, Any>(
-                connectionSource,
-                WeatherFuture::class.java, false
-            )
-            onCreate(database, connectionSource)
+            if (newVersion == 2) {
+                weatherCityDao.executeRaw("ALTER TABLE city_weather " +
+                        "RENAME TO ${DBNaming.WeatherCityEntry.TABLE_NAME}")
+                weatherCityDao.executeRaw(
+                    "ALTER TABLE ${DBNaming.WeatherCityEntry.TABLE_NAME} " +
+                            "ADD COLUMN ${DBNaming.WeatherCityEntry.COLUMN_IS_CURRENT_LOCATION} INTEGER")
+            }
         } catch (e: SQLException) {
             Log.w(e.toString(),  e.stackTraceToString())
         }
