@@ -19,10 +19,10 @@
     <string name="city_added">Город добавлен</string>
     <string name="city_name_not_empty">Поле с названием не может быть пустым</string>
 
-    <string name="gps_disabled">Gps выключен, вывод погоды по геоданным невозможен</string>>
+    <string name="gps_disabled">Gps выключен, вывод корректных геоданных невозможен</string>>
     <string name="location_definition">Определить местооложение</string>
     <string name="loading_information">Информация скоро загрузится</string>
-    <string name="location_information_updated">Получена новая информация</string>
+    <string name="location_information_updated">Данные о текущее местоположение обновлены</string>
     <string name="location_information_updated_failure">Ошибка обновления информации о местоположении</string>>
     <string name="permission_denied">"Погода по геоданным будет недоступна"</string>
 
