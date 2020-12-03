@@ -18,6 +18,7 @@ import com.example.weather.model.WeatherCity
 import com.example.weather.utils.CheckStatusNetwork
 import com.example.weather.utils.extensions.getActivityComponent
 import com.example.weather.location.LocationService
+import com.example.weather.utils.extensions.isNetworkAvailable
 import com.example.weather.view.recycler.GenericAdapter
 import com.example.weather.view.recycler.SwipeToDeleteCallback
 import com.example.weather.viewmodel.WeatherViewModel
@@ -36,12 +37,10 @@ class WeatherActivity: AppCompatActivity() {
     private lateinit var swipeRefreshLayout: SwipeRefreshLayout
 
     private var weatherCurrentLocation: WeatherCity? = null
-    private var isLocationInfoUpdated = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         getActivityComponent(this).inject(this)
-
         binding = ActivityWeatherBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
@@ -49,6 +48,7 @@ class WeatherActivity: AppCompatActivity() {
 
         viewModelCollector()
         locationServiceCollector()
+        checkNetworkCollector()
 
         swipeRefreshLayout = binding.awSwipeFresh
         swipeRefreshLayout.setOnRefreshListener {
@@ -56,11 +56,7 @@ class WeatherActivity: AppCompatActivity() {
                 weatherViewModel.updateAllCitiesWeather()
                 swipeRefreshLayout.isRefreshing = false
             } else {
-                Toast.makeText(
-                    this,
-                    this.getString(R.string.no_internet_access),
-                    Toast.LENGTH_SHORT
-                ).show()
+                showNoInternetAccess()
                 swipeRefreshLayout.isRefreshing = false
             }
         }
@@ -82,64 +78,83 @@ class WeatherActivity: AppCompatActivity() {
     }
 
     private fun viewModelCollector() {
-        lifecycleScope.apply {
-            launch {
-                weatherViewModel.getResource().collect { resource ->
-                    resource.getData()?.let { weatherCities ->
-                        adapterRecyclerView.update(
-                            weatherCities
-                                .filter { !it.isCurrentLocation }.toCollection(ArrayList())
-                        )
+        lifecycleScope.launch {
+            weatherViewModel.getResource().collect { resource ->
+                resource.getData()?.let { weatherCities ->
+                    adapterRecyclerView.update(
+                        weatherCities
+                            .filter { !it.isCurrentLocation }.toCollection(ArrayList())
+                    )
 
-                        weatherCurrentLocation = weatherCities
-                            .firstOrNull { it.isCurrentLocation }
-                        if (weatherCurrentLocation == null) {
-                            binding.nameCurrentLocation.visibility = View.GONE
-                            binding.titleCurrentLocation.text = this@WeatherActivity.getString(R.string.location_definition)
-                        } else {
-                            binding.nameCurrentLocation.visibility = View.VISIBLE
-                            binding.titleCurrentLocation.text =
-                                (this@WeatherActivity.getString(R.string.weather_current_location))
-                            binding.nameCurrentLocation.text = weatherCurrentLocation!!.nameCity
-                        }
-                    }
+                    weatherCurrentLocation = weatherCities
+                        .firstOrNull { it.isCurrentLocation }
 
-                    resource.getEvent()?.let { event ->
-                        Toast.makeText(
-                            this@WeatherActivity,
-                            this@WeatherActivity.getString(event), Toast.LENGTH_SHORT
-                        ).show()
+                    if (weatherCurrentLocation == null) {
+                        binding.currentLocation.visibility = View.GONE
+                        binding.titleCurrentLocation.text = this@WeatherActivity.getString(R.string.location_definition)
+                    } else {
+                        binding.currentLocation.visibility = View.VISIBLE
+                        binding.titleCurrentLocation.text =
+                            (this@WeatherActivity.getString(R.string.weather_current_location))
+
+                        binding.currentLocation.text = (weatherCurrentLocation!!.nameCity
+                                + "\n" + weatherCurrentLocation!!.weatherCurrent.temperature)
                     }
+                }
+
+                resource.getEvent()?.let { event ->
+                    Toast.makeText(
+                        this@WeatherActivity,
+                        this@WeatherActivity.getString(event), Toast.LENGTH_SHORT
+                    ).show()
                 }
             }
         }
     }
 
     private fun locationServiceCollector() {
-        lifecycleScope.apply {
-            launch {
-                locationService.getResource().collect { resource ->
-                    resource.getData()?.let { nameCity ->
-                        if (weatherCurrentLocation != null) {
-                            weatherViewModel.updateWeatherCurrentLocation(nameCity)
-                        } else {
-                            weatherViewModel.createWeatherCurrentLocation(nameCity)
-                        }
+        lifecycleScope.launch {
+            locationService.getResource().collect { resource ->
+                resource.getData()?.let { nameCity ->
 
-                        binding.nameCurrentLocation.isClickable = true
-                        binding.titleCurrentLocation.isClickable = true
-                        isLocationInfoUpdated = true
+                    if (weatherCurrentLocation != null) {
+                        weatherViewModel.updateWeatherCurrentLocation(nameCity)
+                    } else {
+                        weatherViewModel.createWeatherCurrentLocation(nameCity)
                     }
 
-                    resource.getEvent()?.let { event ->
-                        Toast.makeText(
-                            this@WeatherActivity,
-                            this@WeatherActivity.getString(event), Toast.LENGTH_SHORT
-                        ).show()
-                    }
+                    binding.currentLocation.isClickable = true
+                    binding.titleCurrentLocation.isClickable = true
+                }
+
+                resource.getEvent()?.let { event ->
+                    Toast.makeText(
+                        this@WeatherActivity,
+                        this@WeatherActivity.getString(event), Toast.LENGTH_SHORT
+                    ).show()
                 }
             }
         }
+    }
+
+    private fun checkNetworkCollector() {
+        lifecycleScope.launch {
+            CheckStatusNetwork.getNetworkAvailable().collect {
+                if (it) {
+                    locationService.startLocationService(this@WeatherActivity)
+                } else {
+                    showNoInternetAccess()
+                }
+            }
+        }
+    }
+
+    private fun showNoInternetAccess() {
+        Toast.makeText(
+            this,
+            this.getString(R.string.no_internet_access),
+            Toast.LENGTH_SHORT
+        ).show()
     }
 
     fun createNewCity(@Suppress("UNUSED_PARAMETER") view: View) {
@@ -159,13 +174,7 @@ class WeatherActivity: AppCompatActivity() {
                     Toast.LENGTH_SHORT
                 ).show()
             }
-        } else {
-            Toast.makeText(
-                this,
-                this.getString(R.string.no_internet_access),
-                Toast.LENGTH_SHORT
-            ).show()
-        }
+        } else showNoInternetAccess()
     }
 
     fun openWeatherDetailed(view: View) {
@@ -206,8 +215,7 @@ class WeatherActivity: AppCompatActivity() {
         when (requestCode) {
             PackageManager.PERMISSION_GRANTED -> {
                 if (!(grantResults.isNotEmpty() &&
-                            grantResults[0] == PackageManager.PERMISSION_GRANTED)
-                ) {
+                            grantResults[0] == PackageManager.PERMISSION_GRANTED)) {
                     Toast.makeText(
                         this,
                         R.string.permission_denied,

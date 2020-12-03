@@ -4,9 +4,10 @@ import android.content.Context
 import android.net.ConnectivityManager
 import android.net.Network
 import android.net.NetworkRequest
+import kotlinx.coroutines.flow.MutableStateFlow
 
 object CheckStatusNetwork {
-    private var isActive: Boolean = false
+    private var isActive: MutableStateFlow<Boolean> = MutableStateFlow(false)
     private lateinit var mContext: Context
     private lateinit var connectivityManager: ConnectivityManager
     private lateinit var networkCallback: ConnectivityManager.NetworkCallback
@@ -20,12 +21,12 @@ object CheckStatusNetwork {
         networkCallback = object : ConnectivityManager.NetworkCallback() {
             override fun onAvailable(network: Network) {
                 super.onAvailable(network)
-                isActive = true
+                isActive.value = true
             }
 
             override fun onLost(network: Network) {
                 super.onLost(network)
-                isActive = false
+                isActive.value = false
             }
         }
 
@@ -35,7 +36,7 @@ object CheckStatusNetwork {
             networkCallback)
     }
 
-    fun isNetworkAvailable(): Boolean {
+    fun getNetworkAvailable(): MutableStateFlow<Boolean> {
         return isActive
     }
 }
