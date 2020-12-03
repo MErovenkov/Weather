@@ -215,6 +215,8 @@ class WeatherActivity: AppCompatActivity() {
                         R.string.permission_denied,
                         Toast.LENGTH_LONG
                     ).show()
+                    binding.currentLocation.visibility = View.GONE
+                    binding.titleCurrentLocation.text = this@WeatherActivity.getString(R.string.location_definition)
                 } else locationService.startLocationService(this)
             }
         }
