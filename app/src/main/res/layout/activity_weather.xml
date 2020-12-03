@@ -28,15 +28,16 @@
             android:onClick="openWeatherCurrentLocation"/>
 
         <TextView
-            android:id="@+id/name_current_location"
+            android:id="@+id/current_location"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:lineSpacingExtra="2dp"
             android:layout_marginTop="-6dp"
             android:layout_marginBottom="16dp"
             android:fontFamily="@font/merriweather"
             android:gravity="center_horizontal"
             android:textSize="20sp"
-            android:maxLines="1"
+            android:maxLines="2"
             android:textColor="@color/black"
             android:onClick="openWeatherCurrentLocation" />
 

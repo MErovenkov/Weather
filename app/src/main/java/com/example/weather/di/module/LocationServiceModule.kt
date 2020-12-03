@@ -31,7 +31,7 @@ class LocationServiceModule {
     @Singleton
     fun locationRequest(): LocationRequest {
         return LocationRequest.create().apply {
-            priority = LocationRequest.PRIORITY_HIGH_ACCURACY
+            priority = LocationRequest.PRIORITY_BALANCED_POWER_ACCURACY
             interval = 100L
         }
     }
