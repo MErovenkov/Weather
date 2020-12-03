@@ -186,25 +186,19 @@ class WeatherActivity: AppCompatActivity() {
     }
 
     fun openWeatherCurrentLocation(@Suppress("UNUSED_PARAMETER") view: View) {
-        when {
-            isLocationInfoUpdated -> {
-                startActivity(
-                    DetailedWeatherActivity.createIntent(this,
-                        binding.nameCurrentLocation.text as String, true)
-                )
-            }
-            CheckStatusNetwork.isNetworkAvailable() -> {
-                binding.nameCurrentLocation.isClickable = false
-                binding.titleCurrentLocation.isClickable = false
+        if (binding.titleCurrentLocation.text == this.getString(R.string.location_definition)) {
+            if (CheckStatusNetwork.isNetworkAvailable()) {
                 locationService.startLocationService(this)
-            }
-            else -> {
-                Toast.makeText(
-                    this,
-                    R.string.no_internet_access,
-                    Toast.LENGTH_LONG
-                ).show()
-            }
+            } else showNoInternetAccess()
+        } else {
+            startActivity(
+                weatherCurrentLocation?.let {
+                    DetailedWeatherActivity.createIntent(
+                        this,
+                        it.nameCity, true
+                    )
+                }
+            )
         }
    }
 
@@ -231,7 +225,11 @@ class WeatherActivity: AppCompatActivity() {
 
         when (resultCode) {
             Activity.RESULT_OK -> {
-                locationService.startLocationService(this)
+                Toast.makeText(
+                    this,
+                    R.string.loading_information,
+                    Toast.LENGTH_LONG
+                ).show()
             }
 
             Activity.RESULT_CANCELED -> {
@@ -242,10 +240,5 @@ class WeatherActivity: AppCompatActivity() {
                 ).show()
             }
         }
-    }
-
-    override fun onResume() {
-        super.onResume()
-        isLocationInfoUpdated = false
     }
 }

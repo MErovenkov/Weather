@@ -5,7 +5,8 @@ import android.app.Activity
 import android.content.Context
 import android.content.IntentSender.SendIntentException
 import android.content.pm.PackageManager
-import android.location.*
+import android.location.Geocoder
+import android.location.Location
 import android.os.Looper
 import android.util.Log
 import androidx.core.app.ActivityCompat
@@ -72,14 +73,13 @@ class LocationService(
             Log.i(TAG, "Request permission ACCESS_FINE_LOCATION")
         } else {
             settingsClient.checkLocationSettings(locationSettingsRequest)
-                .addOnSuccessListener {
+                .addOnCompleteListener {
                     fusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(context)
                     fusedLocationProviderClient!!.requestLocationUpdates(locationRequest,
                         locationCallback,
                         Looper.myLooper())
 
                     geocoder = Geocoder(context)
-                    resource.value = Resource(R.string.loading_information)
                     Log.i(TAG, "RequestLocationUpdates")
                 }
                 .addOnFailureListener { e ->
