@@ -1,6 +1,6 @@
 apply plugin: 'com.android.application'
 apply plugin: 'kotlin-android'
-apply plugin: 'kotlin-android-extensions'
+apply plugin: 'kotlin-parcelize'
 apply plugin: 'kotlin-kapt'
 
 android {
@@ -50,13 +50,13 @@ dependencies {
     //location services
     implementation 'com.google.android.gms:play-services-location:17.1.0'
     //orm
-    implementation 'com.j256.ormlite:ormlite-android:4.46'
+    implementation 'com.j256.ormlite:ormlite-android:5.2'
     //moshi-kotlin
     implementation 'com.squareup.moshi:moshi-kotlin:1.11.0'
     //retrofit
     implementation 'com.squareup.retrofit2:converter-moshi:2.9.0'
     implementation 'com.squareup.retrofit2:retrofit:2.9.0'
     //dagger
-    implementation 'com.google.dagger:dagger:2.29.1'
+    implementation 'com.google.dagger:dagger:2.30.1'
     kapt 'com.google.dagger:dagger-compiler:2.29.1'
 }
