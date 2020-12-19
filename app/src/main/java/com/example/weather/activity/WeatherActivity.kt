@@ -18,6 +18,7 @@ import com.example.weather.model.WeatherCity
 import com.example.weather.utils.CheckStatusNetwork
 import com.example.weather.utils.extensions.getActivityComponent
 import com.example.weather.location.LocationService
+import com.example.weather.utils.extensions.hasLocationPermission
 import com.example.weather.utils.extensions.isNetworkAvailable
 import com.example.weather.view.recycler.GenericAdapter
 import com.example.weather.view.recycler.SwipeToDeleteCallback
@@ -43,6 +44,7 @@ class WeatherActivity: AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         getActivityComponent(this).inject(this)
+
         binding = ActivityWeatherBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
@@ -85,17 +87,17 @@ class WeatherActivity: AppCompatActivity() {
         lifecycleScope.launch {
             weatherViewModel.getResource().collect { resource ->
                 resource.getData()?.let { weatherCities ->
-                    adapterRecyclerView.update(
-                        weatherCities
-                            .filter { !it.isCurrentLocation }.toCollection(ArrayList())
-                    )
+                    adapterRecyclerView.update(weatherCities.filter { !it.isCurrentLocation }
+                        .toCollection(ArrayList()))
 
                     weatherCurrentLocation = weatherCities
                         .firstOrNull { it.isCurrentLocation }
 
-                    if (weatherCurrentLocation == null) {
+                    if (weatherCurrentLocation == null ||
+                        !this@WeatherActivity.hasLocationPermission()) {
                         binding.currentLocation.visibility = View.GONE
-                        binding.titleCurrentLocation.text = this@WeatherActivity.getString(R.string.location_definition)
+                        binding.titleCurrentLocation.text =
+                            this@WeatherActivity.getString(R.string.location_definition)
                     } else {
                         binding.currentLocation.visibility = View.VISIBLE
                         binding.currentLocation.text = (weatherCurrentLocation!!.nameCity
@@ -104,13 +106,16 @@ class WeatherActivity: AppCompatActivity() {
                         binding.titleCurrentLocation.text =
                             (this@WeatherActivity.getString(R.string.weather_current_location))
                     }
-                }
 
-                resource.getEvent()?.let { event ->
-                    Toast.makeText(
-                        this@WeatherActivity,
-                        this@WeatherActivity.getString(event), Toast.LENGTH_SHORT
-                    ).show()
+                    resource.getEvent()?.let { event ->
+                        if (weatherCities.filter { !it.isCurrentLocation }
+                                .toCollection(ArrayList()).isNotEmpty()) {
+                            Toast.makeText(
+                                this@WeatherActivity,
+                                this@WeatherActivity.getString(event), Toast.LENGTH_SHORT
+                            ).show()
+                        }
+                    }
                 }
             }
         }
@@ -184,7 +189,8 @@ class WeatherActivity: AppCompatActivity() {
         val bindings: WRecWeatherCurrentBinding = WRecWeatherCurrentBinding.bind(view)
 
         startActivity(
-            DetailedWeatherActivity.createIntent(this, bindings.wRecCityName.text as String, false)
+            DetailedWeatherActivity.createIntent(this,
+                bindings.wRecCityName.text as String, false)
         )
     }
 
@@ -220,8 +226,6 @@ class WeatherActivity: AppCompatActivity() {
                         R.string.permission_denied,
                         Toast.LENGTH_LONG
                     ).show()
-                    binding.currentLocation.visibility = View.GONE
-                    binding.titleCurrentLocation.text = this@WeatherActivity.getString(R.string.location_definition)
                 } else locationService.startLocationService(this)
             }
         }

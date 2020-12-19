@@ -12,6 +12,7 @@ class Resource<T> {
     constructor(weatherData: T?) {
         this.data = weatherData
     }
+
     constructor(event: Int?) {
         this.event = event
     }
