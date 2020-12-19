@@ -37,6 +37,8 @@ class WeatherActivity: AppCompatActivity() {
     private lateinit var swipeRefreshLayout: SwipeRefreshLayout
 
     private var weatherCurrentLocation: WeatherCity? = null
+    private val alphaNotUpdatedData = 0.5F
+    private val alphaUpdatedData = 1F
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -49,6 +51,8 @@ class WeatherActivity: AppCompatActivity() {
         viewModelCollector()
         locationServiceCollector()
         checkNetworkCollector()
+
+        binding.currentLocation.alpha = alphaNotUpdatedData
 
         swipeRefreshLayout = binding.awSwipeFresh
         swipeRefreshLayout.setOnRefreshListener {
@@ -94,11 +98,11 @@ class WeatherActivity: AppCompatActivity() {
                         binding.titleCurrentLocation.text = this@WeatherActivity.getString(R.string.location_definition)
                     } else {
                         binding.currentLocation.visibility = View.VISIBLE
-                        binding.titleCurrentLocation.text =
-                            (this@WeatherActivity.getString(R.string.weather_current_location))
-
                         binding.currentLocation.text = (weatherCurrentLocation!!.nameCity
                                 + "\n" + weatherCurrentLocation!!.weatherCurrent.temperature)
+
+                        binding.titleCurrentLocation.text =
+                            (this@WeatherActivity.getString(R.string.weather_current_location))
                     }
                 }
 
@@ -123,8 +127,7 @@ class WeatherActivity: AppCompatActivity() {
                         weatherViewModel.createWeatherCurrentLocation(nameCity)
                     }
 
-                    binding.currentLocation.isClickable = true
-                    binding.titleCurrentLocation.isClickable = true
+                    binding.currentLocation.alpha = alphaUpdatedData
                 }
 
                 resource.getEvent()?.let { event ->
@@ -133,6 +136,8 @@ class WeatherActivity: AppCompatActivity() {
                         this@WeatherActivity.getString(event), Toast.LENGTH_SHORT
                     ).show()
                 }
+
+                binding.titleCurrentLocation.isClickable = true
             }
         }
     }
@@ -142,8 +147,6 @@ class WeatherActivity: AppCompatActivity() {
             CheckStatusNetwork.getNetworkAvailable().collect {
                 if (it) {
                     locationService.startLocationService(this@WeatherActivity)
-                } else {
-                    showNoInternetAccess()
                 }
             }
         }
@@ -188,6 +191,8 @@ class WeatherActivity: AppCompatActivity() {
     fun openWeatherCurrentLocation(@Suppress("UNUSED_PARAMETER") view: View) {
         if (binding.titleCurrentLocation.text == this.getString(R.string.location_definition)) {
             if (CheckStatusNetwork.isNetworkAvailable()) {
+                binding.titleCurrentLocation.isClickable = false
+
                 locationService.startLocationService(this)
             } else showNoInternetAccess()
         } else {

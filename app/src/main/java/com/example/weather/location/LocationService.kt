@@ -57,8 +57,7 @@ class LocationService(
                 (0..maxAddressLineIndex).map { locality }
             }
 
-            resource.value = Resource(R.string.location_information_updated,
-                cityName.joinToString())
+            resource.value = Resource(cityName.joinToString())
             Log.i(TAG, "Locality received")
         } else resource.value = Resource(R.string.location_information_updated_failure)
     }
