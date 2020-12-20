@@ -5,7 +5,6 @@ import android.content.Intent
 import android.content.pm.PackageManager
 import android.os.Bundle
 import android.view.View
-import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.ItemTouchHelper
@@ -16,10 +15,8 @@ import com.example.weather.databinding.ActivityWeatherBinding
 import com.example.weather.databinding.WRecWeatherCurrentBinding
 import com.example.weather.model.WeatherCity
 import com.example.weather.utils.CheckStatusNetwork
-import com.example.weather.utils.extensions.getActivityComponent
 import com.example.weather.location.LocationService
-import com.example.weather.utils.extensions.hasLocationPermission
-import com.example.weather.utils.extensions.isNetworkAvailable
+import com.example.weather.utils.extensions.*
 import com.example.weather.view.recycler.GenericAdapter
 import com.example.weather.view.recycler.SwipeToDeleteCallback
 import com.example.weather.viewmodel.WeatherViewModel
@@ -110,10 +107,7 @@ class WeatherActivity: AppCompatActivity() {
                     resource.getEvent()?.let { event ->
                         if (weatherCities.filter { !it.isCurrentLocation }
                                 .toCollection(ArrayList()).isNotEmpty()) {
-                            Toast.makeText(
-                                this@WeatherActivity,
-                                this@WeatherActivity.getString(event), Toast.LENGTH_SHORT
-                            ).show()
+                           this@WeatherActivity.showToast(event)
                         }
                     }
                 }
@@ -136,10 +130,7 @@ class WeatherActivity: AppCompatActivity() {
                 }
 
                 resource.getEvent()?.let { event ->
-                    Toast.makeText(
-                        this@WeatherActivity,
-                        this@WeatherActivity.getString(event), Toast.LENGTH_SHORT
-                    ).show()
+                    this@WeatherActivity.showToast(event)
                 }
 
                 binding.titleCurrentLocation.isClickable = true
@@ -157,14 +148,6 @@ class WeatherActivity: AppCompatActivity() {
         }
     }
 
-    private fun showNoInternetAccess() {
-        Toast.makeText(
-            this,
-            this.getString(R.string.no_internet_access),
-            Toast.LENGTH_SHORT
-        ).show()
-    }
-
     fun createNewCity(@Suppress("UNUSED_PARAMETER") view: View) {
         val addingNewCity = binding.awAddingNewCity
         val nameCity = addingNewCity.text.toString()
@@ -176,11 +159,7 @@ class WeatherActivity: AppCompatActivity() {
 
                 weatherViewModel.createWeatherData(nameCity)
             } else {
-                Toast.makeText(
-                    this,
-                    this.getString(R.string.city_name_not_empty),
-                    Toast.LENGTH_SHORT
-                ).show()
+                showToast(R.string.city_name_not_empty)
             }
         } else showNoInternetAccess()
     }
@@ -221,11 +200,7 @@ class WeatherActivity: AppCompatActivity() {
             PackageManager.PERMISSION_GRANTED -> {
                 if (!(grantResults.isNotEmpty() &&
                             grantResults[0] == PackageManager.PERMISSION_GRANTED)) {
-                    Toast.makeText(
-                        this,
-                        R.string.permission_denied,
-                        Toast.LENGTH_LONG
-                    ).show()
+                    showToast(R.string.permission_denied)
                 } else locationService.startLocationService(this)
             }
         }
@@ -236,19 +211,11 @@ class WeatherActivity: AppCompatActivity() {
 
         when (resultCode) {
             Activity.RESULT_OK -> {
-                Toast.makeText(
-                    this,
-                    R.string.loading_information,
-                    Toast.LENGTH_LONG
-                ).show()
+                showToast(R.string.loading_information)
             }
 
             Activity.RESULT_CANCELED -> {
-                Toast.makeText(
-                    this,
-                    R.string.gps_disabled,
-                    Toast.LENGTH_LONG
-                ).show()
+                showToast(R.string.gps_disabled)
             }
         }
     }

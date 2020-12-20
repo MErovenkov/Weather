@@ -3,17 +3,17 @@ package com.example.weather.activity
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
-import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
-import com.example.weather.R
 import com.example.weather.databinding.ActivityDetailedWeatherBinding
 import com.example.weather.model.WeatherFuture
 import com.example.weather.utils.CheckStatusNetwork
 import com.example.weather.utils.extensions.getActivityComponent
 import com.example.weather.utils.extensions.isNetworkAvailable
+import com.example.weather.utils.extensions.showNoInternetAccess
+import com.example.weather.utils.extensions.showToast
 import com.example.weather.view.recycler.GenericAdapter
 import com.example.weather.viewmodel.DetailedWeatherViewModel
 import kotlinx.coroutines.flow.collect
@@ -57,13 +57,13 @@ class DetailedWeatherActivity: AppCompatActivity()  {
                             )
                         )
                     }
+
                     adapterRecyclerView
                         .update(ArrayList(weatherCity.weatherFutureList))
                 }
 
                 resource.getEvent()?.let {
-                    event -> Toast.makeText(this@DetailedWeatherActivity,
-                    this@DetailedWeatherActivity.getString(event), Toast.LENGTH_SHORT).show()
+                    event -> this@DetailedWeatherActivity.showToast(event)
                 }
             }
         }
@@ -74,9 +74,7 @@ class DetailedWeatherActivity: AppCompatActivity()  {
                 detailedWeatherViewModel.updateWeatherData(isCurrentLocation)
                 swipeRefreshLayout.isRefreshing = false
             } else {
-                Toast.makeText(this,
-                    this.getString(R.string.no_internet_access),
-                    Toast.LENGTH_SHORT).show()
+                showNoInternetAccess()
                 swipeRefreshLayout.isRefreshing = false
             }
         }
