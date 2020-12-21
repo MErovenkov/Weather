@@ -28,13 +28,13 @@ class Repository(private val dataBaseHelper: OrmLiteHelper,
     }.createWeatherException(nameCity)
 
     fun updateWeatherCity(weatherCity: WeatherCity) = flow {
-        val newWeatherCity = withContext(Dispatchers.IO) {
-            weatherData.getUpdateWeatherCity(weatherCity)
-        }
+            val newWeatherCity = withContext(Dispatchers.IO) {
+                weatherData.getUpdateWeatherCity(weatherCity)
+            }
 
-        dataBaseHelper.updateWeatherCity(newWeatherCity)
-        emit(Resource(EventStatus.CITY_WEATHER_DATA_UPDATED,
-            dataBaseHelper.getWeatherCityByName(weatherCity.nameCity)))
+            dataBaseHelper.updateWeatherCity(newWeatherCity)
+            emit(Resource(EventStatus.CITY_WEATHER_DATA_UPDATED,
+                dataBaseHelper.getWeatherCityByName(weatherCity.nameCity)))
     }.connectException()
      .sslUpdateException()
 

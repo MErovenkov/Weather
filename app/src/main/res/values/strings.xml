@@ -19,7 +19,7 @@
     <string name="city_added">Город добавлен</string>
     <string name="city_name_not_empty">Поле с названием не может быть пустым</string>
 
-    <string name="gps_disabled">Gps выключен, вывод корректных геоданных невозможен</string>>
+    <string name="gps_disabled">Gps выключен, вывод геоданных невозможен</string>>
     <string name="location_definition">Определить местоположение</string>
     <string name="loading_information">Информация скоро загрузится</string>
     <string name="location_information_updated">Данные о текущее местоположение обновлены</string>

@@ -69,7 +69,6 @@ fun <T> Flow<T>.concurrentModificationException(): Flow<T> {
                 Log.e(e.toString(), e.stackTraceToString())
                 emit(Resource(EventStatus.CITY_WEATHER_UPDATE_FAILED, null) as T)
             }
-
         }
     }
 }

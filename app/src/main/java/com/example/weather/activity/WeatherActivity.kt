@@ -13,9 +13,9 @@ import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
 import com.example.weather.R
 import com.example.weather.databinding.ActivityWeatherBinding
 import com.example.weather.databinding.WRecWeatherCurrentBinding
+import com.example.weather.location.LocationService
 import com.example.weather.model.WeatherCity
 import com.example.weather.utils.CheckStatusNetwork
-import com.example.weather.location.LocationService
 import com.example.weather.utils.extensions.*
 import com.example.weather.view.recycler.GenericAdapter
 import com.example.weather.view.recycler.SwipeToDeleteCallback
@@ -129,8 +129,6 @@ class WeatherActivity: AppCompatActivity() {
                 resource.getEvent()?.let { event ->
                     this@WeatherActivity.showToast(event)
                 }
-
-                binding.titleCurrentLocation.isClickable = true
             }
         }
     }
@@ -165,8 +163,10 @@ class WeatherActivity: AppCompatActivity() {
         val bindings: WRecWeatherCurrentBinding = WRecWeatherCurrentBinding.bind(view)
 
         startActivity(
-            DetailedWeatherActivity.createIntent(this,
-                bindings.wRecCityName.text as String, false)
+            DetailedWeatherActivity.createIntent(
+                this,
+                bindings.wRecCityName.text as String, false
+            )
         )
     }
 
@@ -181,8 +181,7 @@ class WeatherActivity: AppCompatActivity() {
             startActivity(
                 weatherCurrentLocation?.let {
                     DetailedWeatherActivity.createIntent(
-                        this,
-                        it.nameCity, true
+                        this, it.nameCity, true
                     )
                 }
             )
@@ -190,8 +189,7 @@ class WeatherActivity: AppCompatActivity() {
    }
 
     override fun onRequestPermissionsResult(
-        requestCode: Int, permissions: Array<String>,
-        grantResults: IntArray
+        requestCode: Int, permissions: Array<String>, grantResults: IntArray
     ) {
         when (requestCode) {
             PackageManager.PERMISSION_GRANTED -> {
