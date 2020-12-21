@@ -3,6 +3,7 @@ package com.example.weather.utils.extensions
 import android.Manifest
 import android.content.Context
 import android.content.pm.PackageManager
+import android.location.LocationManager
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
@@ -20,6 +21,11 @@ fun AppCompatActivity.getActivityComponent(context: Context): ActivityComponent 
 fun AppCompatActivity.hasLocationPermission(): Boolean{
     return ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION
     ) == PackageManager.PERMISSION_GRANTED
+}
+
+fun AppCompatActivity.isLocationEnable(): Boolean{
+    return (this.getSystemService(Context.LOCATION_SERVICE) as LocationManager)
+        .isProviderEnabled(LocationManager.GPS_PROVIDER)
 }
 
 fun AppCompatActivity.showToast(event: Int) {

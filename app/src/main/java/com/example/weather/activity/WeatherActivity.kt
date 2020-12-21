@@ -91,7 +91,8 @@ class WeatherActivity: AppCompatActivity() {
                         .firstOrNull { it.isCurrentLocation }
 
                     if (weatherCurrentLocation == null ||
-                        !this@WeatherActivity.hasLocationPermission()) {
+                        !this@WeatherActivity.hasLocationPermission() ||
+                        !this@WeatherActivity.isLocationEnable()) {
                         binding.currentLocation.visibility = View.GONE
                         binding.titleCurrentLocation.text =
                             this@WeatherActivity.getString(R.string.location_definition)
@@ -175,11 +176,11 @@ class WeatherActivity: AppCompatActivity() {
 
     fun openWeatherCurrentLocation(@Suppress("UNUSED_PARAMETER") view: View) {
         if (binding.titleCurrentLocation.text == this.getString(R.string.location_definition)) {
-            if (CheckStatusNetwork.isNetworkAvailable()) {
-                binding.titleCurrentLocation.isClickable = false
-
-                locationService.startLocationService(this)
-            } else showNoInternetAccess()
+            if (isLocationEnable()) {
+                if (CheckStatusNetwork.isNetworkAvailable()) {
+                    locationService.startLocationService(this)
+                } else showNoInternetAccess()
+            } else showToast(R.string.gps_disabled)
         } else {
             startActivity(
                 weatherCurrentLocation?.let {
