@@ -5,6 +5,7 @@ import android.content.Intent
 import android.content.pm.PackageManager
 import android.os.Bundle
 import android.view.View
+import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.ItemTouchHelper
@@ -191,13 +192,15 @@ class WeatherActivity: AppCompatActivity() {
     override fun onRequestPermissionsResult(
         requestCode: Int, permissions: Array<String>, grantResults: IntArray
     ) {
-        when (requestCode) {
-            PackageManager.PERMISSION_GRANTED -> {
-                if (!(grantResults.isNotEmpty() &&
-                            grantResults[0] == PackageManager.PERMISSION_GRANTED)) {
-                    showToast(R.string.permission_denied)
-                } else locationService.startLocationService(this)
-            }
+        if (!(grantResults.isNotEmpty() &&
+                        grantResults[0] == PackageManager.PERMISSION_GRANTED)) {
+           Toast.makeText(
+               applicationContext,
+               this.getString(R.string.permission_denied),
+               Toast.LENGTH_SHORT
+           ).show()
+        } else {
+            locationService.startLocationService(this)
         }
     }
 
@@ -206,11 +209,19 @@ class WeatherActivity: AppCompatActivity() {
 
         when (resultCode) {
             Activity.RESULT_OK -> {
-                showToast(R.string.loading_information)
+                Toast.makeText(
+                    applicationContext,
+                    this.getString(R.string.loading_information),
+                    Toast.LENGTH_SHORT
+                ).show()
             }
 
             Activity.RESULT_CANCELED -> {
-                showToast(R.string.gps_disabled)
+                Toast.makeText(
+                    applicationContext,
+                    this.getString(R.string.gps_disabled),
+                    Toast.LENGTH_SHORT
+                ).show()
             }
         }
     }
