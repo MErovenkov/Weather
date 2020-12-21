@@ -57,7 +57,6 @@ class WeatherActivity: AppCompatActivity() {
         swipeRefreshLayout.setOnRefreshListener {
             if (CheckStatusNetwork.isNetworkAvailable()) {
                 weatherViewModel.updateAllCitiesWeather()
-                swipeRefreshLayout.isRefreshing = false
             } else {
                 showNoInternetAccess()
                 swipeRefreshLayout.isRefreshing = false
@@ -110,6 +109,8 @@ class WeatherActivity: AppCompatActivity() {
                                 .toCollection(ArrayList()).isNotEmpty()) {
                            this@WeatherActivity.showToast(event)
                         }
+
+                        swipeRefreshLayout.isRefreshing = false
                     }
                 }
             }

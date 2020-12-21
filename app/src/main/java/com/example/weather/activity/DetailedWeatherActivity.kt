@@ -62,8 +62,9 @@ class DetailedWeatherActivity: AppCompatActivity()  {
                         .update(ArrayList(weatherCity.weatherFutureList))
                 }
 
-                resource.getEvent()?.let {
-                    event -> this@DetailedWeatherActivity.showToast(event)
+                resource.getEvent()?.let { event ->
+                    this@DetailedWeatherActivity.showToast(event)
+                    swipeRefreshLayout.isRefreshing = false
                 }
             }
         }
@@ -72,7 +73,6 @@ class DetailedWeatherActivity: AppCompatActivity()  {
         swipeRefreshLayout.setOnRefreshListener {
             if (CheckStatusNetwork.isNetworkAvailable()) {
                 detailedWeatherViewModel.updateWeatherData(isCurrentLocation)
-                swipeRefreshLayout.isRefreshing = false
             } else {
                 showNoInternetAccess()
                 swipeRefreshLayout.isRefreshing = false

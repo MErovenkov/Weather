@@ -46,7 +46,7 @@ class Repository(private val dataBaseHelper: OrmLiteHelper,
             if (weatherCityList.isNotEmpty()) {
                 dataBaseHelper.updateAllCitiesWeather(weatherCityList)
                 emit(Resource(EventStatus.CITY_WEATHER_DATA_UPDATED, dataBaseHelper.getWeatherCities()))
-            }
+            } else emit(Resource(null, dataBaseHelper.getWeatherCities()))
     }.connectException()
      .sslUpdateException()
      .concurrentModificationException()
