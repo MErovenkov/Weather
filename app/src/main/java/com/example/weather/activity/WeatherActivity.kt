@@ -138,7 +138,9 @@ class WeatherActivity: AppCompatActivity() {
         lifecycleScope.launch {
             CheckStatusNetwork.getNetworkAvailable().collect {
                 if (it) {
-                    locationService.startLocationService(this@WeatherActivity)
+                    if (hasLocationPermission()) {
+                        locationService.startLocationService(this@WeatherActivity)
+                    }
                 }
             }
         }
