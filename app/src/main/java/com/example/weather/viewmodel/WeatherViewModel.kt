@@ -44,12 +44,4 @@ class WeatherViewModel(private val repository: Repository): ViewModel() {
             }
         }
     }
-
-    fun updateWeatherCurrentLocation(nameCity: String) {
-        viewModelScope.launch {
-            repository.updateWeatherCurrentLocation(nameCity).collect {
-                resource.value = it
-            }
-        }
-    }
 }

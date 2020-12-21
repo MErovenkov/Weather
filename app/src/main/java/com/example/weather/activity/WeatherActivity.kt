@@ -121,12 +121,7 @@ class WeatherActivity: AppCompatActivity() {
         lifecycleScope.launch {
             locationService.getResource().collect { resource ->
                 resource.getData()?.let { nameCity ->
-
-                    if (weatherCurrentLocation != null) {
-                        weatherViewModel.updateWeatherCurrentLocation(nameCity)
-                    } else {
-                        weatherViewModel.createWeatherCurrentLocation(nameCity)
-                    }
+                    weatherViewModel.createWeatherCurrentLocation(nameCity)
 
                     binding.currentLocation.alpha = alphaUpdatedData
                 }

@@ -14,6 +14,6 @@ fun OrmLiteHelper.getWeatherCityByName(nameCity: String): WeatherCity {
     return getWeatherCityDao().getWeatherCityByName(nameCity)
 }
 
-fun OrmLiteHelper.getCurrentLocationWeather(): WeatherCity {
+fun OrmLiteHelper.getCurrentLocationWeather(): WeatherCity? {
     return getWeatherCityDao().getWeatherCurrentLocation()
 }

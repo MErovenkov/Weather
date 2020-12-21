@@ -58,30 +58,19 @@ class Repository(private val dataBaseHelper: OrmLiteHelper,
     /**
      * Current Location
      * */
-    fun getCurrentLocationWeather(): WeatherCity =
+    fun getCurrentLocationWeather(): WeatherCity? =
         dataBaseHelper.getCurrentLocationWeather()
 
     fun createWeatherCurrentLocation(nameCity: String) = flow {
-            val newWeatherCity = withContext(Dispatchers.IO) {
-                weatherData.getWeatherCity(nameCity)
-            }
-
-            newWeatherCity.isCurrentLocation = true
-            dataBaseHelper.createWeatherCity(newWeatherCity)
-
-            emit(Resource(dataBaseHelper.getWeatherCities()))
-    }.connectException()
-
-    fun updateWeatherCurrentLocation(nameCity: String) = flow {
             val weatherCurrentLocation = getCurrentLocationWeather()
 
-            if (weatherCurrentLocation.nameCity == nameCity) {
+            if (weatherCurrentLocation != null && weatherCurrentLocation.nameCity == nameCity) {
                 val newWeatherCity = withContext(Dispatchers.IO) {
                     weatherData.getUpdateWeatherCity(weatherCurrentLocation)
                 }
 
                 dataBaseHelper.updateWeatherCity(newWeatherCity)
-            } else {
+            } else if (weatherCurrentLocation != null && weatherCurrentLocation.nameCity != nameCity) {
                 val newWeatherCity = withContext(Dispatchers.IO) {
                     weatherData.getWeatherCity(nameCity)
                 }
@@ -90,9 +79,27 @@ class Repository(private val dataBaseHelper: OrmLiteHelper,
 
                 dataBaseHelper.deletedWeatherCity(weatherCurrentLocation)
                 dataBaseHelper.createWeatherCity(newWeatherCity)
+            } else {
+                val newWeatherCity = withContext(Dispatchers.IO) {
+                    weatherData.getWeatherCity(nameCity)
+                }
+
+                newWeatherCity.isCurrentLocation = true
+                dataBaseHelper.createWeatherCity(newWeatherCity)
             }
 
             emit(Resource(dataBaseHelper.getWeatherCities()))
+    }.connectException()
+
+    fun updateWeatherCurrentLocation() = flow {
+            val newWeatherCity = withContext(Dispatchers.IO) {
+                weatherData.getUpdateWeatherCity(getCurrentLocationWeather()!!)
+            }
+
+            dataBaseHelper.updateWeatherCity(newWeatherCity)
+
+            emit(Resource(EventStatus.CITY_WEATHER_DATA_UPDATED,
+                dataBaseHelper.getCurrentLocationWeather()))
     }.connectException()
      .sslUpdateException()
      .concurrentModificationException()

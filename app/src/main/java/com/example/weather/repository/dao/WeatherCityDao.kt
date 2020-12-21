@@ -20,7 +20,7 @@ class WeatherCityDao @Throws(SQLException::class) constructor(connectionSource: 
                 .and().eq(DBNaming.WeatherCityEntry.COLUMN_IS_CURRENT_LOCATION, false).prepare())
     }
 
-    fun getWeatherCurrentLocation(): WeatherCity {
+    fun getWeatherCurrentLocation(): WeatherCity? {
         return this.queryForFirst(
             this.queryBuilder()
                 .where().eq(DBNaming.WeatherCityEntry.COLUMN_IS_CURRENT_LOCATION, true).prepare())

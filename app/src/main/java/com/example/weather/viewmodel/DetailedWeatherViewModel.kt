@@ -28,7 +28,9 @@ class DetailedWeatherViewModel(private val repository: Repository): ViewModel() 
     fun updateWeatherData(isCurrentLocation: Boolean) {
         viewModelScope.launch {
             if (isCurrentLocation) {
-                repository.updateWeatherCurrentLocation(resource.getData()!!.nameCity)
+                repository.updateWeatherCurrentLocation().collect {
+                    resource.value = it
+                }
             } else {
                 repository.updateWeatherCity(resource.getData()!!).collect {
                     resource.value = it
