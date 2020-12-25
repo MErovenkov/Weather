@@ -26,6 +26,12 @@ import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 class WeatherActivity: AppCompatActivity() {
+
+    companion object {
+        private const val ALPHA_NOT_UPDATED_DATA = 0.5F
+        private const val ALPHA_UPDATED_DATA = 1F
+    }
+
     @Inject
     lateinit var weatherViewModel: WeatherViewModel
     @Inject
@@ -36,8 +42,6 @@ class WeatherActivity: AppCompatActivity() {
     private lateinit var swipeRefreshLayout: SwipeRefreshLayout
 
     private var weatherCurrentLocation: WeatherCity? = null
-    private val alphaNotUpdatedData = 0.5F
-    private val alphaUpdatedData = 1F
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -52,7 +56,7 @@ class WeatherActivity: AppCompatActivity() {
         locationServiceCollector()
         checkNetworkCollector()
 
-        binding.currentLocation.alpha = alphaNotUpdatedData
+        binding.currentLocation.alpha = ALPHA_NOT_UPDATED_DATA
 
         swipeRefreshLayout = binding.awSwipeFresh
         swipeRefreshLayout.setOnRefreshListener {
@@ -124,7 +128,7 @@ class WeatherActivity: AppCompatActivity() {
                 resource.getData()?.let { nameCity ->
                     weatherViewModel.createWeatherCurrentLocation(nameCity)
 
-                    binding.currentLocation.alpha = alphaUpdatedData
+                    binding.currentLocation.alpha = ALPHA_UPDATED_DATA
                 }
 
                 resource.getEvent()?.let { event ->
