@@ -21,6 +21,19 @@ import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 class DetailedWeatherActivity: AppCompatActivity()  {
+
+    companion object {
+        private const val CITY_NAME_KEY = "cityName"
+        private const val IS_CURRENT_LOCATION_KEY = "isCurrentLocation"
+
+        fun createIntent(context: Context, cityName: String, isCurrentLocation: Boolean): Intent  {
+            return Intent(context, DetailedWeatherActivity::class.java).apply {
+                putExtra(CITY_NAME_KEY, cityName)
+                putExtra(IS_CURRENT_LOCATION_KEY, isCurrentLocation)
+            }
+        }
+    }
+
     @Inject
     lateinit var detailedWeatherViewModel: DetailedWeatherViewModel
 
@@ -38,13 +51,39 @@ class DetailedWeatherActivity: AppCompatActivity()  {
         setContentView(binding.root)
 
         initRecyclerView()
+        initSwipeRefreshLayout()
 
         isCurrentLocation = intent.getBooleanExtra(IS_CURRENT_LOCATION_KEY, false)
 
-        lifecycleScope.launch {
-            detailedWeatherViewModel.initLiveData(intent.getStringExtra(CITY_NAME_KEY).toString(),
-                intent.getBooleanExtra(IS_CURRENT_LOCATION_KEY, false))
+        detailedWeatherViewModel.initLiveData(intent.getStringExtra(CITY_NAME_KEY).toString(),
+            intent.getBooleanExtra(IS_CURRENT_LOCATION_KEY, false))
 
+        viewModelCollector()
+    }
+
+    private fun initRecyclerView() {
+        adapterRecyclerView = object : GenericAdapter<WeatherFuture>() {}
+        binding.adwRecyclerView.apply {
+            setHasFixedSize(true)
+            layoutManager = LinearLayoutManager(this.context)
+            adapter = adapterRecyclerView
+        }
+    }
+
+    private fun initSwipeRefreshLayout() {
+        swipeRefreshLayout = binding.adwSwipeFresh
+        swipeRefreshLayout.setOnRefreshListener {
+            if (CheckStatusNetwork.isNetworkAvailable()) {
+                detailedWeatherViewModel.updateWeatherCity(isCurrentLocation)
+            } else {
+                showNoInternetAccess()
+                swipeRefreshLayout.isRefreshing = false
+            }
+        }
+    }
+
+    private fun viewModelCollector() {
+        lifecycleScope.launch {
             detailedWeatherViewModel.getResource().collect { resource ->
                 resource.getData()?.let { weatherCity ->
                     binding.apply {
@@ -68,41 +107,10 @@ class DetailedWeatherActivity: AppCompatActivity()  {
                 }
             }
         }
-
-        swipeRefreshLayout = binding.adwSwipeFresh
-        swipeRefreshLayout.setOnRefreshListener {
-            if (CheckStatusNetwork.isNetworkAvailable()) {
-                detailedWeatherViewModel.updateWeatherData(isCurrentLocation)
-            } else {
-                showNoInternetAccess()
-                swipeRefreshLayout.isRefreshing = false
-            }
-        }
-    }
-
-    private fun initRecyclerView() {
-        adapterRecyclerView = object : GenericAdapter<WeatherFuture>() {}
-        binding.adwRecyclerView.apply {
-            setHasFixedSize(true)
-            layoutManager = LinearLayoutManager(this.context)
-            adapter = adapterRecyclerView
-        }
     }
 
     override fun onBackPressed() {
         super.onBackPressed()
         finish()
-    }
-
-    companion object {
-        private const val CITY_NAME_KEY = "cityName"
-        private const val IS_CURRENT_LOCATION_KEY = "isCurrentLocation"
-
-        fun createIntent(context: Context, cityName: String, isCurrentLocation: Boolean): Intent  {
-            return Intent(context, DetailedWeatherActivity::class.java).apply {
-                putExtra(CITY_NAME_KEY, cityName)
-                putExtra(IS_CURRENT_LOCATION_KEY, isCurrentLocation)
-            }
-        }
     }
 }

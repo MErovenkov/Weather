@@ -25,4 +25,13 @@ class WeatherCityDao @Throws(SQLException::class) constructor(connectionSource: 
             this.queryBuilder()
                 .where().eq(DBNaming.WeatherCityEntry.COLUMN_IS_CURRENT_LOCATION, true).prepare())
     }
+
+    fun getWeatherCities(): ArrayList<WeatherCity> {
+        return this.query(
+            this.queryBuilder()
+                .where()
+                .eq(DBNaming.WeatherCityEntry.COLUMN_IS_CURRENT_LOCATION, false)
+                .prepare()
+        ) as ArrayList<WeatherCity>
+    }
 }

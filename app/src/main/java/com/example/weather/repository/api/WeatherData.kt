@@ -17,8 +17,8 @@ class WeatherData(private val weatherApiRequester: WeatherApiRequester,
 
            return mapperWeatherData.getWeatherCity(weatherCurrentDto, weatherFutureDto)
        } catch (e: NullPointerException) {
-            Log.w("$e nameCity: $nameCity",  e.stackTraceToString())
-            throw NullPointerException()
+           Log.w("City not found: $nameCity", e.stackTraceToString())
+           throw NullPointerException()
        } catch (e: ConnectException) {
            Log.w(e.toString(),  e.stackTraceToString())
            throw ConnectException()
@@ -29,7 +29,15 @@ class WeatherData(private val weatherApiRequester: WeatherApiRequester,
      * Update WeatherCity
      * */
     fun getUpdateWeatherCity(oldWeatherCity: WeatherCity): WeatherCity {
-        return broadcastingImmutableData(oldWeatherCity, getWeatherCity(oldWeatherCity.nameCity))
+        try {
+            return broadcastingImmutableData(
+                oldWeatherCity,
+                getWeatherCity(oldWeatherCity.nameCity)
+            )
+        } catch (e: ConnectException) {
+            Log.w(e.toString(),  e.stackTraceToString())
+            throw ConnectException()
+        }
     }
 
     fun getUpdatedWeatherCityList(oldWeatherCityList: ArrayList<WeatherCity>): ArrayList<WeatherCity>{

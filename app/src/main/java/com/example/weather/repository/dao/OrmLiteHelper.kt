@@ -51,7 +51,7 @@ class OrmLiteHelper(context: Context)
         }
     }
 
-    fun createWeatherCity(newWeatherCity: WeatherCity) {
+    fun createWeatherCity(newWeatherCity: WeatherCity): WeatherCity {
         try {
             weatherCityDao.create(newWeatherCity)
             weatherCurrentDao.create(newWeatherCity.weatherCurrent)
@@ -59,25 +59,32 @@ class OrmLiteHelper(context: Context)
                 future.weatherCity = newWeatherCity
                 weatherFutureDao.create(future)
             }
+
+            return newWeatherCity
         } catch (e: SQLException) {
-            Log.w(e.toString() , e.stackTraceToString())
+            Log.w("City exist: ${newWeatherCity.nameCity}", e.stackTraceToString())
             throw SQLException()
         }
     }
 
-    fun updateWeatherCity(newWeatherCity: WeatherCity) {
+    fun updateWeatherCity(newWeatherCity: WeatherCity): WeatherCity {
         weatherCityDao.update(newWeatherCity)
         weatherCurrentDao.update(newWeatherCity.weatherCurrent)
         for (newWeatherFuture in newWeatherCity.weatherFutureList) {
             newWeatherFuture.weatherCity = newWeatherCity
             weatherFutureDao.update(newWeatherFuture)
         }
+
+        return newWeatherCity
     }
 
-    fun updateAllCitiesWeather(newWeatherCityList: ArrayList<WeatherCity>) {
+    fun updateRecyclerCitiesWeather(newWeatherCityList: ArrayList<WeatherCity>)
+            : ArrayList<WeatherCity> {
         for (weatherCity in newWeatherCityList) {
             updateWeatherCity(weatherCity)
         }
+
+        return newWeatherCityList
     }
 
     fun deletedWeatherCity(weatherCity: WeatherCity) {

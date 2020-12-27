@@ -17,6 +17,7 @@ import com.example.weather.databinding.WRecWeatherCurrentBinding
 import com.example.weather.location.LocationService
 import com.example.weather.model.WeatherCity
 import com.example.weather.utils.CheckStatusNetwork
+import com.example.weather.utils.EventStatus
 import com.example.weather.utils.extensions.*
 import com.example.weather.view.recycler.GenericAdapter
 import com.example.weather.view.recycler.SwipeToDeleteCallback
@@ -52,21 +53,14 @@ class WeatherActivity: AppCompatActivity() {
 
         initRecyclerView()
 
-        viewModelCollector()
+        recyclerDataCollector()
+        locationDataCollector()
         locationServiceCollector()
         checkNetworkCollector()
 
         binding.currentLocation.alpha = ALPHA_NOT_UPDATED_DATA
 
-        swipeRefreshLayout = binding.awSwipeFresh
-        swipeRefreshLayout.setOnRefreshListener {
-            if (CheckStatusNetwork.isNetworkAvailable()) {
-                weatherViewModel.updateAllCitiesWeather()
-            } else {
-                showNoInternetAccess()
-                swipeRefreshLayout.isRefreshing = false
-            }
-        }
+        initSwipeRefreshLayout()
     }
 
     private fun initRecyclerView() {
@@ -84,19 +78,46 @@ class WeatherActivity: AppCompatActivity() {
         touchHelper.attachToRecyclerView(recyclerView)
     }
 
-    private fun viewModelCollector() {
-        lifecycleScope.launch {
-            weatherViewModel.getResource().collect { resource ->
-                resource.getData()?.let { weatherCities ->
-                    adapterRecyclerView.update(weatherCities.filter { !it.isCurrentLocation }
-                        .toCollection(ArrayList()))
+    private fun initSwipeRefreshLayout() {
+        swipeRefreshLayout = binding.awSwipeFresh
+        swipeRefreshLayout.setOnRefreshListener {
+            if (CheckStatusNetwork.isNetworkAvailable()) {
+                weatherViewModel.updateWeatherCities()
+            } else {
+                showNoInternetAccess()
+                swipeRefreshLayout.isRefreshing = false
+            }
+        }
+    }
 
-                    weatherCurrentLocation = weatherCities
-                        .firstOrNull { it.isCurrentLocation }
+    private fun recyclerDataCollector() {
+        lifecycleScope.launch {
+            weatherViewModel.getResourceRecycler().collect { resource ->
+                resource.getData()?.let { weatherCities ->
+                    adapterRecyclerView.update(weatherCities)
+                }
+
+                resource.getEvent()?.let { event ->
+                    if (event != EventStatus.IS_NOT_REFRESHING) {
+                        showToast(event)
+                    }
+
+                    swipeRefreshLayout.isRefreshing = false
+                }
+            }
+        }
+    }
+
+    private fun locationDataCollector() {
+        lifecycleScope.launch {
+            weatherViewModel.getResourceLocation().collect { resource ->
+                resource.getData().let { weatherLocation ->
+                    weatherCurrentLocation = weatherLocation
 
                     if (weatherCurrentLocation == null ||
                         !this@WeatherActivity.hasLocationPermission() ||
                         !this@WeatherActivity.isLocationEnable()) {
+
                         binding.currentLocation.visibility = View.GONE
                         binding.titleCurrentLocation.text =
                             this@WeatherActivity.getString(R.string.location_definition)
@@ -108,15 +129,12 @@ class WeatherActivity: AppCompatActivity() {
                         binding.titleCurrentLocation.text =
                             (this@WeatherActivity.getString(R.string.weather_current_location))
                     }
+                }
 
-                    resource.getEvent()?.let { event ->
-                        if (weatherCities.filter { !it.isCurrentLocation }
-                                .toCollection(ArrayList()).isNotEmpty()) {
-                           this@WeatherActivity.showToast(event)
-                        }
-
-                        swipeRefreshLayout.isRefreshing = false
-                    }
+                resource.getEvent()?.let { event ->
+                    if (event != EventStatus.CURRENT_LOCATION_UPDATED) {
+                        this@WeatherActivity.showToast(event)
+                    } else binding.currentLocation.alpha = ALPHA_UPDATED_DATA
                 }
             }
         }
@@ -126,9 +144,9 @@ class WeatherActivity: AppCompatActivity() {
         lifecycleScope.launch {
             locationService.getResource().collect { resource ->
                 resource.getData()?.let { nameCity ->
-                    weatherViewModel.createWeatherCurrentLocation(nameCity)
-
-                    binding.currentLocation.alpha = ALPHA_UPDATED_DATA
+                    if (weatherCurrentLocation != null) {
+                        weatherViewModel.updateWeatherCurrentLocation(nameCity)
+                    } else weatherViewModel.createWeatherCurrentLocation(nameCity)
                 }
 
                 resource.getEvent()?.let { event ->
@@ -193,7 +211,7 @@ class WeatherActivity: AppCompatActivity() {
                 }
             )
         }
-   }
+    }
 
     override fun onRequestPermissionsResult(
         requestCode: Int, permissions: Array<String>, grantResults: IntArray

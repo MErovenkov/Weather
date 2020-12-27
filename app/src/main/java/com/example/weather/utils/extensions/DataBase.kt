@@ -7,7 +7,7 @@ import com.example.weather.repository.dao.OrmLiteHelper
  * DB extension
  */
 fun OrmLiteHelper.getWeatherCities(): ArrayList<WeatherCity> {
-    return getWeatherCityDao().queryForAll() as ArrayList<WeatherCity>
+    return getWeatherCityDao().getWeatherCities()
 }
 
 fun OrmLiteHelper.getWeatherCityByName(nameCity: String): WeatherCity {
