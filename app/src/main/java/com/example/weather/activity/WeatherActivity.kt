@@ -52,6 +52,7 @@ class WeatherActivity: AppCompatActivity() {
         setContentView(binding.root)
 
         initRecyclerView()
+        initSwipeRefreshLayout()
 
         recyclerDataCollector()
         locationDataCollector()
@@ -59,8 +60,21 @@ class WeatherActivity: AppCompatActivity() {
         checkNetworkCollector()
 
         binding.currentLocation.alpha = ALPHA_NOT_UPDATED_DATA
+    }
 
-        initSwipeRefreshLayout()
+    override fun onResume() {
+        super.onResume()
+
+        if (isLocationEnable()) {
+            if (CheckStatusNetwork.isNetworkAvailable()) {
+                locationService.startLocationService(this)
+            }
+        }
+    }
+
+    override fun onStop() {
+        super.onStop()
+        locationService.stopLocationUpdates()
     }
 
     private fun initRecyclerView() {
@@ -115,8 +129,7 @@ class WeatherActivity: AppCompatActivity() {
                     weatherCurrentLocation = weatherLocation
 
                     if (weatherCurrentLocation == null ||
-                        !this@WeatherActivity.hasLocationPermission() ||
-                        !this@WeatherActivity.isLocationEnable()) {
+                        !this@WeatherActivity.hasLocationPermission()) {
 
                         binding.currentLocation.visibility = View.GONE
                         binding.titleCurrentLocation.text =
@@ -196,7 +209,8 @@ class WeatherActivity: AppCompatActivity() {
     }
 
     fun openWeatherCurrentLocation(@Suppress("UNUSED_PARAMETER") view: View) {
-        if (binding.titleCurrentLocation.text == this.getString(R.string.location_definition)) {
+        if (binding.titleCurrentLocation.text == this.getString(R.string.location_definition)
+            || binding.currentLocation.alpha == ALPHA_NOT_UPDATED_DATA) {
             if (isLocationEnable()) {
                 if (CheckStatusNetwork.isNetworkAvailable()) {
                     locationService.startLocationService(this)
@@ -238,6 +252,8 @@ class WeatherActivity: AppCompatActivity() {
                     this.getString(R.string.loading_information),
                     Toast.LENGTH_SHORT
                 ).show()
+
+                locationService.startLocationService(this)
             }
 
             Activity.RESULT_CANCELED -> {

@@ -42,7 +42,6 @@ class LocationService(
             override fun onLocationResult(locationResult: LocationResult) {
                 Log.i(TAG,"LocationResult received")
                 convertLocationToAddress(locationResult.lastLocation)
-                stopLocationUpdates()
             }
         }
         Log.i(TAG, "Created locationCallback")
@@ -73,13 +72,18 @@ class LocationService(
         } else {
             settingsClient.checkLocationSettings(locationSettingsRequest)
                 .addOnCompleteListener {
-                    fusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(context)
-                    fusedLocationProviderClient!!.requestLocationUpdates(locationRequest,
-                        locationCallback,
-                        Looper.myLooper())
+                    if (fusedLocationProviderClient == null) {
+                        fusedLocationProviderClient =
+                            LocationServices.getFusedLocationProviderClient(context)
+                        fusedLocationProviderClient!!.requestLocationUpdates(
+                            locationRequest,
+                            locationCallback,
+                            Looper.myLooper()
+                        )
 
-                    geocoder = Geocoder(context)
-                    Log.i(TAG, "RequestLocationUpdates")
+                        geocoder = Geocoder(context)
+                        Log.i(TAG, "RequestLocationUpdates")
+                    }
                 }
                 .addOnFailureListener { e ->
                     if (e is ResolvableApiException) {
@@ -95,8 +99,11 @@ class LocationService(
     }
 
     fun stopLocationUpdates() {
-        fusedLocationProviderClient!!.removeLocationUpdates(locationCallback)
-        fusedLocationProviderClient = null
-        Log.i(TAG,"Location Callback stopped")
+        if (fusedLocationProviderClient != null) {
+            fusedLocationProviderClient!!.removeLocationUpdates(locationCallback)
+            fusedLocationProviderClient = null
+
+            Log.i(TAG,"Location Callback stopped")
+        }
     }
 }

@@ -32,7 +32,8 @@ class LocationServiceModule {
     fun locationRequest(): LocationRequest {
         return LocationRequest.create().apply {
             priority = LocationRequest.PRIORITY_BALANCED_POWER_ACCURACY
-            interval = 100L
+            smallestDisplacement = 1000F
+            interval = 1L
         }
     }
 
