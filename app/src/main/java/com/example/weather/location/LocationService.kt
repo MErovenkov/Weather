@@ -1,8 +1,6 @@
 package com.example.weather.location
 
 import android.Manifest
-import android.app.Activity
-import android.content.Context
 import android.content.IntentSender.SendIntentException
 import android.content.pm.PackageManager
 import android.location.Geocoder
@@ -10,8 +8,9 @@ import android.location.Location
 import android.os.Looper
 import android.util.Log
 import androidx.core.app.ActivityCompat
-import com.example.weather.R
-import com.example.weather.utils.Resource
+import androidx.fragment.app.Fragment
+import com.example.weather.utils.resource.Resource
+import com.example.weather.utils.resource.event.EventStatus
 import com.google.android.gms.common.api.ResolvableApiException
 import com.google.android.gms.location.*
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -58,15 +57,14 @@ class LocationService(
 
             resource.value = Resource(cityName.joinToString())
             Log.i(TAG, "Locality received")
-        } else resource.value = Resource(R.string.location_information_updated_failure)
+        } else resource.value = Resource(EventStatus.LOCATION_INFO_UPDATED_FAILURE)
     }
 
-    fun startLocationService(context: Context) {
-        if (ActivityCompat.checkSelfPermission(context, Manifest.permission.ACCESS_FINE_LOCATION
+    fun startLocationService(fragment: Fragment) {
+        if (ActivityCompat.checkSelfPermission(fragment.requireContext(), Manifest.permission.ACCESS_FINE_LOCATION
             ) != PackageManager.PERMISSION_GRANTED) {
 
-            ActivityCompat.requestPermissions(context as Activity,
-                arrayOf(Manifest.permission.ACCESS_FINE_LOCATION,
+            fragment.requestPermissions(arrayOf(Manifest.permission.ACCESS_FINE_LOCATION,
                     Manifest.permission.ACCESS_COARSE_LOCATION), PackageManager.PERMISSION_GRANTED)
             Log.i(TAG, "Request permission ACCESS_FINE_LOCATION")
         } else {
@@ -74,21 +72,23 @@ class LocationService(
                 .addOnCompleteListener {
                     if (fusedLocationProviderClient == null) {
                         fusedLocationProviderClient =
-                            LocationServices.getFusedLocationProviderClient(context)
+                            LocationServices.getFusedLocationProviderClient(fragment.requireActivity())
                         fusedLocationProviderClient!!.requestLocationUpdates(
                             locationRequest,
                             locationCallback,
                             Looper.myLooper()
                         )
 
-                        geocoder = Geocoder(context)
+                        geocoder = Geocoder(fragment.requireContext())
                         Log.i(TAG, "RequestLocationUpdates")
                     }
                 }
                 .addOnFailureListener { e ->
                     if (e is ResolvableApiException) {
                         try {
-                            e.startResolutionForResult(context as Activity?, PackageManager.PERMISSION_GRANTED)
+                            fragment.startIntentSenderForResult(e.resolution.intentSender,
+                                PackageManager.PERMISSION_GRANTED,
+                                null, 0, 0, 0, null)
                             Log.i(TAG, "Request gps to use")
                         } catch (e: SendIntentException) {
                             Log.w(e.toString(), e.stackTraceToString())

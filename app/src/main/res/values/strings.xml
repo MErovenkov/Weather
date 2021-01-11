@@ -17,7 +17,6 @@
     <string name="city_weather_data_updated">Данные обновленны</string>
     <string name="city_weather_update_failed">При обновлении произошла ошибка</string>
     <string name="city_added">Город добавлен</string>
-    <string name="city_name_not_empty">Поле с названием не может быть пустым</string>
 
     <string name="gps_disabled">Gps выключен, вывод корректных геоданных невозможен</string>>
     <string name="location_definition">Определить местоположение</string>

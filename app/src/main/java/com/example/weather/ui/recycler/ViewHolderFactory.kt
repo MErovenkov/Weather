@@ -1,20 +1,20 @@
-package com.example.weather.view.recycler
+package com.example.weather.ui.recycler
 
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import com.example.weather.R
-import com.example.weather.databinding.DwRecWeatherFutureBinding
-import com.example.weather.databinding.WRecWeatherCurrentBinding
+import com.example.weather.databinding.RecyclerDetailedWeatherBinding
+import com.example.weather.databinding.RecyclerWeatherBinding
 
 object ViewHolderFactory {
     fun create(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
         val layoutInflater = LayoutInflater.from(parent.context)
 
         return when (viewType) {
-            R.layout.w_rec_weather_current -> WeatherCurrentViewHolder(WRecWeatherCurrentBinding
+            R.layout.recycler_weather -> WeatherCurrentViewHolder(RecyclerWeatherBinding
                 .inflate(layoutInflater, parent, false))
-            else -> WeatherFutureViewHolder(DwRecWeatherFutureBinding
+            else -> WeatherFutureViewHolder(RecyclerDetailedWeatherBinding
                 .inflate(layoutInflater, parent, false))
         }
     }

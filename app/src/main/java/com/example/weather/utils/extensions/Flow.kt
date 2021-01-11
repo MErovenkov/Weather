@@ -1,8 +1,8 @@
 package com.example.weather.utils.extensions
 
 import android.util.Log
-import com.example.weather.utils.EventStatus
-import com.example.weather.utils.Resource
+import com.example.weather.utils.resource.event.EventStatus
+import com.example.weather.utils.resource.Resource
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.catch

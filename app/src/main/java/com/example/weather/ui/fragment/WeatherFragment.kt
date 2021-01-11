@@ -1,32 +1,36 @@
-package com.example.weather.activity
+package com.example.weather.ui.fragment
 
 import android.app.Activity
+import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.os.Bundle
+import android.view.LayoutInflater
 import android.view.View
+import android.view.ViewGroup
 import android.widget.Toast
-import androidx.appcompat.app.AppCompatActivity
+import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
+import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
 import com.example.weather.R
-import com.example.weather.databinding.ActivityWeatherBinding
-import com.example.weather.databinding.WRecWeatherCurrentBinding
+import com.example.weather.databinding.FragmentWeatherBinding
 import com.example.weather.location.LocationService
 import com.example.weather.model.WeatherCity
 import com.example.weather.utils.CheckStatusNetwork
-import com.example.weather.utils.EventStatus
+import com.example.weather.utils.resource.event.EventStatus
 import com.example.weather.utils.extensions.*
-import com.example.weather.view.recycler.GenericAdapter
-import com.example.weather.view.recycler.SwipeToDeleteCallback
+import com.example.weather.ui.recycler.GenericAdapter
+import com.example.weather.ui.recycler.SwipeToDeleteCallback
 import com.example.weather.viewmodel.WeatherViewModel
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
-class WeatherActivity: AppCompatActivity() {
+class WeatherFragment: Fragment() {
 
     companion object {
         private const val ALPHA_NOT_UPDATED_DATA = 0.5F
@@ -38,18 +42,30 @@ class WeatherActivity: AppCompatActivity() {
     @Inject
     lateinit var locationService: LocationService
 
-    private lateinit var binding: ActivityWeatherBinding
+    private lateinit var binding: FragmentWeatherBinding
     private lateinit var adapterRecyclerView: GenericAdapter<WeatherCity>
     private lateinit var swipeRefreshLayout: SwipeRefreshLayout
 
     private var weatherCurrentLocation: WeatherCity? = null
 
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        getActivityComponent(this).inject(this)
+    override fun onAttach(context: Context) {
+        super.onAttach(context)
 
-        binding = ActivityWeatherBinding.inflate(layoutInflater)
-        setContentView(binding.root)
+        getActivityComponent(context).inject(this)
+    }
+
+    override fun onCreateView(
+        inflater: LayoutInflater,
+        container: ViewGroup?,
+        savedInstanceState: Bundle?
+    ): View? {
+        binding = FragmentWeatherBinding.inflate(layoutInflater)
+
+        return binding.root
+    }
+
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
 
         initRecyclerView()
         initSwipeRefreshLayout()
@@ -57,17 +73,23 @@ class WeatherActivity: AppCompatActivity() {
         recyclerDataCollector()
         locationDataCollector()
         locationServiceCollector()
-        checkNetworkCollector()
 
-        binding.currentLocation.alpha = ALPHA_NOT_UPDATED_DATA
+        binding.addingNewCity.setOnClickListener { createNewCity() }
+        binding.titleCurrentLocation.setOnClickListener { openWeatherCurrentLocation() }
+        binding.currentLocation.apply {
+            setOnClickListener{ openWeatherCurrentLocation() }
+            alpha = ALPHA_NOT_UPDATED_DATA
+        }
     }
 
-    override fun onResume() {
-        super.onResume()
+    override fun onStart() {
+        super.onStart()
 
         if (isLocationEnable()) {
             if (CheckStatusNetwork.isNetworkAvailable()) {
-                locationService.startLocationService(this)
+                if (hasLocationPermission()) {
+                    locationService.startLocationService(this)
+                }
             }
         }
     }
@@ -82,10 +104,15 @@ class WeatherActivity: AppCompatActivity() {
             override fun <T> itemDismiss(data: T) {
                 weatherViewModel.deleteWeatherCity(data as WeatherCity)
             }
+            override fun onClickItem(holder: RecyclerView.ViewHolder, position: Int) {
+                holder.itemView.setOnClickListener {
+                    openDetailedFragment(getItem<WeatherCity>(position).nameCity, false)
+                }
+            }
         }
-        val recyclerView = binding.awRecyclerView.apply {
+        val recyclerView = binding.recyclerView.apply {
             setHasFixedSize(false)
-            layoutManager = LinearLayoutManager(this.context)
+            layoutManager = LinearLayoutManager(requireContext())
             adapter = adapterRecyclerView
         }
         val touchHelper = ItemTouchHelper(SwipeToDeleteCallback(adapterRecyclerView))
@@ -105,15 +132,17 @@ class WeatherActivity: AppCompatActivity() {
     }
 
     private fun recyclerDataCollector() {
-        lifecycleScope.launch {
+        viewLifecycleOwner.lifecycleScope.launch {
             weatherViewModel.getResourceRecycler().collect { resource ->
                 resource.getData()?.let { weatherCities ->
                     adapterRecyclerView.update(weatherCities)
                 }
 
                 resource.getEvent()?.let { event ->
-                    if (event != EventStatus.IS_NOT_REFRESHING) {
-                        showToast(event)
+                    val eventStatus: Int? = event.getStatusIfNotHandled()
+
+                    if (eventStatus != EventStatus.IS_NOT_REFRESHING) {
+                        eventStatus?.let { this@WeatherFragment.showToast(it)}
                     }
 
                     swipeRefreshLayout.isRefreshing = false
@@ -123,30 +152,32 @@ class WeatherActivity: AppCompatActivity() {
     }
 
     private fun locationDataCollector() {
-        lifecycleScope.launch {
+        viewLifecycleOwner.lifecycleScope.launch {
             weatherViewModel.getResourceLocation().collect { resource ->
                 resource.getData().let { weatherLocation ->
                     weatherCurrentLocation = weatherLocation
 
                     if (weatherCurrentLocation == null ||
-                        !this@WeatherActivity.hasLocationPermission()) {
+                        !this@WeatherFragment.hasLocationPermission()) {
 
                         binding.currentLocation.visibility = View.GONE
                         binding.titleCurrentLocation.text =
-                            this@WeatherActivity.getString(R.string.location_definition)
+                            this@WeatherFragment.getString(R.string.location_definition)
                     } else {
                         binding.currentLocation.visibility = View.VISIBLE
                         binding.currentLocation.text = (weatherCurrentLocation!!.nameCity
                                 + "\n" + weatherCurrentLocation!!.weatherCurrent.temperature)
 
                         binding.titleCurrentLocation.text =
-                            (this@WeatherActivity.getString(R.string.weather_current_location))
+                            (this@WeatherFragment.getString(R.string.weather_current_location))
                     }
                 }
 
                 resource.getEvent()?.let { event ->
-                    if (event != EventStatus.CURRENT_LOCATION_UPDATED) {
-                        this@WeatherActivity.showToast(event)
+                    val eventStatus: Int? = event.getStatusIfNotHandled()
+
+                    if (eventStatus != EventStatus.CURRENT_LOCATION_UPDATED) {
+                        eventStatus?.let { this@WeatherFragment.showToast(it) }
                     } else binding.currentLocation.alpha = ALPHA_UPDATED_DATA
                 }
             }
@@ -154,7 +185,7 @@ class WeatherActivity: AppCompatActivity() {
     }
 
     private fun locationServiceCollector() {
-        lifecycleScope.launch {
+        viewLifecycleOwner.lifecycleScope.launch {
             locationService.getResource().collect { resource ->
                 resource.getData()?.let { nameCity ->
                     if (weatherCurrentLocation != null) {
@@ -163,26 +194,16 @@ class WeatherActivity: AppCompatActivity() {
                 }
 
                 resource.getEvent()?.let { event ->
-                    this@WeatherActivity.showToast(event)
+                    val eventStatus: Int? = event.getStatusIfNotHandled()
+
+                    eventStatus?.let { this@WeatherFragment.showToast(it) }
                 }
             }
         }
     }
 
-    private fun checkNetworkCollector() {
-        lifecycleScope.launch {
-            CheckStatusNetwork.getNetworkAvailable().collect {
-                if (it) {
-                    if (hasLocationPermission()) {
-                        locationService.startLocationService(this@WeatherActivity)
-                    }
-                }
-            }
-        }
-    }
-
-    fun createNewCity(@Suppress("UNUSED_PARAMETER") view: View) {
-        val addingNewCity = binding.awAddingNewCity
+    private fun createNewCity() {
+        val addingNewCity = binding.addingNewCity
         val nameCity = addingNewCity.text.toString()
 
         if (CheckStatusNetwork.isNetworkAvailable()) {
@@ -191,40 +212,27 @@ class WeatherActivity: AppCompatActivity() {
                 addingNewCity.isCursorVisible = false
 
                 weatherViewModel.createWeatherData(nameCity)
-            } else {
-                showToast(R.string.city_name_not_empty)
             }
-        } else showNoInternetAccess()
+        } else {
+            showNoInternetAccess()
+        }
     }
 
-    fun openWeatherDetailed(view: View) {
-        val bindings: WRecWeatherCurrentBinding = WRecWeatherCurrentBinding.bind(view)
-
-        startActivity(
-            DetailedWeatherActivity.createIntent(
-                this,
-                bindings.wRecCityName.text as String, false
-            )
-        )
-    }
-
-    fun openWeatherCurrentLocation(@Suppress("UNUSED_PARAMETER") view: View) {
+    private fun openWeatherCurrentLocation() {
         if (binding.titleCurrentLocation.text == this.getString(R.string.location_definition)
             || binding.currentLocation.alpha == ALPHA_NOT_UPDATED_DATA) {
-            if (isLocationEnable()) {
-                if (CheckStatusNetwork.isNetworkAvailable()) {
-                    locationService.startLocationService(this)
-                } else showNoInternetAccess()
-            } else showToast(R.string.gps_disabled)
+            if (CheckStatusNetwork.isNetworkAvailable()) {
+                locationService.startLocationService(this)
+            } else showNoInternetAccess()
         } else {
-            startActivity(
-                weatherCurrentLocation?.let {
-                    DetailedWeatherActivity.createIntent(
-                        this, it.nameCity, true
-                    )
-                }
-            )
+            openDetailedFragment(weatherCurrentLocation!!.nameCity, true)
         }
+    }
+
+    private fun openDetailedFragment(nameCity: String, isCurrentLocation: Boolean) {
+        findNavController().navigate(R.id.detailedWeatherFragment,
+            DetailedWeatherFragment.getNewBundle(nameCity, isCurrentLocation),
+            getCustomAnim())
     }
 
     override fun onRequestPermissionsResult(
@@ -233,7 +241,7 @@ class WeatherActivity: AppCompatActivity() {
         if (!(grantResults.isNotEmpty() &&
                         grantResults[0] == PackageManager.PERMISSION_GRANTED)) {
            Toast.makeText(
-               applicationContext,
+               requireContext(),
                this.getString(R.string.permission_denied),
                Toast.LENGTH_SHORT
            ).show()
@@ -248,7 +256,7 @@ class WeatherActivity: AppCompatActivity() {
         when (resultCode) {
             Activity.RESULT_OK -> {
                 Toast.makeText(
-                    applicationContext,
+                    requireContext(),
                     this.getString(R.string.loading_information),
                     Toast.LENGTH_SHORT
                 ).show()
@@ -258,7 +266,7 @@ class WeatherActivity: AppCompatActivity() {
 
             Activity.RESULT_CANCELED -> {
                 Toast.makeText(
-                    applicationContext,
+                    requireContext(),
                     this.getString(R.string.gps_disabled),
                     Toast.LENGTH_SHORT
                 ).show()

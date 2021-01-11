@@ -1,4 +1,4 @@
-package com.example.weather.view.recycler
+package com.example.weather.ui.recycler
 
 import android.view.View
 import android.view.ViewGroup
@@ -21,10 +21,18 @@ abstract class GenericAdapter<T>
     @Suppress("UNCHECKED_CAST")
     override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
         (holder as Binder<T>).bind(itemList[position])
+        onClickItem(holder, position)
     }
 
     internal interface Binder<T> {
         fun bind(data: T)
+    }
+
+    override fun onClickItem(holder: RecyclerView.ViewHolder, position: Int) {}
+
+    @Suppress("UNCHECKED_CAST")
+    fun <T> getItem(position: Int): T {
+        return itemList[position] as T
     }
 
     override fun getItemCount(): Int = itemList.size
@@ -33,8 +41,8 @@ abstract class GenericAdapter<T>
 
     private fun getLayoutId(obj: T): Int {
         return when(obj) {
-            is WeatherCity -> R.layout.w_rec_weather_current
-            else ->  R.layout.dw_rec_weather_future
+            is WeatherCity -> R.layout.recycler_weather
+            else ->  R.layout.recycler_detailed_weather
         }
     }
 

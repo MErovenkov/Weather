@@ -3,8 +3,8 @@ package com.example.weather.viewmodel
 import androidx.lifecycle.*
 import com.example.weather.repository.Repository
 import com.example.weather.model.WeatherCity
-import com.example.weather.utils.EventStatus
-import com.example.weather.utils.Resource
+import com.example.weather.utils.resource.event.EventStatus
+import com.example.weather.utils.resource.Resource
 import com.example.weather.utils.extensions.getData
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow

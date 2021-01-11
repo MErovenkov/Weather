@@ -19,19 +19,17 @@
         android:theme="@style/AppTheme">
 
         <activity
-            android:name=".activity.WeatherActivity"
-            android:windowSoftInputMode="stateVisible|adjustPan">
+            android:name=".ui.MainActivity"
+            android:windowSoftInputMode="adjustPan">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".activity.DetailedWeatherActivity" />
 
         <meta-data
             android:name="preloaded_fonts"
             android:resource="@array/preloaded_fonts" />
     </application>
-
 </manifest>

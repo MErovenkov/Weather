@@ -1,4 +1,4 @@
-package com.example.weather.view.recycler
+package com.example.weather.ui.recycler
 
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.RecyclerView

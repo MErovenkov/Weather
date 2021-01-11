@@ -3,7 +3,7 @@ package com.example.weather.viewmodel
 import androidx.lifecycle.*
 import com.example.weather.repository.Repository
 import com.example.weather.model.WeatherCity
-import com.example.weather.utils.Resource
+import com.example.weather.utils.resource.Resource
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 
@@ -29,7 +29,8 @@ class WeatherViewModel(private val repository: Repository): ViewModel() {
         val tmp: ArrayList<WeatherCity> = ArrayList(resourceRecycler.value.getData()!!)
 
         resourceWeatherCity.getData()?.let { tmp.add(it)}
-        resourceRecycler.value = Resource(resourceWeatherCity.getEvent(), tmp)
+        resourceRecycler.value =
+            resourceWeatherCity.getEvent()?.getStatusIfNotHandled()?.let { Resource(it, tmp) }!!
     }
 
     fun updateWeatherCities() {

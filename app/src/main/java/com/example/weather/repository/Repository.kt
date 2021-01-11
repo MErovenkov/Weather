@@ -3,8 +3,9 @@ package com.example.weather.repository
 import com.example.weather.repository.api.WeatherData
 import com.example.weather.repository.dao.OrmLiteHelper
 import com.example.weather.model.WeatherCity
-import com.example.weather.utils.*
+import com.example.weather.utils.resource.event.EventStatus
 import com.example.weather.utils.extensions.*
+import com.example.weather.utils.resource.Resource
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.withContext
