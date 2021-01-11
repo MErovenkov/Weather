@@ -55,10 +55,10 @@ fun Fragment.getActivityComponent(context: Context): ActivityComponent {
 fun Fragment.getCustomAnim(): NavOptions {
     return navOptions {
         anim {
-            enter = R.anim.slide_start_down
-            exit = R.anim.slide_end_down
-            popEnter = R.anim.slide_start_up
-            popExit = R.anim.slide_end_up
+            enter = R.anim.slide_in_right
+            exit = R.anim.slide_out_left
+            popEnter = R.anim.slide_in_left
+            popExit = R.anim.slide_out_right
         }
     }
 }
