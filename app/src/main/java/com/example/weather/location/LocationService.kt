@@ -55,7 +55,7 @@ class LocationService(
                 (0..maxAddressLineIndex).map { locality }
             }
 
-            if (cityName.joinToString() == "null") {
+            if (cityName[0].isNullOrBlank()) {
                 resource.value = Resource(location)
             } else {
                 resource.value = Resource(cityName.joinToString())

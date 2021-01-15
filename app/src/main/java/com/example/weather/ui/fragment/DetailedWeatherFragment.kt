@@ -40,8 +40,6 @@ class DetailedWeatherFragment: Fragment()  {
     private lateinit var adapterRecyclerView: GenericAdapter<WeatherFuture>
     private lateinit var swipeRefreshLayout: SwipeRefreshLayout
 
-    private var isCurrentLocation = false
-
     override fun onAttach(context: Context) {
         super.onAttach(context)
 
