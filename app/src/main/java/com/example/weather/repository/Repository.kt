@@ -19,32 +19,25 @@ class Repository(private val dataBaseHelper: OrmLiteHelper,
     fun getWeatherCityByName(nameCity: String): WeatherCity =
         dataBaseHelper.getWeatherCityByName(nameCity)
 
-    fun createWeatherCity(nameCity: String, isCurrentLocation: Boolean)
+    fun createWeatherCity(nameCity: String)
         : Flow<Resource<WeatherCity>> = flow {
 
             val newWeatherCity = withContext(Dispatchers.IO) {
                 weatherData.getWeatherCity(nameCity)
             }
-            newWeatherCity.isCurrentLocation = isCurrentLocation
 
-            if (isCurrentLocation) {
-                emit(Resource(EventStatus.CURRENT_LOCATION_UPDATED,
-                    dataBaseHelper.createWeatherCity(newWeatherCity)))
-            } else {
-                emit(Resource(EventStatus.CITY_ADDED,
-                    dataBaseHelper.createWeatherCity(newWeatherCity)))
-            }
-    }.createWeatherException(nameCity)
+            emit(Resource(EventStatus.CITY_ADDED,
+                dataBaseHelper.createWeatherCity(newWeatherCity)))
+    }.exceptionCreateWeather(nameCity)
 
     fun updateWeatherCity(weatherCity: WeatherCity): Flow<Resource<WeatherCity>> = flow {
             val newWeatherCity = withContext(Dispatchers.IO) {
                 weatherData.getUpdateWeatherCity(weatherCity)
             }
 
-            dataBaseHelper.updateWeatherCity(newWeatherCity)
             emit(Resource(EventStatus.CITY_WEATHER_DATA_UPDATED,
-                dataBaseHelper.getWeatherCityByName(weatherCity.nameCity)))
-    }.updateWeatherException(weatherCity)
+                dataBaseHelper.updateWeatherCity(newWeatherCity)))
+    }.exceptionUpdateWeather(weatherCity)
 
     fun updateWeatherCities(): Flow<Resource<ArrayList<WeatherCity>>> = flow {
             val weatherCityList = withContext(Dispatchers.IO) {
@@ -57,7 +50,7 @@ class Repository(private val dataBaseHelper: OrmLiteHelper,
 
             } else emit(Resource(EventStatus.IS_NOT_REFRESHING,
                 dataBaseHelper.getWeatherCities()))
-    }.updateWeatherException(dataBaseHelper.getWeatherCities())
+    }.exceptionUpdateWeather(dataBaseHelper.getWeatherCities())
 
     fun deletedWeatherCity(weatherCity: WeatherCity) {
         dataBaseHelper.deletedWeatherCity(weatherCity)
@@ -69,28 +62,21 @@ class Repository(private val dataBaseHelper: OrmLiteHelper,
     fun getCurrentLocationWeather(): WeatherCity? =
         dataBaseHelper.getCurrentLocationWeather()
 
-    fun updateWeatherCurrentLocation(newNameCurrentLocation: String)
+    fun createWeatherCurrentLocation(coordinateLat: Double, coordinateLon: Double)
         : Flow<Resource<WeatherCity>> = flow {
-
             val weatherCurrentLocation = getCurrentLocationWeather()
-            lateinit var newWeatherCity: WeatherCity
 
-            if (weatherCurrentLocation!!.nameCity == newNameCurrentLocation) {
-                newWeatherCity = withContext(Dispatchers.IO) {
-                    weatherData.getUpdateWeatherCity(weatherCurrentLocation)
-                }
-
-                emit(Resource(EventStatus.CURRENT_LOCATION_UPDATED,
-                    dataBaseHelper.updateWeatherCity(newWeatherCity)))
-            } else {
-                newWeatherCity = withContext(Dispatchers.IO) {
-                    weatherData.getWeatherCity(newNameCurrentLocation)
-                }
-                newWeatherCity.isCurrentLocation = true
-
+            if (weatherCurrentLocation != null) {
                 dataBaseHelper.deletedWeatherCity(weatherCurrentLocation)
-                emit(Resource(EventStatus.CURRENT_LOCATION_UPDATED,
-                    dataBaseHelper.createWeatherCity(newWeatherCity)))
             }
-    }.updateWeatherException(dataBaseHelper.getCurrentLocationWeather())
+
+            val newWeatherCity: WeatherCity = withContext(Dispatchers.IO) {
+                weatherData.getWeatherCityByCoordinate(coordinateLat, coordinateLon)
+            }
+
+            newWeatherCity.isCurrentLocation = true
+
+            emit(Resource(EventStatus.CURRENT_LOCATION_RECEIVED,
+                dataBaseHelper.createWeatherCity(newWeatherCity)))
+    }.exceptionCreateWeatherLocation()
 }

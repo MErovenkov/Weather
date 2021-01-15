@@ -20,6 +20,8 @@ import com.example.weather.R
 import com.example.weather.databinding.FragmentWeatherBinding
 import com.example.weather.location.LocationService
 import com.example.weather.model.WeatherCity
+import com.example.weather.ui.navigation.Navigation
+import com.example.weather.ui.navigation.IWeatherNavigation
 import com.example.weather.utils.CheckStatusNetwork
 import com.example.weather.utils.resource.event.EventStatus
 import com.example.weather.utils.extensions.*
@@ -160,9 +162,7 @@ class WeatherFragment: Fragment() {
                     if (weatherCurrentLocation == null ||
                         !this@WeatherFragment.hasLocationPermission()) {
 
-                        binding.currentLocation.visibility = View.GONE
-                        binding.titleCurrentLocation.text =
-                            this@WeatherFragment.getString(R.string.location_definition)
+                        showLocationDefinition()
                     } else {
                         binding.currentLocation.visibility = View.VISIBLE
                         binding.currentLocation.text = (weatherCurrentLocation!!.nameCity
@@ -174,23 +174,33 @@ class WeatherFragment: Fragment() {
                 }
 
                 resource.getEvent()?.let { event ->
-                    val eventStatus: Int? = event.getStatusIfNotHandled()
+                    when (val eventStatus: Int? = event.getStatusIfNotHandled()) {
+                        EventStatus.CURRENT_LOCATION_NOT_RECEIVED -> {
+                            showLocationDefinition()
+                        }
 
-                    if (eventStatus != EventStatus.CURRENT_LOCATION_UPDATED) {
-                        eventStatus?.let { this@WeatherFragment.showToast(it) }
-                    } else binding.currentLocation.alpha = ALPHA_UPDATED_DATA
+                        EventStatus.CURRENT_LOCATION_RECEIVED -> {
+                            binding.currentLocation.alpha = ALPHA_UPDATED_DATA
+                        }
+
+                        else -> eventStatus?.let { this@WeatherFragment.showToast(it) }
+                    }
                 }
             }
         }
     }
 
+    private fun showLocationDefinition() {
+        binding.currentLocation.visibility = View.GONE
+        binding.titleCurrentLocation.text =
+            this@WeatherFragment.getString(R.string.location_definition)
+    }
+
     private fun locationServiceCollector() {
         viewLifecycleOwner.lifecycleScope.launch {
             locationService.getResource().collect { resource ->
-                resource.getData()?.let { nameCity ->
-                    if (weatherCurrentLocation != null) {
-                        weatherViewModel.updateWeatherCurrentLocation(nameCity)
-                    } else weatherViewModel.createWeatherCurrentLocation(nameCity)
+                resource.getData()?.let { location ->
+                    weatherViewModel.createWeatherCurrentLocation(location.latitude, location.longitude)
                 }
 
                 resource.getEvent()?.let { event ->

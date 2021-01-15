@@ -3,6 +3,7 @@ package com.example.weather.viewmodel
 import androidx.lifecycle.*
 import com.example.weather.repository.Repository
 import com.example.weather.model.WeatherCity
+import com.example.weather.utils.extensions.getData
 import com.example.weather.utils.resource.Resource
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
@@ -19,14 +20,14 @@ class WeatherViewModel(private val repository: Repository): ViewModel() {
 
     fun createWeatherData(nameCity: String) {
         viewModelScope.launch {
-            repository.createWeatherCity(nameCity, false).collect {
+            repository.createWeatherCity(nameCity).collect {
                 addWeatherData(it)
             }
         }
     }
 
     private fun addWeatherData(resourceWeatherCity: Resource<WeatherCity>) {
-        val tmp: ArrayList<WeatherCity> = ArrayList(resourceRecycler.value.getData()!!)
+        val tmp: ArrayList<WeatherCity> = ArrayList(resourceRecycler.getData()!!)
 
         resourceWeatherCity.getData()?.let { tmp.add(it)}
         resourceRecycler.value =
@@ -50,17 +51,11 @@ class WeatherViewModel(private val repository: Repository): ViewModel() {
      * */
     fun getResourceLocation(): StateFlow<Resource<WeatherCity>> = resourceLocation.asStateFlow()
 
-    fun createWeatherCurrentLocation(nameCity: String) {
+    fun createWeatherCurrentLocation(coordinateLat: Double, coordinateLon: Double) {
         viewModelScope.launch {
-            repository.createWeatherCity(nameCity, true).collect {
-                resourceLocation.value = it
-            }
-        }
-    }
+            repository.createWeatherCurrentLocation(coordinateLat, coordinateLon)
+                .collect {
 
-    fun updateWeatherCurrentLocation(nameCity: String) {
-        viewModelScope.launch {
-            repository.updateWeatherCurrentLocation(nameCity).collect {
                 resourceLocation.value = it
             }
         }

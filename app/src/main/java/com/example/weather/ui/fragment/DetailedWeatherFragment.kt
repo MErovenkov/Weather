@@ -40,8 +40,6 @@ class DetailedWeatherFragment: Fragment()  {
     private lateinit var adapterRecyclerView: GenericAdapter<WeatherFuture>
     private lateinit var swipeRefreshLayout: SwipeRefreshLayout
 
-    private var isCurrentLocation = false
-
     override fun onAttach(context: Context) {
         super.onAttach(context)
 
@@ -52,9 +50,9 @@ class DetailedWeatherFragment: Fragment()  {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        isCurrentLocation = requireArguments().getBoolean(IS_CURRENT_LOCATION_KEY)
         detailedWeatherViewModel
-            .initLiveData(requireArguments().getString(CITY_NAME_KEY).toString(), isCurrentLocation)
+            .initMutableStateFlow(requireArguments().getString(CITY_NAME_KEY).toString(),
+                                  requireArguments().getBoolean(IS_CURRENT_LOCATION_KEY))
     }
 
     override fun onCreateView(
@@ -89,7 +87,7 @@ class DetailedWeatherFragment: Fragment()  {
         swipeRefreshLayout = binding.adwSwipeFresh
         swipeRefreshLayout.setOnRefreshListener {
             if (CheckStatusNetwork.isNetworkAvailable()) {
-                detailedWeatherViewModel.updateWeatherCity(isCurrentLocation)
+                detailedWeatherViewModel.updateWeatherCity()
             } else {
                 showNoInternetAccess()
                 swipeRefreshLayout.isRefreshing = false

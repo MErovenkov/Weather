@@ -6,17 +6,13 @@ class Resource<T> {
     private var event: Event? = null
     private var data: T? = null
 
-    constructor(event: Int, weatherData: T?) {
+    constructor(event: Int, data: T?) {
         this.event = Event(event)
-        this.data = weatherData
+        this.data = data
     }
 
-    constructor(weatherData: T?) {
-        this.data = weatherData
-    }
-
-    constructor(event: Int) {
-        this.event = Event(event)
+    constructor(data: T?) {
+        this.data = data
     }
 
     fun getData(): T? {

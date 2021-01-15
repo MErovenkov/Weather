@@ -21,7 +21,7 @@ fun <T> MutableStateFlow<Resource<T>>.getData(): T? {
  *  Exception in flow
  * */
 @Suppress("UNCHECKED_CAST")
-fun <T> Flow<T>.createWeatherException(nameCity: String): Flow<T> {
+fun <T> Flow<T>.exceptionCreateWeather(nameCity: String): Flow<T> {
     return catch { e ->
         when (e) {
             is NullPointerException -> {
@@ -33,12 +33,34 @@ fun <T> Flow<T>.createWeatherException(nameCity: String): Flow<T> {
                 Log.w("City exist: $nameCity", e.stackTraceToString())
                 emit(Resource(EventStatus.CITY_EXIST, null) as T)
             }
+
+            is ConnectException -> {
+                Log.w(e.toString(), e.stackTraceToString())
+                emit(Resource(EventStatus.LOST_INTERNET_ACCESS, null) as T)
+            }
         }
     }
 }
 
 @Suppress("UNCHECKED_CAST")
-fun <T1, T2> Flow<T1>.updateWeatherException(weatherCityData: T2): Flow<T1> {
+fun <T> Flow<T>.exceptionCreateWeatherLocation(): Flow<T> {
+    return catch { e ->
+        when (e) {
+            is NullPointerException -> {
+                Log.w(e.toString(), e.stackTraceToString())
+                emit(Resource(EventStatus.CURRENT_LOCATION_NOT_RECEIVED, null) as T )
+            }
+
+            is ConnectException -> {
+                Log.w(e.toString(), e.stackTraceToString())
+                emit(Resource(EventStatus.LOST_INTERNET_ACCESS, null) as T)
+            }
+        }
+    }
+}
+
+@Suppress("UNCHECKED_CAST")
+fun <T1, T2> Flow<T1>.exceptionUpdateWeather(weatherCityData: T2): Flow<T1> {
     return catch { e ->
         when (e) {
             is ConnectException -> {
