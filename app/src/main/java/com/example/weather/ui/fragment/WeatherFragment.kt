@@ -44,6 +44,7 @@ class WeatherFragment: Fragment() {
     @Inject
     lateinit var locationService: LocationService
 
+    private lateinit var weatherNavigation: IWeatherNavigation
     private lateinit var binding: FragmentWeatherBinding
     private lateinit var adapterRecyclerView: GenericAdapter<WeatherCity>
     private lateinit var swipeRefreshLayout: SwipeRefreshLayout
@@ -62,6 +63,7 @@ class WeatherFragment: Fragment() {
         savedInstanceState: Bundle?
     ): View? {
         binding = FragmentWeatherBinding.inflate(layoutInflater)
+        weatherNavigation = Navigation(findNavController())
 
         return binding.root
     }
@@ -108,7 +110,7 @@ class WeatherFragment: Fragment() {
             }
             override fun onClickItem(holder: RecyclerView.ViewHolder, position: Int) {
                 holder.itemView.setOnClickListener {
-                    openDetailedFragment(getItem<WeatherCity>(position).nameCity, false)
+                    weatherNavigation.openDetails(getItem<WeatherCity>(position).nameCity, false)
                 }
             }
         }
@@ -235,14 +237,8 @@ class WeatherFragment: Fragment() {
                 locationService.startLocationService(this)
             } else showNoInternetAccess()
         } else {
-            openDetailedFragment(weatherCurrentLocation!!.nameCity, true)
+            weatherNavigation.openDetails(weatherCurrentLocation!!.nameCity, true)
         }
-    }
-
-    private fun openDetailedFragment(nameCity: String, isCurrentLocation: Boolean) {
-        findNavController().navigate(R.id.detailedWeatherFragment,
-            DetailedWeatherFragment.getNewBundle(nameCity, isCurrentLocation),
-            getCustomAnim())
     }
 
     override fun onRequestPermissionsResult(
