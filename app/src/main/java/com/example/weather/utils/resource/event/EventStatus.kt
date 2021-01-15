@@ -10,7 +10,8 @@ object EventStatus {
     const val CITY_WEATHER_UPDATE_FAILED = R.string.city_weather_update_failed
     const val LOST_INTERNET_ACCESS = R.string.lost_internet_access
 
+    const val LOCATION_INFO_FAILURE = R.string.location_information_failure
+
     const val IS_NOT_REFRESHING = 0
     const val CURRENT_LOCATION_RECEIVED = 1
-    const val CURRENT_LOCATION_NOT_RECEIVED = 2
 }

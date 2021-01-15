@@ -63,20 +63,37 @@ class Repository(private val dataBaseHelper: OrmLiteHelper,
         dataBaseHelper.getCurrentLocationWeather()
 
     fun createWeatherCurrentLocation(coordinateLat: Double, coordinateLon: Double)
-        : Flow<Resource<WeatherCity>> = flow {
-            val weatherCurrentLocation = getCurrentLocationWeather()
+            : Flow<Resource<WeatherCity>> = flow {
 
-            if (weatherCurrentLocation != null) {
-                dataBaseHelper.deletedWeatherCity(weatherCurrentLocation)
-            }
+        val newWeatherCity: WeatherCity = withContext(Dispatchers.IO) {
+            weatherData.getWeatherCityByCoordinate(coordinateLat, coordinateLon)
+        }
 
-            val newWeatherCity: WeatherCity = withContext(Dispatchers.IO) {
-                weatherData.getWeatherCityByCoordinate(coordinateLat, coordinateLon)
-            }
-
-            newWeatherCity.isCurrentLocation = true
-
-            emit(Resource(EventStatus.CURRENT_LOCATION_RECEIVED,
-                dataBaseHelper.createWeatherCity(newWeatherCity)))
+        emit(Resource(EventStatus.CURRENT_LOCATION_RECEIVED,
+            changeWeatherCurrentLocation(newWeatherCity)))
     }.exceptionCreateWeatherLocation()
+
+
+    fun createWeatherCurrentLocation(nameCity: String)
+            : Flow<Resource<WeatherCity>> = flow {
+
+        val newWeatherCity: WeatherCity = withContext(Dispatchers.IO) {
+            weatherData.getWeatherCity(nameCity)
+        }
+
+        emit(Resource(EventStatus.CURRENT_LOCATION_RECEIVED,
+            changeWeatherCurrentLocation(newWeatherCity)))
+    }.exceptionCreateWeatherLocation()
+
+    private fun changeWeatherCurrentLocation(newWeatherCity: WeatherCity): WeatherCity {
+        val weatherCurrentLocation = getCurrentLocationWeather()
+
+        if (weatherCurrentLocation != null) {
+            dataBaseHelper.deletedWeatherCity(weatherCurrentLocation)
+        }
+
+        newWeatherCity.isCurrentLocation = true
+
+        return dataBaseHelper.createWeatherCity(newWeatherCity)
+    }
 }

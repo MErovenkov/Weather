@@ -9,6 +9,8 @@ import android.view.inputmethod.InputMethodManager
 import android.widget.Toast
 import androidx.core.app.ActivityCompat
 import androidx.fragment.app.Fragment
+import androidx.navigation.NavOptions
+import androidx.navigation.navOptions
 import com.example.weather.MyApplication
 import com.example.weather.R
 import com.example.weather.di.component.ActivityComponent
@@ -48,4 +50,15 @@ fun Fragment.showNoInternetAccess() {
 
 fun Fragment.getActivityComponent(context: Context): ActivityComponent {
     return (context.applicationContext as MyApplication).appComponent.activityComponent().create(context)
+}
+
+fun Fragment.getCustomAnim(): NavOptions {
+    return navOptions {
+        anim {
+            enter = R.anim.slide_in_right
+            exit = R.anim.slide_out_left
+            popEnter = R.anim.slide_in_left
+            popExit = R.anim.slide_out_right
+        }
+    }
 }

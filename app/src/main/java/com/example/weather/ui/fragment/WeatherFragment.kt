@@ -4,6 +4,7 @@ import android.app.Activity
 import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
+import android.location.Location
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -20,8 +21,8 @@ import com.example.weather.R
 import com.example.weather.databinding.FragmentWeatherBinding
 import com.example.weather.location.LocationService
 import com.example.weather.model.WeatherCity
-import com.example.weather.ui.navigation.Navigation
 import com.example.weather.ui.navigation.IWeatherNavigation
+import com.example.weather.ui.navigation.Navigation
 import com.example.weather.utils.CheckStatusNetwork
 import com.example.weather.utils.resource.event.EventStatus
 import com.example.weather.utils.extensions.*
@@ -177,8 +178,9 @@ class WeatherFragment: Fragment() {
 
                 resource.getEvent()?.let { event ->
                     when (val eventStatus: Int? = event.getStatusIfNotHandled()) {
-                        EventStatus.CURRENT_LOCATION_NOT_RECEIVED -> {
+                        EventStatus.LOCATION_INFO_FAILURE -> {
                             showLocationDefinition()
+                            this@WeatherFragment.showToast(EventStatus.LOCATION_INFO_FAILURE)
                         }
 
                         EventStatus.CURRENT_LOCATION_RECEIVED -> {
@@ -201,8 +203,13 @@ class WeatherFragment: Fragment() {
     private fun locationServiceCollector() {
         viewLifecycleOwner.lifecycleScope.launch {
             locationService.getResource().collect { resource ->
-                resource.getData()?.let { location ->
-                    weatherViewModel.createWeatherCurrentLocation(location.latitude, location.longitude)
+                resource.getData()?.let { cityData ->
+                    when(cityData) {
+                        is Location -> weatherViewModel
+                            .createWeatherCurrentLocation(cityData.latitude, cityData.longitude)
+
+                        is String -> weatherViewModel.createWeatherCurrentLocation(cityData)
+                    }
                 }
 
                 resource.getEvent()?.let { event ->

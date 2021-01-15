@@ -48,7 +48,7 @@ fun <T> Flow<T>.exceptionCreateWeatherLocation(): Flow<T> {
         when (e) {
             is NullPointerException -> {
                 Log.w(e.toString(), e.stackTraceToString())
-                emit(Resource(EventStatus.CURRENT_LOCATION_NOT_RECEIVED, null) as T )
+                emit(Resource(EventStatus.LOCATION_INFO_FAILURE, null) as T )
             }
 
             is ConnectException -> {

@@ -3,12 +3,14 @@ package com.example.weather.location
 import android.Manifest
 import android.content.IntentSender.SendIntentException
 import android.content.pm.PackageManager
+import android.location.Geocoder
 import android.location.Location
 import android.os.Looper
 import android.util.Log
 import androidx.core.app.ActivityCompat
 import androidx.fragment.app.Fragment
 import com.example.weather.utils.resource.Resource
+import com.example.weather.utils.resource.event.EventStatus
 import com.google.android.gms.common.api.ResolvableApiException
 import com.google.android.gms.location.*
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -22,12 +24,13 @@ class LocationService(
 ) {
     private val TAG = this.javaClass.simpleName
 
+    private lateinit var geocoder: Geocoder
     private var fusedLocationProviderClient: FusedLocationProviderClient? = null
     private var locationCallback: LocationCallback? = null
 
-    private var resource: MutableStateFlow<Resource<Location>>
+    private var resource: MutableStateFlow<Resource<*>>
             = MutableStateFlow(Resource(null))
-    fun getResource(): StateFlow<Resource<Location>> = resource.asStateFlow()
+    fun getResource(): StateFlow<Resource<*>> = resource.asStateFlow()
 
     init {
         createLocationCallback()
@@ -37,10 +40,29 @@ class LocationService(
         locationCallback = object : LocationCallback() {
             override fun onLocationResult(locationResult: LocationResult) {
                 Log.i(TAG,"LocationResult received")
-                resource.value = Resource(locationResult.lastLocation)
+                convertLocationToAddress(locationResult.lastLocation)
             }
         }
         Log.i(TAG, "Created locationCallback")
+    }
+
+    private fun convertLocationToAddress(location: Location) {
+        val addresses = geocoder.getFromLocation(location.latitude, location.longitude, 1)
+
+        if(addresses.isNotEmpty()) {
+            val address = addresses[0]
+            val cityName = with(address) {
+                (0..maxAddressLineIndex).map { locality }
+            }
+
+            if (cityName.joinToString() == "null") {
+                resource.value = Resource(location)
+            } else {
+                resource.value = Resource(cityName.joinToString())
+            }
+
+            Log.i(TAG, "Locality received")
+        } else resource.value = Resource<Int>(EventStatus.LOCATION_INFO_FAILURE)
     }
 
     fun startLocationService(fragment: Fragment) {
@@ -61,6 +83,8 @@ class LocationService(
                             locationCallback,
                             Looper.myLooper()
                         )
+
+                        geocoder = Geocoder(fragment.requireContext())
                         Log.i(TAG, "RequestLocationUpdates")
                     }
                 }

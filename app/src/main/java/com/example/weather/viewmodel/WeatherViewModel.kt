@@ -56,6 +56,14 @@ class WeatherViewModel(private val repository: Repository): ViewModel() {
             repository.createWeatherCurrentLocation(coordinateLat, coordinateLon)
                 .collect {
 
+                    resourceLocation.value = it
+                }
+        }
+    }
+
+    fun createWeatherCurrentLocation(nameCity: String) {
+        viewModelScope.launch {
+            repository.createWeatherCurrentLocation(nameCity).collect {
                 resourceLocation.value = it
             }
         }

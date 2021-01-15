@@ -15,6 +15,10 @@ class Resource<T> {
         this.data = data
     }
 
+    constructor(event: Int) {
+        this.event = Event(event)
+    }
+
     fun getData(): T? {
         return data
     }
