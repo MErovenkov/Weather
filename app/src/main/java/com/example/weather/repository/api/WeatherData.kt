@@ -25,6 +25,20 @@ class WeatherData(private val weatherApiRequester: WeatherApiRequester,
        }
     }
 
+    fun getWeatherCityByCoordinate(coordinateLat: Double, coordinateLon: Double): WeatherCity {
+        try {
+            val weatherCurrentDto = weatherApiRequester
+                .getWeatherCurrentDtoByCoordinate(coordinateLat.toString(), coordinateLon.toString())
+            val weatherFutureDto = weatherApiRequester.getWeatherFutureDto(
+                weatherCurrentDto.coordinatesCity.lat, weatherCurrentDto.coordinatesCity.lon)
+
+            return mapperWeatherData.getWeatherCity(weatherCurrentDto, weatherFutureDto)
+        } catch (e: ConnectException) {
+            Log.w(e.toString(),  e.stackTraceToString())
+            throw ConnectException()
+        }
+    }
+
     /**
      * Update WeatherCity
      * */

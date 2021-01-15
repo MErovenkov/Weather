@@ -4,6 +4,7 @@ import android.app.Activity
 import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
+import android.location.Location
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -160,9 +161,7 @@ class WeatherFragment: Fragment() {
                     if (weatherCurrentLocation == null ||
                         !this@WeatherFragment.hasLocationPermission()) {
 
-                        binding.currentLocation.visibility = View.GONE
-                        binding.titleCurrentLocation.text =
-                            this@WeatherFragment.getString(R.string.location_definition)
+                        showLocationDefinition()
                     } else {
                         binding.currentLocation.visibility = View.VISIBLE
                         binding.currentLocation.text = (weatherCurrentLocation!!.nameCity
@@ -174,23 +173,39 @@ class WeatherFragment: Fragment() {
                 }
 
                 resource.getEvent()?.let { event ->
-                    val eventStatus: Int? = event.getStatusIfNotHandled()
+                    when (val eventStatus: Int? = event.getStatusIfNotHandled()) {
+                        EventStatus.LOCATION_INFO_FAILURE -> {
+                            showLocationDefinition()
+                            this@WeatherFragment.showToast(EventStatus.LOCATION_INFO_FAILURE)
+                        }
 
-                    if (eventStatus != EventStatus.CURRENT_LOCATION_UPDATED) {
-                        eventStatus?.let { this@WeatherFragment.showToast(it) }
-                    } else binding.currentLocation.alpha = ALPHA_UPDATED_DATA
+                        EventStatus.CURRENT_LOCATION_RECEIVED -> {
+                            binding.currentLocation.alpha = ALPHA_UPDATED_DATA
+                        }
+
+                        else -> eventStatus?.let { this@WeatherFragment.showToast(it) }
+                    }
                 }
             }
         }
     }
 
+    private fun showLocationDefinition() {
+        binding.currentLocation.visibility = View.GONE
+        binding.titleCurrentLocation.text =
+            this@WeatherFragment.getString(R.string.location_definition)
+    }
+
     private fun locationServiceCollector() {
         viewLifecycleOwner.lifecycleScope.launch {
             locationService.getResource().collect { resource ->
-                resource.getData()?.let { nameCity ->
-                    if (weatherCurrentLocation != null) {
-                        weatherViewModel.updateWeatherCurrentLocation(nameCity)
-                    } else weatherViewModel.createWeatherCurrentLocation(nameCity)
+                resource.getData()?.let { cityData ->
+                    when(cityData) {
+                        is Location -> weatherViewModel
+                            .createWeatherCurrentLocation(cityData.latitude, cityData.longitude)
+
+                        is String -> weatherViewModel.createWeatherCurrentLocation(cityData)
+                    }
                 }
 
                 resource.getEvent()?.let { event ->

@@ -28,9 +28,9 @@ class LocationService(
     private var fusedLocationProviderClient: FusedLocationProviderClient? = null
     private var locationCallback: LocationCallback? = null
 
-    private var resource: MutableStateFlow<Resource<String>>
+    private var resource: MutableStateFlow<Resource<*>>
             = MutableStateFlow(Resource(null))
-    fun getResource(): StateFlow<Resource<String>> = resource.asStateFlow()
+    fun getResource(): StateFlow<Resource<*>> = resource.asStateFlow()
 
     init {
         createLocationCallback()
@@ -55,9 +55,14 @@ class LocationService(
                 (0..maxAddressLineIndex).map { locality }
             }
 
-            resource.value = Resource(cityName.joinToString())
+            if (cityName.joinToString() == "null") {
+                resource.value = Resource(location)
+            } else {
+                resource.value = Resource(cityName.joinToString())
+            }
+
             Log.i(TAG, "Locality received")
-        } else resource.value = Resource(EventStatus.LOCATION_INFO_UPDATED_FAILURE)
+        } else resource.value = Resource<Int>(EventStatus.LOCATION_INFO_FAILURE)
     }
 
     fun startLocationService(fragment: Fragment) {

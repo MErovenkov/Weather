@@ -19,6 +19,14 @@ class WeatherApiRequester(private val weatherApiService: IWeatherApi,
         }
     }
 
+    fun getWeatherCurrentDtoByCoordinate(coordinateCityLat: String, coordinateCityLon: String)
+            : WeatherCurrentDto {
+
+        return weatherApiService
+            .getWeatherCurrentByCoordinate(coordinateCityLat, coordinateCityLon, apiKayWeatherBit)
+            .getResponseBody()
+    }
+
     fun getWeatherFutureDto(coordinateCityLat: String, coordinateCityLon: String)
             : WeatherFutureDto {
 
