@@ -9,6 +9,7 @@ import android.os.Looper
 import android.util.Log
 import androidx.core.app.ActivityCompat
 import androidx.fragment.app.Fragment
+import com.example.weather.utils.resource.LocationData
 import com.example.weather.utils.resource.Resource
 import com.example.weather.utils.resource.event.EventStatus
 import com.google.android.gms.common.api.ResolvableApiException
@@ -28,9 +29,9 @@ class LocationService(
     private var fusedLocationProviderClient: FusedLocationProviderClient? = null
     private var locationCallback: LocationCallback? = null
 
-    private var resource: MutableStateFlow<Resource<*>>
+    private var resource: MutableStateFlow<Resource<LocationData>>
             = MutableStateFlow(Resource(null))
-    fun getResource(): StateFlow<Resource<*>> = resource.asStateFlow()
+    fun getResource(): StateFlow<Resource<LocationData>> = resource.asStateFlow()
 
     init {
         createLocationCallback()
@@ -56,13 +57,13 @@ class LocationService(
             }
 
             if (cityName[0].isNullOrBlank()) {
-                resource.value = Resource(location)
+                resource.value = Resource(LocationData(location.latitude, location.longitude))
             } else {
-                resource.value = Resource(cityName.joinToString())
+                resource.value = Resource(LocationData(cityName.joinToString()))
             }
 
             Log.i(TAG, "Locality received")
-        } else resource.value = Resource<Int>(EventStatus.LOCATION_INFO_FAILURE)
+        } else resource.value = Resource(EventStatus.LOCATION_INFO_FAILURE)
     }
 
     fun startLocationService(fragment: Fragment) {

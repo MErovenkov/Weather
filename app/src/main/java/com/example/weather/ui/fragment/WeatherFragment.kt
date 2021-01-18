@@ -203,13 +203,11 @@ class WeatherFragment: Fragment() {
     private fun locationServiceCollector() {
         viewLifecycleOwner.lifecycleScope.launch {
             locationService.getResource().collect { resource ->
-                resource.getData()?.let { cityData ->
-                    when(cityData) {
-                        is Location -> weatherViewModel
-                            .createWeatherCurrentLocation(cityData.latitude, cityData.longitude)
-
-                        is String -> weatherViewModel.createWeatherCurrentLocation(cityData)
-                    }
+                resource.getData()?.let { locationData ->
+                    if (locationData.name.isNullOrEmpty()) {
+                        weatherViewModel
+                            .createWeatherCurrentLocation(locationData.lat!!, locationData.lon!!)
+                    } else weatherViewModel.createWeatherCurrentLocation(locationData.name!!)
                 }
 
                 resource.getEvent()?.let { event ->
