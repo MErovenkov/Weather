@@ -1,12 +1,12 @@
 package com.example.weather.di.module
 
 import android.content.Context
-import com.example.weather.R
 import com.example.weather.di.qualifier.ApplicationContext
 import com.example.weather.utils.MapperWeatherData
 import com.example.weather.repository.api.WeatherApiRequester
 import com.example.weather.repository.api.WeatherData
 import com.example.weather.repository.api.interfaces.IWeatherApi
+import com.example.weather.utils.ApiKeyChanger
 import dagger.Module
 import dagger.Provides
 import javax.inject.Singleton
@@ -23,9 +23,14 @@ class WeatherDataModule {
 
     @Provides
     @Singleton
-    fun weatherApiRequester(weatherApiServer: IWeatherApi, @ApplicationContext context: Context): WeatherApiRequester {
-        return WeatherApiRequester(weatherApiServer,
-            context.getString(R.string.open_weather_map_api_key))
+    fun weatherApiRequester(weatherApiServer: IWeatherApi, apiKeyChanger: ApiKeyChanger): WeatherApiRequester {
+        return WeatherApiRequester(weatherApiServer, apiKeyChanger)
+    }
+
+    @Provides
+    @Singleton
+    fun apiKeyChanger(@ApplicationContext context: Context): ApiKeyChanger {
+        return ApiKeyChanger(context)
     }
 
     @Provides
