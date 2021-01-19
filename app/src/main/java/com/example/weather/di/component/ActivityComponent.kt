@@ -1,6 +1,7 @@
 package com.example.weather.di.component
 
 import android.content.Context
+import com.example.weather.di.module.NavigationModule
 import com.example.weather.di.module.ViewModelModule
 import com.example.weather.di.qualifier.ActivityContext
 import com.example.weather.di.scope.ActivityScope
@@ -10,7 +11,7 @@ import dagger.BindsInstance
 import dagger.Subcomponent
 
 @ActivityScope
-@Subcomponent(modules = [ViewModelModule::class])
+@Subcomponent(modules = [ViewModelModule::class, NavigationModule::class])
 interface ActivityComponent {
     @Subcomponent.Factory
     interface Factory {

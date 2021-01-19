@@ -1,10 +1,8 @@
 package com.example.weather.ui.fragment
 
 import android.app.Activity
-import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
-import android.location.Location
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -12,7 +10,6 @@ import android.view.ViewGroup
 import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
-import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -22,7 +19,6 @@ import com.example.weather.databinding.FragmentWeatherBinding
 import com.example.weather.location.LocationService
 import com.example.weather.model.WeatherCity
 import com.example.weather.ui.navigation.IWeatherNavigation
-import com.example.weather.ui.navigation.Navigation
 import com.example.weather.utils.CheckStatusNetwork
 import com.example.weather.utils.resource.event.EventStatus
 import com.example.weather.utils.extensions.*
@@ -44,27 +40,22 @@ class WeatherFragment: Fragment() {
     lateinit var weatherViewModel: WeatherViewModel
     @Inject
     lateinit var locationService: LocationService
+    @Inject
+    lateinit var weatherNavigation: IWeatherNavigation
 
-    private lateinit var weatherNavigation: IWeatherNavigation
     private lateinit var binding: FragmentWeatherBinding
     private lateinit var adapterRecyclerView: GenericAdapter<WeatherCity>
     private lateinit var swipeRefreshLayout: SwipeRefreshLayout
 
     private var weatherCurrentLocation: WeatherCity? = null
 
-    override fun onAttach(context: Context) {
-        super.onAttach(context)
-
-        getActivityComponent(context).inject(this)
-    }
-
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View? {
+    ): View {
         binding = FragmentWeatherBinding.inflate(layoutInflater)
-        weatherNavigation = Navigation(findNavController())
+        getActivityComponent(requireContext()).inject(this)
 
         return binding.root
     }
