@@ -23,7 +23,7 @@ class LocationService(
     private val locationRequest: LocationRequest,
     private val locationSettingsRequest: LocationSettingsRequest,
 ) {
-    private val TAG = this.javaClass.simpleName
+    private val tag = this.javaClass.simpleName
 
     private lateinit var geocoder: Geocoder
     private var fusedLocationProviderClient: FusedLocationProviderClient? = null
@@ -40,11 +40,11 @@ class LocationService(
     private fun createLocationCallback() {
         locationCallback = object : LocationCallback() {
             override fun onLocationResult(locationResult: LocationResult) {
-                Log.i(TAG,"LocationResult received")
+                Log.i(tag,"LocationResult received")
                 convertLocationToAddress(locationResult.lastLocation)
             }
         }
-        Log.i(TAG, "Created locationCallback")
+        Log.i(tag, "Created locationCallback")
     }
 
     private fun convertLocationToAddress(location: Location) {
@@ -62,7 +62,7 @@ class LocationService(
                 resource.value = Resource(LocationData(cityName.joinToString()))
             }
 
-            Log.i(TAG, "Locality received")
+            Log.i(tag, "Locality received")
         } else resource.value = Resource(EventStatus.LOCATION_INFO_FAILURE)
     }
 
@@ -72,7 +72,7 @@ class LocationService(
 
             fragment.requestPermissions(arrayOf(Manifest.permission.ACCESS_FINE_LOCATION,
                     Manifest.permission.ACCESS_COARSE_LOCATION), PackageManager.PERMISSION_GRANTED)
-            Log.i(TAG, "Request permission ACCESS_FINE_LOCATION")
+            Log.i(tag, "Request permission ACCESS_FINE_LOCATION")
         } else {
             settingsClient.checkLocationSettings(locationSettingsRequest)
                 .addOnCompleteListener {
@@ -86,7 +86,7 @@ class LocationService(
                         )
 
                         geocoder = Geocoder(fragment.requireContext())
-                        Log.i(TAG, "RequestLocationUpdates")
+                        Log.i(tag, "RequestLocationUpdates")
                     }
                 }
                 .addOnFailureListener { e ->
@@ -95,7 +95,7 @@ class LocationService(
                             fragment.startIntentSenderForResult(e.resolution.intentSender,
                                 PackageManager.PERMISSION_GRANTED,
                                 null, 0, 0, 0, null)
-                            Log.i(TAG, "Request gps to use")
+                            Log.i(tag, "Request gps to use")
                         } catch (e: SendIntentException) {
                             Log.w(e.toString(), e.stackTraceToString())
                         }
@@ -109,7 +109,7 @@ class LocationService(
             fusedLocationProviderClient!!.removeLocationUpdates(locationCallback)
             fusedLocationProviderClient = null
 
-            Log.i(TAG,"Location Callback stopped")
+            Log.i(tag,"Location Callback stopped")
         }
     }
 }

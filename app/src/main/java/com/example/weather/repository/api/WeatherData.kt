@@ -9,6 +9,8 @@ import kotlin.collections.ArrayList
 class WeatherData(private val weatherApiRequester: WeatherApiRequester,
                   private val mapperWeatherData: MapperWeatherData) {
 
+    private val tag = this.javaClass.simpleName
+
     fun getWeatherCity(nameCity: String): WeatherCity {
        try {
            val weatherCurrentDto = weatherApiRequester.getWeatherCurrentDto(nameCity)
@@ -17,10 +19,15 @@ class WeatherData(private val weatherApiRequester: WeatherApiRequester,
 
            return mapperWeatherData.getWeatherCity(weatherCurrentDto, weatherFutureDto)
        } catch (e: NullPointerException) {
-           Log.w("City not found: $nameCity", e.stackTraceToString())
-           throw NullPointerException()
+           Log.w(tag, e.stackTraceToString())
+
+           if (e.message == "Request limit exceeded") {
+               throw NullPointerException("Request limit exceeded")
+           } else {
+               throw NullPointerException("City not found: $nameCity")
+           }
        } catch (e: ConnectException) {
-           Log.w(e.toString(),  e.stackTraceToString())
+           Log.w(tag,  e.stackTraceToString())
            throw ConnectException()
        }
     }
@@ -33,8 +40,16 @@ class WeatherData(private val weatherApiRequester: WeatherApiRequester,
                 weatherCurrentDto.coordinatesCity.lat, weatherCurrentDto.coordinatesCity.lon)
 
             return mapperWeatherData.getWeatherCity(weatherCurrentDto, weatherFutureDto)
+        } catch (e: NullPointerException) {
+            Log.w(tag, e.stackTraceToString())
+
+            if (e.message.isNullOrEmpty()) {
+                throw NullPointerException()
+            } else {
+                throw NullPointerException("Request limit exceeded")
+            }
         } catch (e: ConnectException) {
-            Log.w(e.toString(),  e.stackTraceToString())
+            Log.w(tag,  e.stackTraceToString())
             throw ConnectException()
         }
     }
@@ -49,7 +64,7 @@ class WeatherData(private val weatherApiRequester: WeatherApiRequester,
                 getWeatherCity(oldWeatherCity.nameCity)
             )
         } catch (e: ConnectException) {
-            Log.w(e.toString(),  e.stackTraceToString())
+            Log.w(tag,  e.stackTraceToString())
             throw ConnectException()
         }
     }
@@ -64,7 +79,7 @@ class WeatherData(private val weatherApiRequester: WeatherApiRequester,
             }
             return newWeatherCityList
         } catch (e: ConnectException) {
-            Log.w(e.toString(),  e.stackTraceToString())
+            Log.w(tag,  e.stackTraceToString())
             throw ConnectException()
         }
     }

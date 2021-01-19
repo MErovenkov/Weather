@@ -28,7 +28,7 @@ class Repository(private val dataBaseHelper: OrmLiteHelper,
 
             emit(Resource(EventStatus.CITY_ADDED,
                 dataBaseHelper.createWeatherCity(newWeatherCity)))
-    }.exceptionCreateWeather(nameCity)
+    }.exceptionCreateWeather()
 
     fun updateWeatherCity(weatherCity: WeatherCity): Flow<Resource<WeatherCity>> = flow {
             val newWeatherCity = withContext(Dispatchers.IO) {

@@ -15,6 +15,8 @@ import java.sql.SQLException
 class OrmLiteHelper(context: Context)
     : OrmLiteSqliteOpenHelper(context.applicationContext, DATABASE_NAME, null, DATABASE_VERSION) {
 
+    private val tag = this.javaClass.simpleName
+
     private val weatherCityDao = WeatherCityDao(connectionSource)
     private val weatherCurrentDao = WeatherCurrentDao(connectionSource)
     private val weatherFutureDao = WeatherFutureDao(connectionSource)
@@ -31,7 +33,7 @@ class OrmLiteHelper(context: Context)
             TableUtils.createTable(connectionSource, WeatherCurrent::class.java)
             TableUtils.createTable(connectionSource, WeatherFuture::class.java)
         } catch (e: SQLException) {
-            Log.w(e.toString(),  e.stackTraceToString())
+            Log.w(tag,  e.stackTraceToString())
         }
     }
 
@@ -47,7 +49,7 @@ class OrmLiteHelper(context: Context)
                             "ADD COLUMN ${DBNaming.WeatherCityEntry.COLUMN_IS_CURRENT_LOCATION} INTEGER")
             }
         } catch (e: SQLException) {
-            Log.w(e.toString(),  e.stackTraceToString())
+            Log.w(tag,  e.stackTraceToString())
         }
     }
 
@@ -62,8 +64,8 @@ class OrmLiteHelper(context: Context)
 
             return newWeatherCity
         } catch (e: SQLException) {
-            Log.w("City exist: ${newWeatherCity.nameCity}", e.stackTraceToString())
-            throw SQLException()
+            Log.w(tag, e.stackTraceToString())
+            throw SQLException("City exist: ${newWeatherCity.nameCity}")
         }
     }
 
