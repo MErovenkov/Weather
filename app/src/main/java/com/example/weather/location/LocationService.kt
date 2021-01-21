@@ -56,11 +56,8 @@ class LocationService(
                 (0..maxAddressLineIndex).map { locality }
             }
 
-            if (cityName[0].isNullOrBlank()) {
-                resource.value = Resource(LocationData(location.latitude, location.longitude))
-            } else {
-                resource.value = Resource(LocationData(cityName.joinToString()))
-            }
+            resource.value = Resource(LocationData(location.latitude, location.longitude,
+                cityName[0]))
 
             Log.i(tag, "Locality received")
         } else resource.value = Resource(EventStatus.LOCATION_INFO_FAILURE)

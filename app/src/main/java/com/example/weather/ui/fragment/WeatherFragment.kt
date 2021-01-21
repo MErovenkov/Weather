@@ -197,8 +197,8 @@ class WeatherFragment: Fragment() {
                 resource.getData()?.let { locationData ->
                     if (locationData.name.isNullOrEmpty()) {
                         weatherViewModel
-                            .createWeatherCurrentLocation(locationData.lat!!, locationData.lon!!)
-                    } else weatherViewModel.createWeatherCurrentLocation(locationData.name!!)
+                            .createWeatherCurrentLocation(locationData.lat, locationData.lon)
+                    } else weatherViewModel.createWeatherCurrentLocation(locationData.name)
                 }
 
                 resource.getEvent()?.let { event ->
