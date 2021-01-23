@@ -15,6 +15,8 @@ class ApiKeyChanger(private val context: Context) {
             add(context.getString(R.string.open_weather_map_api_key_2))
             add(context.getString(R.string.open_weather_map_api_key_3))
         }
+
+        keyPosition = (0 until apiKeyList.size).random()
     }
 
     fun getApiKey(): String {
