@@ -1,6 +1,8 @@
 package com.example.weather.utils.extensions
 
 import android.util.Log
+import com.example.weather.utils.exception.NotFoundLocationException
+import com.example.weather.utils.exception.OverLimitApiKeyException
 import com.example.weather.utils.resource.event.EventStatus
 import com.example.weather.utils.resource.Resource
 import kotlinx.coroutines.flow.Flow
@@ -25,25 +27,12 @@ fun <T> MutableStateFlow<Resource<T>>.getData(): T? {
 @Suppress("UNCHECKED_CAST")
 fun <T> Flow<T>.exceptionCreateWeather(): Flow<T> {
     return catch { e ->
+        Log.w(TAG, e.stackTraceToString())
         when (e) {
-            is NullPointerException -> {
-                Log.w(TAG, e.stackTraceToString())
-                if (e.message == "Request limit exceeded") {
-                    emit(Resource(EventStatus.REQUEST_LIMIT_EXCEEDED, null) as T )
-                } else {
-                    emit(Resource(EventStatus.CITY_NOT_FOUND, null) as T )
-                }
-            }
-
-            is SQLException -> {
-                Log.w(TAG, e.stackTraceToString())
-                emit(Resource(EventStatus.CITY_EXIST, null) as T)
-            }
-
-            is ConnectException -> {
-                Log.w(TAG, e.stackTraceToString())
-                emit(Resource(EventStatus.LOST_INTERNET_ACCESS, null) as T)
-            }
+            is NotFoundLocationException -> emit(Resource(EventStatus.CITY_NOT_FOUND, null) as T)
+            is SQLException -> emit(Resource(EventStatus.CITY_EXIST, null) as T)
+            is ConnectException -> emit(Resource(EventStatus.LOST_INTERNET_ACCESS, null) as T)
+            is OverLimitApiKeyException -> emit(Resource(EventStatus.REQUEST_LIMIT_EXCEEDED, null) as T)
         }
     }
 }
@@ -51,20 +40,11 @@ fun <T> Flow<T>.exceptionCreateWeather(): Flow<T> {
 @Suppress("UNCHECKED_CAST")
 fun <T> Flow<T>.exceptionCreateWeatherLocation(): Flow<T> {
     return catch { e ->
+        Log.w(TAG, e.stackTraceToString())
         when (e) {
-            is NullPointerException -> {
-                Log.w(TAG, e.stackTraceToString())
-                if (e.message == "Request limit exceeded") {
-                    emit(Resource(EventStatus.REQUEST_LIMIT_EXCEEDED, null) as T )
-                } else {
-                    emit(Resource(EventStatus.LOCATION_INFO_FAILURE, null) as T )
-                }
-            }
-
-            is ConnectException -> {
-                Log.w(TAG, e.stackTraceToString())
-                emit(Resource(EventStatus.LOST_INTERNET_ACCESS, null) as T)
-            }
+            is NotFoundLocationException -> emit(Resource(EventStatus.LOCATION_INFO_FAILURE, null) as T)
+            is ConnectException -> emit(Resource(EventStatus.LOST_INTERNET_ACCESS, null) as T)
+            is OverLimitApiKeyException -> emit(Resource(EventStatus.REQUEST_LIMIT_EXCEEDED, null) as T)
         }
     }
 }
@@ -72,16 +52,16 @@ fun <T> Flow<T>.exceptionCreateWeatherLocation(): Flow<T> {
 @Suppress("UNCHECKED_CAST")
 fun <T1, T2> Flow<T1>.exceptionUpdateWeather(weatherCityData: T2): Flow<T1> {
     return catch { e ->
+        Log.w(TAG, e.stackTraceToString())
         when (e) {
-            is ConnectException -> {
-                Log.w(TAG, e.stackTraceToString())
-                emit(Resource(EventStatus.LOST_INTERNET_ACCESS, weatherCityData) as T1)
-            }
+            is SSLException -> emit(Resource(EventStatus.CITY_WEATHER_UPDATE_FAILED,
+                weatherCityData) as T1)
 
-            is SSLException -> {
-                Log.w(TAG, e.stackTraceToString())
-                emit(Resource(EventStatus.CITY_WEATHER_UPDATE_FAILED, weatherCityData) as T1)
-            }
+            is ConnectException -> emit(Resource(EventStatus.LOST_INTERNET_ACCESS,
+                weatherCityData) as T1)
+
+            is OverLimitApiKeyException -> emit(Resource(EventStatus.REQUEST_LIMIT_EXCEEDED,
+                weatherCityData) as T1 )
         }
     }
 }

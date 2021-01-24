@@ -1,69 +1,57 @@
 package com.example.weather.repository.api
 
-import android.util.Log
 import com.example.weather.dto.WeatherCurrentDto
 import com.example.weather.dto.WeatherFutureDto
 import com.example.weather.repository.api.interfaces.IWeatherApi
 import com.example.weather.utils.ApiKeyChanger
 import com.example.weather.utils.RequestData
+import com.example.weather.utils.exception.NotFoundLocationException
+import com.example.weather.utils.exception.OverLimitApiKeyException
 import retrofit2.Response
+import java.net.ConnectException
+import kotlin.jvm.Throws
 
 class WeatherApiRequester(private val weatherApiService: IWeatherApi,
                           private val apiKeyChanger: ApiKeyChanger) {
 
-    private val tag = this.javaClass.simpleName
-
-    fun getWeatherCurrentDto(nameCity: String): WeatherCurrentDto {
-        try {
-            return getResponseBody(RequestData(nameCity))
-        } catch (e: NullPointerException) {
-            Log.w(tag, e.stackTraceToString())
-
-            if (e.message == "Request limit exceeded") {
-                throw NullPointerException("Request limit exceeded")
-            } else {
-                throw NullPointerException("City not found: $nameCity")
-            }
-        }
+    companion object {
+        private const val CODE_RESPONSE_KEY_OVER_LIMIT = 429
     }
 
+    @Throws(NotFoundLocationException::class, OverLimitApiKeyException::class, ConnectException::class)
+    fun getWeatherCurrentDto(nameCity: String): WeatherCurrentDto {
+        return getResponseBody(RequestData(nameCity))
+    }
+
+    @Throws(OverLimitApiKeyException::class, ConnectException::class)
     fun getWeatherCurrentDtoByCoordinate(coordinateCityLat: String, coordinateCityLon: String)
             : WeatherCurrentDto {
-        try {
-            return getResponseBody(RequestData(coordinateCityLat, coordinateCityLon, true))
-        } catch (e: NullPointerException) {
-            Log.w(tag, e.stackTraceToString())
-            throw NullPointerException("Request limit exceeded")
-        }
+        return getResponseBody(RequestData(coordinateCityLat, coordinateCityLon, true))
     }
 
+    @Throws(OverLimitApiKeyException::class, ConnectException::class)
     fun getWeatherFutureDto(coordinateCityLat: String, coordinateCityLon: String)
             : WeatherFutureDto {
-        try {
-            return getResponseBody(RequestData(coordinateCityLat, coordinateCityLon, false))
-        } catch (e: NullPointerException) {
-            Log.w(tag, e.stackTraceToString())
-            throw NullPointerException("Request limit exceeded")
-        }
+        return getResponseBody(RequestData(coordinateCityLat, coordinateCityLon, false))
     }
 
     private fun <T> getResponseBody(requestData: RequestData): T {
         var response = getResponseByRequestData<T>(requestData)
 
-        return when (isOverLimit(response.code())) {
+        return when (response.code() == CODE_RESPONSE_KEY_OVER_LIMIT) {
             true -> {
                 while(apiKeyChanger.changeApiKey()) {
                     response = getResponseByRequestData(requestData)
 
-                    if (!isOverLimit(response.code())) {
+                    if (response.code() != CODE_RESPONSE_KEY_OVER_LIMIT) {
                         break
                     }
                 }
 
-                response.body()!!
+                response.body() ?: throw NotFoundLocationException()
             }
 
-            else -> response.body()!!
+            else -> response.body() ?: throw NotFoundLocationException()
         }
     }
 
@@ -90,15 +78,6 @@ class WeatherApiRequester(private val weatherApiService: IWeatherApi,
                                       apiKeyChanger.getApiKey())
                     .execute() as Response<T>
             }
-        }
-    }
-
-    private fun isOverLimit(responseCode: Int): Boolean {
-        return when(responseCode) {
-            200 -> false
-            404 -> throw NullPointerException()
-            429 -> true
-            else -> false
         }
     }
 }

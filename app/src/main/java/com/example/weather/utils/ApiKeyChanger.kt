@@ -2,7 +2,7 @@ package com.example.weather.utils
 
 import android.content.Context
 import com.example.weather.R
-import java.lang.NullPointerException
+import com.example.weather.utils.exception.OverLimitApiKeyException
 
 class ApiKeyChanger(private val context: Context) {
     private var apiKeyList: ArrayList<String> = ArrayList()
@@ -26,7 +26,7 @@ class ApiKeyChanger(private val context: Context) {
     fun changeApiKey(): Boolean {
         if (keyPosition == apiKeyList.size - 1 && attempts == apiKeyList.size) {
             attempts = 0
-            throw NullPointerException("Request limit exceeded")
+            throw OverLimitApiKeyException()
         } else if (keyPosition == apiKeyList.size - 1 && attempts != apiKeyList.size) {
             keyPosition = 0
         } else {

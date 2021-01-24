@@ -3,6 +3,8 @@ package com.example.weather.repository.api
 import android.util.Log
 import com.example.weather.model.WeatherCity
 import com.example.weather.utils.MapperWeatherData
+import com.example.weather.utils.exception.NotFoundLocationException
+import com.example.weather.utils.exception.OverLimitApiKeyException
 import java.net.ConnectException
 import kotlin.collections.ArrayList
 
@@ -17,18 +19,13 @@ class WeatherData(private val weatherApiRequester: WeatherApiRequester,
            val weatherFutureDto = weatherApiRequester.getWeatherFutureDto(
                 weatherCurrentDto.coordinatesCity.lat, weatherCurrentDto.coordinatesCity.lon)
 
-           return mapperWeatherData.getWeatherCity(weatherCurrentDto, weatherFutureDto)
-       } catch (e: NullPointerException) {
-           Log.w(tag, e.stackTraceToString())
-
-           if (e.message == "Request limit exceeded") {
-               throw NullPointerException("Request limit exceeded")
-           } else {
-               throw NullPointerException("City not found: $nameCity")
-           }
-       } catch (e: ConnectException) {
+            return mapperWeatherData.getWeatherCity(weatherCurrentDto, weatherFutureDto)
+       } catch (e: Exception) {
            Log.w(tag,  e.stackTraceToString())
-           throw ConnectException()
+           when(e) {
+               is NotFoundLocationException -> throw NotFoundLocationException("City not found: $nameCity")
+               else -> throw definingException(e)
+           }
        }
     }
 
@@ -40,17 +37,9 @@ class WeatherData(private val weatherApiRequester: WeatherApiRequester,
                 weatherCurrentDto.coordinatesCity.lat, weatherCurrentDto.coordinatesCity.lon)
 
             return mapperWeatherData.getWeatherCity(weatherCurrentDto, weatherFutureDto)
-        } catch (e: NullPointerException) {
-            Log.w(tag, e.stackTraceToString())
-
-            if (e.message.isNullOrEmpty()) {
-                throw NullPointerException()
-            } else {
-                throw NullPointerException("Request limit exceeded")
-            }
-        } catch (e: ConnectException) {
+        } catch (e: Exception) {
             Log.w(tag,  e.stackTraceToString())
-            throw ConnectException()
+            throw definingException(e)
         }
     }
 
@@ -63,9 +52,9 @@ class WeatherData(private val weatherApiRequester: WeatherApiRequester,
                 oldWeatherCity,
                 getWeatherCity(oldWeatherCity.nameCity)
             )
-        } catch (e: ConnectException) {
+        } catch (e: Exception) {
             Log.w(tag,  e.stackTraceToString())
-            throw ConnectException()
+            throw definingException(e)
         }
     }
 
@@ -78,9 +67,17 @@ class WeatherData(private val weatherApiRequester: WeatherApiRequester,
                 newWeatherCityList.add(broadcastingImmutableData(oldWeatherCity, newWeatherCity))
             }
             return newWeatherCityList
-        } catch (e: ConnectException) {
+        } catch (e: Exception) {
             Log.w(tag,  e.stackTraceToString())
-            throw ConnectException()
+            throw definingException(e)
+        }
+    }
+
+    private fun definingException(e: Exception): Exception {
+        return when(e) {
+            is ConnectException -> ConnectException()
+            is OverLimitApiKeyException -> OverLimitApiKeyException()
+            else -> Exception()
         }
     }
 
