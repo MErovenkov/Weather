@@ -9,11 +9,7 @@ import android.view.inputmethod.InputMethodManager
 import android.widget.Toast
 import androidx.core.app.ActivityCompat
 import androidx.fragment.app.Fragment
-import androidx.navigation.NavOptions
-import androidx.navigation.navOptions
-import com.example.weather.MyApplication
 import com.example.weather.R
-import com.example.weather.di.component.ActivityComponent
 
 /**
  * Fragment extension
@@ -46,8 +42,4 @@ fun Fragment.showToast(event: Int) {
 
 fun Fragment.showNoInternetAccess() {
     this.showToast(R.string.no_internet_access)
-}
-
-fun Fragment.getActivityComponent(context: Context): ActivityComponent {
-    return (context.applicationContext as MyApplication).appComponent.activityComponent().create(context)
 }

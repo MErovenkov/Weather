@@ -22,7 +22,7 @@ class OrmLiteHelper(context: Context)
     private val weatherFutureDao = WeatherFutureDao(connectionSource)
 
     companion object {
-        const val DATABASE_VERSION = 2
+        const val DATABASE_VERSION = 3
         const val DATABASE_NAME = DBNaming.DB.DATABASE_NAME
     }
 
@@ -47,6 +47,12 @@ class OrmLiteHelper(context: Context)
                 weatherCityDao.executeRaw(
                     "ALTER TABLE ${DBNaming.WeatherCityEntry.TABLE_NAME} " +
                             "ADD COLUMN ${DBNaming.WeatherCityEntry.COLUMN_IS_CURRENT_LOCATION} INTEGER")
+            }
+
+            if (newVersion == 3) {
+                weatherFutureDao.executeRaw(
+                    "ALTER TABLE ${DBNaming.WeatherCityEntry.TABLE_NAME} " +
+                            "ADD COLUMN ${DBNaming.WeatherFutureEntry.COLUMN_ALERT_TOMORROW} STRING")
             }
         } catch (e: SQLException) {
             Log.w(tag,  e.stackTraceToString())

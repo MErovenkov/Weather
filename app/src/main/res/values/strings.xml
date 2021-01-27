@@ -10,6 +10,8 @@
 
     <string name="insert_new_city">Введите название города</string>
     <string name="weather_current_location">Погода в текущем населенном пункте</string>
+    <string name="alert_for_tomorrow">Предупреждение на завтра</string>
+    <string name="alert_about_bad_weather">Оповещение о плохой погоде</string>
 
     <!-- Toast messages -->
     <string name="no_internet_access">Нет доступа в Интернет</string>

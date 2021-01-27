@@ -5,14 +5,11 @@ import androidx.work.*
 import com.example.weather.di.component.ApplicationComponent
 import com.example.weather.di.component.DaggerApplicationComponent
 import com.example.weather.utils.CheckStatusNetwork
+import com.example.weather.worker.NotificationWorker
 import com.example.weather.worker.UpdateWorker
 import java.util.concurrent.TimeUnit
 
 class MyApplication: Application(){
-
-    companion object {
-        private const val WORKER_NAME = "updateWeatherData"
-    }
 
      val appComponent: ApplicationComponent by lazy {
         initializeComponent()
@@ -24,28 +21,33 @@ class MyApplication: Application(){
 
     override fun onCreate() {
         super.onCreate()
-        initWorker()
-
+        initWorkers()
         CheckStatusNetwork.registerNetworkCallback(applicationContext)
     }
 
-    private fun initWorker() {
+    private fun initWorkers() {
         val constraints: Constraints = Constraints.Builder()
             .setRequiredNetworkType(NetworkType.CONNECTED)
             .build()
 
-        val myWorkRequest =  PeriodicWorkRequest.Builder(
+        val updateWorkerRequest =  PeriodicWorkRequest.Builder(
             UpdateWorker::class.java,
             4, TimeUnit.HOURS
-        )
-            .addTag(WORKER_NAME)
-            .setConstraints(constraints)
-            .build()
+        ).addTag(UpdateWorker.NAME_WORKER).setConstraints(constraints).build()
 
-        WorkManager.getInstance(applicationContext).enqueueUniquePeriodicWork(
-            WORKER_NAME,
-            ExistingPeriodicWorkPolicy.KEEP,
-            myWorkRequest
-        )
+        val notificationWorkRequest =  PeriodicWorkRequest.Builder(
+            NotificationWorker::class.java,
+            12, TimeUnit.HOURS
+        ).addTag(NotificationWorker.NAME_WORKER).setConstraints(constraints).build()
+
+        val instanceWorkManager = WorkManager.getInstance(applicationContext)
+
+        instanceWorkManager.apply {
+            enqueueUniquePeriodicWork(UpdateWorker.NAME_WORKER,
+                ExistingPeriodicWorkPolicy.KEEP, updateWorkerRequest)
+
+            enqueueUniquePeriodicWork(NotificationWorker.NAME_WORKER,
+                ExistingPeriodicWorkPolicy.KEEP, notificationWorkRequest)
+        }
     }
 }

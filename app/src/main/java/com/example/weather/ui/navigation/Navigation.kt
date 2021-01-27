@@ -8,18 +8,23 @@ import com.example.weather.ui.fragment.DetailedWeatherFragment
 
 class Navigation(private var navController: NavController): IWeatherNavigation {
 
-    override fun openDetails(nameCity: String, isCurrentLocation: Boolean) {
+    override fun openDetails(nameCity: String, isCurrentLocation: Boolean,
+                             hasAnimationOpening: Boolean) {
+        navController.popBackStack(R.id.weatherFragment, false)
         navController.navigate(
             R.id.detailedWeatherFragment,
             DetailedWeatherFragment.getNewBundle(nameCity, isCurrentLocation),
-            getCustomAnim())
+            getCustomAnim(hasAnimationOpening)
+        )
     }
 
-    private fun getCustomAnim(): NavOptions {
+    private fun getCustomAnim(hasAnimationOpening: Boolean): NavOptions {
         return navOptions {
             anim {
-                enter = R.anim.slide_in_right
-                exit = R.anim.slide_out_left
+                if (hasAnimationOpening) {
+                    enter = R.anim.slide_in_right
+                    exit = R.anim.slide_out_left
+                }
                 popEnter = R.anim.slide_in_left
                 popExit = R.anim.slide_out_right
             }

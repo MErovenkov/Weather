@@ -19,12 +19,13 @@ import com.example.weather.databinding.FragmentWeatherBinding
 import com.example.weather.location.LocationService
 import com.example.weather.model.WeatherCity
 import com.example.weather.ui.navigation.IWeatherNavigation
-import com.example.weather.utils.CheckStatusNetwork
-import com.example.weather.utils.resource.event.EventStatus
-import com.example.weather.utils.extensions.*
 import com.example.weather.ui.recycler.GenericAdapter
 import com.example.weather.ui.recycler.SwipeToDeleteCallback
+import com.example.weather.utils.CheckStatusNetwork
+import com.example.weather.utils.extensions.*
+import com.example.weather.utils.resource.event.EventStatus
 import com.example.weather.viewmodel.WeatherViewModel
+import com.example.weather.worker.NotificationWorker
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -99,10 +100,12 @@ class WeatherFragment: Fragment() {
         adapterRecyclerView = object : GenericAdapter<WeatherCity>(){
             override fun <T> itemDismiss(data: T) {
                 weatherViewModel.deleteWeatherCity(data as WeatherCity)
+                requireContext().cancelNotification(data.id)
             }
             override fun onClickItem(holder: RecyclerView.ViewHolder, position: Int) {
                 holder.itemView.setOnClickListener {
-                    weatherNavigation.openDetails(getItem<WeatherCity>(position).nameCity, false)
+                    weatherNavigation.openDetails(getItem<WeatherCity>(position).nameCity,
+                        isCurrentLocation = false, hasAnimationOpening = true)
                 }
             }
         }
@@ -153,10 +156,12 @@ class WeatherFragment: Fragment() {
                 resource.getData().let { weatherLocation ->
                     weatherCurrentLocation = weatherLocation
 
-                    if (weatherCurrentLocation == null ||
-                        !this@WeatherFragment.hasLocationPermission()) {
-
+                    if (weatherCurrentLocation == null) {
                         showLocationDefinition()
+                    } else if (!this@WeatherFragment.hasLocationPermission()) {
+                        showLocationDefinition()
+                        weatherViewModel.deleteWeatherCity(weatherCurrentLocation!!)
+                        requireContext().cancelNotification(NotificationWorker.CURRENT_LOCATION_ID)
                     } else {
                         binding.currentLocation.visibility = View.VISIBLE
                         binding.currentLocation.text = (weatherCurrentLocation!!.nameCity
@@ -215,12 +220,12 @@ class WeatherFragment: Fragment() {
         val nameCity = addingNewCity.text.toString()
 
         if (CheckStatusNetwork.isNetworkAvailable()) {
-            if (nameCity.trim().isNotEmpty()) {
+            if (nameCity.isNotBlank()) {
                 addingNewCity.text.clear()
                 addingNewCity.isCursorVisible = false
 
                 weatherViewModel.createWeatherData(nameCity)
-            }
+            } else addingNewCity.text.clear()
         } else {
             showNoInternetAccess()
         }
@@ -233,7 +238,8 @@ class WeatherFragment: Fragment() {
                 locationService.startLocationService(this)
             } else showNoInternetAccess()
         } else {
-            weatherNavigation.openDetails(weatherCurrentLocation!!.nameCity, true)
+            weatherNavigation.openDetails(weatherCurrentLocation!!.nameCity,
+                isCurrentLocation = true, hasAnimationOpening = true)
         }
     }
 

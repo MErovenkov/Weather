@@ -27,6 +27,7 @@ class DBNaming private constructor() {
         const val COLUMN_TEMPERATURE_MAX = "temperature_max"
         const val COLUMN_TEMPERATURE_MIN = "temperature_min"
         const val COLUMN_NAME_IC_WEATHER = "name_ic_weather"
+        const val COLUMN_ALERT_TOMORROW = "alert_tomorrow"
         const val COLUMN_CITY_ID = "city_id"
     }
 }

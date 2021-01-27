@@ -18,6 +18,9 @@ class WeatherCity {
     @DatabaseField(uniqueCombo = true, columnName = DBNaming.WeatherCityEntry.COLUMN_IS_CURRENT_LOCATION)
     var isCurrentLocation: Boolean = false
 
+    @DatabaseField(columnName = DBNaming.WeatherFutureEntry.COLUMN_ALERT_TOMORROW)
+    lateinit var alertTomorrow: String
+
     @DatabaseField(columnName = DBNaming.WeatherCityEntry.COLUMN_WEATHER_CURRENT, foreign = true,
         foreignAutoRefresh = true, foreignAutoCreate = true)
     lateinit var weatherCurrent: WeatherCurrent
@@ -27,9 +30,10 @@ class WeatherCity {
 
     constructor()
 
-    constructor(nameCity: String, weatherCurrent: WeatherCurrent,
-                weatherFutureList: ArrayList<WeatherFuture>) {
+    constructor(nameCity: String, alertTomorrow: String,
+                weatherCurrent: WeatherCurrent, weatherFutureList: ArrayList<WeatherFuture>) {
         this.nameCity = nameCity
+        this.alertTomorrow = alertTomorrow
         this.weatherCurrent = weatherCurrent
         this.weatherFutureList = weatherFutureList
     }

@@ -5,6 +5,7 @@ import com.example.weather.di.module.NavigationModule
 import com.example.weather.di.module.ViewModelModule
 import com.example.weather.di.qualifier.ActivityContext
 import com.example.weather.di.scope.ActivityScope
+import com.example.weather.ui.MainActivity
 import com.example.weather.ui.fragment.DetailedWeatherFragment
 import com.example.weather.ui.fragment.WeatherFragment
 import dagger.BindsInstance
@@ -20,4 +21,6 @@ interface ActivityComponent {
 
     fun inject(weatherFragment: WeatherFragment)
     fun inject(detailedWeatherFragment: DetailedWeatherFragment)
+
+    fun inject(myActivity: MainActivity)
 }

@@ -6,8 +6,22 @@ import com.squareup.moshi.JsonClass
 @JsonClass(generateAdapter = true)
 data class WeatherFutureDto (
     @Json(name = "daily")
-    val days: List<Day>
+    val days: List<Day>,
+
+    @Json(name = "alerts")
+    val alerts: List<Alert>
 ) {
+    data class Alert(
+        @Json(name = "start")
+        val start: Long,
+
+        @Json(name = "end")
+        val end: Long,
+
+        @Json(name = "description")
+        val description: String
+    )
+
     data class Day(
         @Json(name = "dt")
         val date: Long,
