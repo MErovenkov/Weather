@@ -19,37 +19,35 @@ class Repository(private val dataBaseHelper: OrmLiteHelper,
     fun getWeatherCityByName(nameCity: String): WeatherCity =
         dataBaseHelper.getWeatherCityByName(nameCity)
 
-    fun createWeatherCity(nameCity: String)
-        : Flow<Resource<WeatherCity>> = flow {
+    fun createWeatherCity(nameCity: String): Flow<Resource<WeatherCity>> = flow {
+        val newWeatherCity = withContext(Dispatchers.IO) {
+            weatherData.getWeatherCity(nameCity)
+        }
 
-            val newWeatherCity = withContext(Dispatchers.IO) {
-                weatherData.getWeatherCity(nameCity)
-            }
-
-            emit(Resource(EventStatus.CITY_ADDED,
-                dataBaseHelper.createWeatherCity(newWeatherCity)))
+        emit(Resource(EventStatus.CITY_ADDED,
+            dataBaseHelper.createWeatherCity(newWeatherCity)))
     }.exceptionCreateWeather()
 
     fun updateWeatherCity(weatherCity: WeatherCity): Flow<Resource<WeatherCity>> = flow {
-            val newWeatherCity = withContext(Dispatchers.IO) {
-                weatherData.getUpdateWeatherCity(weatherCity)
-            }
+        val newWeatherCity = withContext(Dispatchers.IO) {
+            weatherData.getUpdateWeatherCity(weatherCity)
+        }
 
-            emit(Resource(EventStatus.CITY_WEATHER_DATA_UPDATED,
-                dataBaseHelper.updateWeatherCity(newWeatherCity)))
+        emit(Resource(EventStatus.CITY_WEATHER_DATA_UPDATED,
+            dataBaseHelper.updateWeatherCity(newWeatherCity)))
     }.exceptionUpdateWeather(weatherCity)
 
     fun updateWeatherCities(): Flow<Resource<ArrayList<WeatherCity>>> = flow {
-            val weatherCityList = withContext(Dispatchers.IO) {
-                weatherData.getUpdatedWeatherCityList(dataBaseHelper.getWeatherCities())
-            }
+        val weatherCityList = withContext(Dispatchers.IO) {
+            weatherData.getUpdatedWeatherCityList(dataBaseHelper.getWeatherCities())
+        }
 
-            if (weatherCityList.isNotEmpty()) {
-                emit(Resource(EventStatus.CITY_WEATHER_DATA_UPDATED,
-                    dataBaseHelper.updateRecyclerCitiesWeather(weatherCityList)))
+        if (weatherCityList.isNotEmpty()) {
+            emit(Resource(EventStatus.CITY_WEATHER_DATA_UPDATED,
+                dataBaseHelper.updateRecyclerCitiesWeather(weatherCityList)))
 
-            } else emit(Resource(EventStatus.IS_NOT_REFRESHING,
-                dataBaseHelper.getWeatherCities()))
+        } else emit(Resource(EventStatus.IS_NOT_REFRESHING,
+            dataBaseHelper.getWeatherCities()))
     }.exceptionUpdateWeather(dataBaseHelper.getWeatherCities())
 
     fun deletedWeatherCity(weatherCity: WeatherCity) {

@@ -24,4 +24,3 @@ class WeatherCurrent {
         this.nameIconWeather = nameIconWeather
     }
 }
-

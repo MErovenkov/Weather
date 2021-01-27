@@ -50,7 +50,7 @@ class NotificationWorker(context: Context, params: WorkerParameters) : Worker(co
         }
     }
 
-    private fun sendNotification(get: ArrayList<WeatherCity>) {
+    private fun sendNotification(weatherCities: ArrayList<WeatherCity>) {
         val notificationManager =
             applicationContext.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
 
@@ -62,7 +62,7 @@ class NotificationWorker(context: Context, params: WorkerParameters) : Worker(co
             notificationManager.createNotificationChannel(channel)
         }
 
-        for (weatherCity in get) {
+        for (weatherCity in weatherCities) {
             val intent = MainActivity
                 .createIntent(applicationContext, weatherCity.nameCity, weatherCity.isCurrentLocation)
 

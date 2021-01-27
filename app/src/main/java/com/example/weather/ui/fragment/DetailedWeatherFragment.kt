@@ -59,7 +59,7 @@ class DetailedWeatherFragment: Fragment()  {
         inflater: LayoutInflater,
         container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View? {
+    ): View {
         binding = FragmentDetailedWeatherBinding.inflate(layoutInflater)
 
         return binding.root

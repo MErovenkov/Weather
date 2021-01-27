@@ -74,7 +74,7 @@ class WeatherFragment: Fragment() {
         binding.addingNewCity.setOnClickListener { createNewCity() }
         binding.titleCurrentLocation.setOnClickListener { openWeatherCurrentLocation() }
         binding.currentLocation.apply {
-            setOnClickListener{ openWeatherCurrentLocation() }
+            setOnClickListener { openWeatherCurrentLocation() }
             alpha = ALPHA_NOT_UPDATED_DATA
         }
     }

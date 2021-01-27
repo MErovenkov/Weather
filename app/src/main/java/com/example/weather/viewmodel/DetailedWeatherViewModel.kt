@@ -29,7 +29,6 @@ class DetailedWeatherViewModel(private val repository: Repository): ViewModel() 
         viewModelScope.launch {
             repository.updateWeatherCity(resource.getData()!!).collect {
                 resource.value = it
-
             }
         }
     }
