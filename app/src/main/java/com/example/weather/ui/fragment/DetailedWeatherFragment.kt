@@ -10,7 +10,7 @@ import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
 import com.example.weather.databinding.FragmentDetailedWeatherBinding
-import com.example.weather.model.WeatherFuture
+import com.example.weather.data.model.WeatherFuture
 import com.example.weather.utils.CheckStatusNetwork
 import com.example.weather.utils.extensions.*
 import com.example.weather.ui.recycler.GenericAdapter

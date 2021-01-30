@@ -1,6 +1,6 @@
-package com.example.weather.model
+package com.example.weather.data.model
 
-import com.example.weather.repository.dao.WeatherFutureDao
+import com.example.weather.data.repository.dao.WeatherFutureDao
 import com.example.weather.utils.DBNaming
 import com.j256.ormlite.field.DatabaseField
 import com.j256.ormlite.table.DatabaseTable

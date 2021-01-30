@@ -1,6 +1,6 @@
-package com.example.weather.repository.dao
+package com.example.weather.data.repository.dao
 
-import com.example.weather.model.WeatherCurrent
+import com.example.weather.data.model.WeatherCurrent
 import com.j256.ormlite.dao.BaseDaoImpl
 import com.j256.ormlite.support.ConnectionSource
 import java.sql.SQLException

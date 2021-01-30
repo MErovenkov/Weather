@@ -2,7 +2,7 @@ package com.example.weather.ui.recycler
 
 import androidx.recyclerview.widget.RecyclerView
 import com.example.weather.databinding.RecyclerWeatherBinding
-import com.example.weather.model.WeatherCity
+import com.example.weather.data.model.WeatherCity
 
 class WeatherCurrentViewHolder(private val recyclerWeatherBinding: RecyclerWeatherBinding):
     RecyclerView.ViewHolder(recyclerWeatherBinding.root), GenericAdapter.Binder<WeatherCity> {

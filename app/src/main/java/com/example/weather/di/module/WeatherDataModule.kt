@@ -3,9 +3,9 @@ package com.example.weather.di.module
 import android.content.Context
 import com.example.weather.di.qualifier.ApplicationContext
 import com.example.weather.utils.MapperWeatherData
-import com.example.weather.repository.api.WeatherApiRequester
-import com.example.weather.repository.api.WeatherData
-import com.example.weather.repository.api.interfaces.IWeatherApi
+import com.example.weather.data.repository.api.WeatherApiRequester
+import com.example.weather.data.repository.api.WeatherData
+import com.example.weather.data.repository.api.interfaces.IWeatherApi
 import com.example.weather.utils.ApiKeyChanger
 import dagger.Module
 import dagger.Provides

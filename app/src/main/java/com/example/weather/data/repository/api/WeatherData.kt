@@ -1,7 +1,7 @@
-package com.example.weather.repository.api
+package com.example.weather.data.repository.api
 
 import android.util.Log
-import com.example.weather.model.WeatherCity
+import com.example.weather.data.model.WeatherCity
 import com.example.weather.utils.MapperWeatherData
 import com.example.weather.utils.exception.NotFoundLocationException
 import com.example.weather.utils.exception.OverLimitApiKeyException

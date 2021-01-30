@@ -17,7 +17,7 @@ import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
 import com.example.weather.R
 import com.example.weather.databinding.FragmentWeatherBinding
 import com.example.weather.location.LocationService
-import com.example.weather.model.WeatherCity
+import com.example.weather.data.model.WeatherCity
 import com.example.weather.ui.navigation.IWeatherNavigation
 import com.example.weather.ui.recycler.GenericAdapter
 import com.example.weather.ui.recycler.SwipeToDeleteCallback

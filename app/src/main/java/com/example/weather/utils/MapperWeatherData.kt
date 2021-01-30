@@ -2,11 +2,11 @@ package com.example.weather.utils
 
 import android.content.Context
 import com.example.weather.R
-import com.example.weather.dto.WeatherCurrentDto
-import com.example.weather.dto.WeatherFutureDto
-import com.example.weather.model.WeatherCity
-import com.example.weather.model.WeatherCurrent
-import com.example.weather.model.WeatherFuture
+import com.example.weather.data.dto.WeatherCurrentDto
+import com.example.weather.data.dto.WeatherFutureDto
+import com.example.weather.data.model.WeatherCity
+import com.example.weather.data.model.WeatherCurrent
+import com.example.weather.data.model.WeatherFuture
 import kotlinx.coroutines.*
 import java.util.*
 import kotlin.collections.ArrayList

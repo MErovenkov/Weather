@@ -1,6 +1,6 @@
 package com.example.weather.di.module
 
-import com.example.weather.repository.api.interfaces.IWeatherApi
+import com.example.weather.data.repository.api.interfaces.IWeatherApi
 import com.squareup.moshi.Moshi
 import com.squareup.moshi.kotlin.reflect.KotlinJsonAdapterFactory
 import dagger.Module

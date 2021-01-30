@@ -2,7 +2,7 @@ package com.example.weather.di.module
 
 import android.content.Context
 import com.example.weather.R
-import com.example.weather.repository.api.OkHttpClientFactory
+import com.example.weather.data.repository.api.OkHttpClientFactory
 import com.example.weather.di.qualifier.ApplicationContext
 import dagger.Module
 import dagger.Provides

@@ -3,7 +3,7 @@ package com.example.weather.di.module
 import android.content.Context
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.ViewModelStoreOwner
-import com.example.weather.repository.Repository
+import com.example.weather.data.repository.Repository
 import com.example.weather.di.qualifier.ActivityContext
 import com.example.weather.di.scope.ActivityScope
 import com.example.weather.viewmodel.DetailedWeatherViewModel

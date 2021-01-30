@@ -1,7 +1,7 @@
-package com.example.weather.repository.api.interfaces
+package com.example.weather.data.repository.api.interfaces
 
-import com.example.weather.dto.WeatherCurrentDto
-import com.example.weather.dto.WeatherFutureDto
+import com.example.weather.data.dto.WeatherCurrentDto
+import com.example.weather.data.dto.WeatherFutureDto
 import retrofit2.Call
 import retrofit2.http.GET
 import retrofit2.http.Query

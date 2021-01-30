@@ -1,7 +1,7 @@
 package com.example.weather.utils.extensions
 
-import com.example.weather.model.WeatherCity
-import com.example.weather.repository.dao.OrmLiteHelper
+import com.example.weather.data.model.WeatherCity
+import com.example.weather.data.repository.dao.OrmLiteHelper
 
 /**
  * DB extension

@@ -2,7 +2,7 @@ package com.example.weather.viewmodel
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
-import com.example.weather.repository.Repository
+import com.example.weather.data.repository.Repository
 
 class ViewModelFactory(private val repository: Repository
     ) : ViewModelProvider.NewInstanceFactory() {

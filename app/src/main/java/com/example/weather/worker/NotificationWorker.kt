@@ -12,8 +12,8 @@ import androidx.work.ListenableWorker.Result.success
 import androidx.work.Worker
 import androidx.work.WorkerParameters
 import com.example.weather.R
-import com.example.weather.model.WeatherCity
-import com.example.weather.repository.Repository
+import com.example.weather.data.model.WeatherCity
+import com.example.weather.data.repository.Repository
 import com.example.weather.ui.MainActivity
 import com.example.weather.utils.extensions.cancelNotification
 import com.example.weather.utils.extensions.getApplicationComponent

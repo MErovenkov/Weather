@@ -1,11 +1,11 @@
-package com.example.weather.repository.dao
+package com.example.weather.data.repository.dao
 
 import android.content.Context
 import android.database.sqlite.SQLiteDatabase
 import android.util.Log
-import com.example.weather.model.WeatherCity
-import com.example.weather.model.WeatherCurrent
-import com.example.weather.model.WeatherFuture
+import com.example.weather.data.model.WeatherCity
+import com.example.weather.data.model.WeatherCurrent
+import com.example.weather.data.model.WeatherFuture
 import com.example.weather.utils.DBNaming
 import com.j256.ormlite.android.apptools.OrmLiteSqliteOpenHelper
 import com.j256.ormlite.support.ConnectionSource

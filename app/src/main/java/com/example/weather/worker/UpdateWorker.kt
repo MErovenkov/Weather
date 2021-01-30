@@ -6,7 +6,7 @@ import androidx.work.ListenableWorker.Result.retry
 import androidx.work.ListenableWorker.Result.success
 import androidx.work.Worker
 import androidx.work.WorkerParameters
-import com.example.weather.repository.Repository
+import com.example.weather.data.repository.Repository
 import com.example.weather.utils.extensions.getApplicationComponent
 import java.lang.Exception
 import javax.inject.Inject

@@ -1,8 +1,8 @@
-package com.example.weather.repository.api
+package com.example.weather.data.repository.api
 
-import com.example.weather.dto.WeatherCurrentDto
-import com.example.weather.dto.WeatherFutureDto
-import com.example.weather.repository.api.interfaces.IWeatherApi
+import com.example.weather.data.dto.WeatherCurrentDto
+import com.example.weather.data.dto.WeatherFutureDto
+import com.example.weather.data.repository.api.interfaces.IWeatherApi
 import com.example.weather.utils.ApiKeyChanger
 import com.example.weather.utils.RequestData
 import com.example.weather.utils.exception.NotFoundLocationException

@@ -1,4 +1,4 @@
-package com.example.weather.repository.api
+package com.example.weather.data.repository.api
 
 import android.util.Log
 import okhttp3.OkHttpClient

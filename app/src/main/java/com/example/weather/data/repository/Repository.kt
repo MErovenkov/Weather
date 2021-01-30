@@ -1,8 +1,8 @@
-package com.example.weather.repository
+package com.example.weather.data.repository
 
-import com.example.weather.repository.api.WeatherData
-import com.example.weather.repository.dao.OrmLiteHelper
-import com.example.weather.model.WeatherCity
+import com.example.weather.data.repository.api.WeatherData
+import com.example.weather.data.repository.dao.OrmLiteHelper
+import com.example.weather.data.model.WeatherCity
 import com.example.weather.utils.resource.event.EventStatus
 import com.example.weather.utils.extensions.*
 import com.example.weather.utils.resource.Resource

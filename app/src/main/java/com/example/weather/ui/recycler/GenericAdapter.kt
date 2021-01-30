@@ -4,7 +4,7 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import com.example.weather.R
-import com.example.weather.model.WeatherCity
+import com.example.weather.data.model.WeatherCity
 
 abstract class GenericAdapter<T>
     : RecyclerView.Adapter<RecyclerView.ViewHolder>(), ItemTouchHelperAdapter {
