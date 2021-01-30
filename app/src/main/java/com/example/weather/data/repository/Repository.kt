@@ -10,6 +10,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.withContext
 
+@Suppress("BlockingMethodInNonBlockingContext")
 class Repository(private val dataBaseHelper: OrmLiteHelper,
                  private val weatherData: WeatherData) {
 
