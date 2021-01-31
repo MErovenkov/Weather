@@ -4,6 +4,7 @@ import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.app.PendingIntent.*
 import android.content.Context
+import android.content.Context.NOTIFICATION_SERVICE
 import android.os.Build
 import android.util.Log
 import androidx.core.app.NotificationCompat
@@ -19,7 +20,6 @@ import com.example.weather.utils.extensions.cancelNotification
 import com.example.weather.utils.extensions.getApplicationComponent
 import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.collect
-import java.lang.Exception
 import javax.inject.Inject
 
 class NotificationWorker(context: Context, params: WorkerParameters) : Worker(context, params) {
@@ -27,7 +27,7 @@ class NotificationWorker(context: Context, params: WorkerParameters) : Worker(co
     companion object {
         const val NAME_WORKER = "notificationAlert"
         const val CURRENT_LOCATION_ID = 0
-        private const val NOTIFICATION_CHANNEL = "weather_channel"
+        private const val NOTIFICATION_CHANNEL = "weatherChannel"
     }
 
     private val tag = this.javaClass.simpleName
@@ -51,8 +51,11 @@ class NotificationWorker(context: Context, params: WorkerParameters) : Worker(co
     }
 
     private fun sendNotification(weatherCities: ArrayList<WeatherCity>) {
+        val uniqueWeatherCities: ArrayList<WeatherCity> = weatherCities
+            .distinctBy { weatherCity -> weatherCity.nameCity } as ArrayList<WeatherCity>
+
         val notificationManager =
-            applicationContext.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+            applicationContext.getSystemService(NOTIFICATION_SERVICE) as NotificationManager
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             val channel = NotificationChannel(NOTIFICATION_CHANNEL,
@@ -62,7 +65,7 @@ class NotificationWorker(context: Context, params: WorkerParameters) : Worker(co
             notificationManager.createNotificationChannel(channel)
         }
 
-        for (weatherCity in weatherCities) {
+        for (weatherCity in uniqueWeatherCities) {
             val intent = MainActivity
                 .createIntent(applicationContext, weatherCity.nameCity, weatherCity.isCurrentLocation)
 
@@ -94,17 +97,16 @@ class NotificationWorker(context: Context, params: WorkerParameters) : Worker(co
     }
 
     private fun getWeatherCitiesByAlerts(): ArrayList<WeatherCity> = runBlocking {
-        var dangerousCities: ArrayList<WeatherCity> = ArrayList()
+        val dangerousCities: ArrayList<WeatherCity> = ArrayList()
 
         repository.updateWeatherCities().collect {
-            dangerousCities = it.getData()!!.filter { weatherCity ->  weatherCity.alertTomorrow.isNotBlank()} as ArrayList<WeatherCity>
+            dangerousCities.addAll(it.getData()!!
+                .filter { weatherCity ->  weatherCity.alertTomorrow.isNotBlank()})
         }
 
         repository.getCurrentLocationWeather()?.let { it ->
             repository.updateWeatherCity(it).collect { resource ->
-                if (resource.getData()?.alertTomorrow!!.isNotBlank()
-                    && dangerousCities
-                        .none { w -> w.nameCity == resource.getData()?.nameCity}) {
+                if (resource.getData()?.alertTomorrow!!.isNotBlank()) {
                     dangerousCities.add(resource.getData()!!)
                 } else {
                     applicationContext.cancelNotification(CURRENT_LOCATION_ID)
