@@ -32,5 +32,18 @@
         <meta-data
             android:name="preloaded_fonts"
             android:resource="@array/preloaded_fonts" />
+
+        <!-- disable default provider -->
+        <provider
+            android:name="androidx.work.impl.WorkManagerInitializer"
+            android:authorities="com.example.weather.workmanager-init"
+            android:enabled="false"
+            android:exported="false" />
+
+        <!-- register custom provider -->
+        <provider
+            android:name=".worker.provider.CustomWorkManagerInitializer"
+            android:authorities="com.example.weather.worker.provider.CustomWorkManagerInitializer"
+            android:exported="false" />
     </application>
 </manifest>

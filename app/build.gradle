@@ -60,4 +60,6 @@ dependencies {
     //dagger
     implementation 'com.google.dagger:dagger:2.30.1'
     kapt 'com.google.dagger:dagger-compiler:2.29.1'
+    //appMetrica
+    implementation 'com.yandex.android:mobmetricalib:3.18.0'
 }

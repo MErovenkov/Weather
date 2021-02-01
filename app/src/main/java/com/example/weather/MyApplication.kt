@@ -1,13 +1,11 @@
 package com.example.weather
 
 import android.app.Application
-import androidx.work.*
 import com.example.weather.di.component.ApplicationComponent
 import com.example.weather.di.component.DaggerApplicationComponent
 import com.example.weather.utils.CheckStatusNetwork
-import com.example.weather.worker.NotificationWorker
-import com.example.weather.worker.UpdateWorker
-import java.util.concurrent.TimeUnit
+import com.yandex.metrica.YandexMetrica
+import com.yandex.metrica.YandexMetricaConfig
 
 class MyApplication: Application(){
 
@@ -21,33 +19,16 @@ class MyApplication: Application(){
 
     override fun onCreate() {
         super.onCreate()
-        initWorkers()
+        initAppMetrica()
+        YandexMetrica.reportEvent("App started")
         CheckStatusNetwork.registerNetworkCallback(applicationContext)
     }
 
-    private fun initWorkers() {
-        val constraints: Constraints = Constraints.Builder()
-            .setRequiredNetworkType(NetworkType.CONNECTED)
-            .build()
+    private fun initAppMetrica() {
+        val config = YandexMetricaConfig
+            .newConfigBuilder(applicationContext.resources.getString(R.string.app_metrica_api_key)).build()
 
-        val updateWorkerRequest =  PeriodicWorkRequest.Builder(
-            UpdateWorker::class.java,
-            4, TimeUnit.HOURS
-        ).addTag(UpdateWorker.NAME_WORKER).setConstraints(constraints).build()
-
-        val notificationWorkRequest =  PeriodicWorkRequest.Builder(
-            NotificationWorker::class.java,
-            12, TimeUnit.HOURS
-        ).addTag(NotificationWorker.NAME_WORKER).setConstraints(constraints).build()
-
-        val instanceWorkManager = WorkManager.getInstance(applicationContext)
-
-        instanceWorkManager.apply {
-            enqueueUniquePeriodicWork(UpdateWorker.NAME_WORKER,
-                ExistingPeriodicWorkPolicy.KEEP, updateWorkerRequest)
-
-            enqueueUniquePeriodicWork(NotificationWorker.NAME_WORKER,
-                ExistingPeriodicWorkPolicy.KEEP, notificationWorkRequest)
-        }
+        YandexMetrica.activate(applicationContext, config)
+        YandexMetrica.enableActivityAutoTracking(this)
     }
 }

@@ -26,6 +26,7 @@ import com.example.weather.utils.extensions.*
 import com.example.weather.utils.resource.event.EventStatus
 import com.example.weather.viewmodel.WeatherViewModel
 import com.example.weather.worker.NotificationWorker
+import com.yandex.metrica.YandexMetrica
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -101,6 +102,7 @@ class WeatherFragment: Fragment() {
             override fun <T> itemDismiss(data: T) {
                 weatherViewModel.deleteWeatherCity(data as WeatherCity)
                 requireContext().cancelNotification(data.id)
+                YandexMetrica.reportEvent("City removed")
             }
             override fun onClickItem(holder: RecyclerView.ViewHolder, position: Int) {
                 holder.itemView.setOnClickListener {
@@ -225,6 +227,7 @@ class WeatherFragment: Fragment() {
                 addingNewCity.isCursorVisible = false
 
                 weatherViewModel.createWeatherData(nameCity)
+                YandexMetrica.reportEvent("Added new city")
             } else addingNewCity.text.clear()
         } else {
             showNoInternetAccess()

@@ -15,6 +15,7 @@ import com.example.weather.utils.CheckStatusNetwork
 import com.example.weather.utils.extensions.*
 import com.example.weather.ui.recycler.GenericAdapter
 import com.example.weather.viewmodel.DetailedWeatherViewModel
+import com.yandex.metrica.YandexMetrica
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -72,6 +73,11 @@ class DetailedWeatherFragment: Fragment()  {
         initSwipeRefreshLayout()
 
         viewModelCollector()
+    }
+
+    override fun onResume() {
+        super.onResume()
+        YandexMetrica.reportEvent("Detailed weather is open")
     }
 
     private fun initRecyclerView() {
