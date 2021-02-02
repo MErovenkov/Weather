@@ -15,6 +15,8 @@ import com.example.weather.utils.CheckStatusNetwork
 import com.example.weather.utils.extensions.*
 import com.example.weather.ui.recycler.GenericAdapter
 import com.example.weather.viewmodel.DetailedWeatherViewModel
+import com.google.firebase.analytics.ktx.analytics
+import com.google.firebase.ktx.Firebase
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -72,6 +74,11 @@ class DetailedWeatherFragment: Fragment()  {
         initSwipeRefreshLayout()
 
         viewModelCollector()
+    }
+
+    override fun onResume() {
+        super.onResume()
+        Firebase.analytics.logEvent("Detailed_weather_is_open", null)
     }
 
     private fun initRecyclerView() {

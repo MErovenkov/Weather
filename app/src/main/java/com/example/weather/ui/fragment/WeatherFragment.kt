@@ -14,6 +14,7 @@ import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
+import com.example.weather.MyApplication
 import com.example.weather.R
 import com.example.weather.databinding.FragmentWeatherBinding
 import com.example.weather.location.LocationService
@@ -26,6 +27,8 @@ import com.example.weather.utils.extensions.*
 import com.example.weather.utils.resource.event.EventStatus
 import com.example.weather.viewmodel.WeatherViewModel
 import com.example.weather.worker.NotificationWorker
+import com.google.firebase.analytics.ktx.analytics
+import com.google.firebase.ktx.Firebase
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -101,6 +104,8 @@ class WeatherFragment: Fragment() {
             override fun <T> itemDismiss(data: T) {
                 weatherViewModel.deleteWeatherCity(data as WeatherCity)
                 requireContext().cancelNotification(data.id)
+
+                Firebase.analytics.logEvent("City_removed", null)
             }
             override fun onClickItem(holder: RecyclerView.ViewHolder, position: Int) {
                 holder.itemView.setOnClickListener {
@@ -225,6 +230,8 @@ class WeatherFragment: Fragment() {
                 addingNewCity.isCursorVisible = false
 
                 weatherViewModel.createWeatherData(nameCity)
+
+                Firebase.analytics.logEvent("Added_new_city", null)
             } else addingNewCity.text.clear()
         } else {
             showNoInternetAccess()

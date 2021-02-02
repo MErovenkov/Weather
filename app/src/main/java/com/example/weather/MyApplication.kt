@@ -7,11 +7,13 @@ import com.example.weather.di.component.DaggerApplicationComponent
 import com.example.weather.utils.CheckStatusNetwork
 import com.example.weather.worker.NotificationWorker
 import com.example.weather.worker.UpdateWorker
+import com.google.firebase.analytics.ktx.analytics
+import com.google.firebase.ktx.Firebase
 import java.util.concurrent.TimeUnit
 
 class MyApplication: Application(){
 
-     val appComponent: ApplicationComponent by lazy {
+    val appComponent: ApplicationComponent by lazy {
         initializeComponent()
     }
 
@@ -23,6 +25,8 @@ class MyApplication: Application(){
         super.onCreate()
         initWorkers()
         CheckStatusNetwork.registerNetworkCallback(applicationContext)
+
+        Firebase.analytics.logEvent("App_started", null)
     }
 
     private fun initWorkers() {
