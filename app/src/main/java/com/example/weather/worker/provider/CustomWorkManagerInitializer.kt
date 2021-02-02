@@ -5,6 +5,18 @@ import com.example.weather.worker.NotificationWorker
 import com.example.weather.worker.UpdateWorker
 import java.util.concurrent.TimeUnit
 
+/**
+ * CustomWorkManagerInitializer is needed to avoid exception:
+ *
+ * "Process: com.example:Metrica, PID:
+ * java.lang.IllegalStateException: WorkManager is not initialized properly.
+ * The most likely cause is that you disabled WorkManagerInitializer
+ * in your manifest but forgot to call WorkManager#initialize
+ * in your Application#onCreate or a ContentProvider.
+ * at androidx.work.WorkManager.getInstance(WorkManager.java)"
+ *
+ * because AppMetrica creates it's own process.
+ * */
 class CustomWorkManagerInitializer: DummyContentProvider() {
     override fun onCreate(): Boolean {
         WorkManager.initialize(context!!, Configuration.Builder().build())

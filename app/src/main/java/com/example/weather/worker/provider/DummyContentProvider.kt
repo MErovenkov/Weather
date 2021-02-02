@@ -5,6 +5,10 @@ import android.content.ContentValues
 import android.database.Cursor
 import android.net.Uri
 
+/**
+ *  It is just simple abstract inheritor,
+ *  which provides dummy realisation of all required methods.
+ * */
 abstract class DummyContentProvider: ContentProvider() {
     override fun onCreate(): Boolean = true
     override fun query(uri: Uri, projection: Array<out String>?, selection: String?,
