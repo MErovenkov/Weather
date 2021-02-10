@@ -12,6 +12,9 @@ import javax.inject.Inject
 class MainActivity: AppCompatActivity() {
 
     companion object {
+        private const val CITY_NAME_INDEX = 1
+        private const val CITY_PATH = "city"
+
         private const val CITY_NAME_KEY = "cityName"
         private const val IS_CURRENT_LOCATION_KEY = "isCurrentLocation"
 
@@ -48,8 +51,12 @@ class MainActivity: AppCompatActivity() {
     }
 
     private fun handleDeepLink(intent: Intent?) {
-        intent?.data?.lastPathSegment?.also { nameCity ->
-            weatherNavigation.openDetailsByDeepLinkData(nameCity)
+        val pathSegments = intent?.data?.pathSegments
+
+        if (!pathSegments.isNullOrEmpty()) {
+            if (pathSegments[0] == CITY_PATH && pathSegments.size > 1) {
+                weatherNavigation.openDetailsByDeepLinkData(pathSegments[CITY_NAME_INDEX])
+            }
         }
     }
 
