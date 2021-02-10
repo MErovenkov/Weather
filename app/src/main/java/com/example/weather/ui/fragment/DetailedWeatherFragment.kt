@@ -49,11 +49,6 @@ class DetailedWeatherFragment: Fragment()  {
 
         hideKeyboard()
         getActivityComponent(context).inject(this)
-
-        Firebase.analytics.logEvent(FirebaseAnalytics.Event.SCREEN_VIEW) {
-            param(FirebaseAnalytics.Param.SCREEN_NAME, "Detailed weather")
-            param(FirebaseAnalytics.Param.SCREEN_CLASS, this@DetailedWeatherFragment.javaClass.simpleName)
-        }
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -70,6 +65,11 @@ class DetailedWeatherFragment: Fragment()  {
         savedInstanceState: Bundle?
     ): View {
         binding = FragmentDetailedWeatherBinding.inflate(layoutInflater)
+
+        Firebase.analytics.logEvent(FirebaseAnalytics.Event.SCREEN_VIEW) {
+            param(FirebaseAnalytics.Param.SCREEN_NAME, "Detailed weather")
+            param(FirebaseAnalytics.Param.SCREEN_CLASS, this@DetailedWeatherFragment.javaClass.simpleName)
+        }
 
         return binding.root
     }
