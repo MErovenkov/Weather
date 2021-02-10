@@ -46,6 +46,8 @@ class DetailedWeatherFragment: Fragment()  {
 
         hideKeyboard()
         getActivityComponent(context).inject(this)
+
+        YandexMetrica.reportEvent("Detailed weather is open")
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -73,11 +75,6 @@ class DetailedWeatherFragment: Fragment()  {
         initSwipeRefreshLayout()
 
         viewModelCollector()
-    }
-
-    override fun onResume() {
-        super.onResume()
-        YandexMetrica.reportEvent("Detailed weather is open")
     }
 
     private fun initRecyclerView() {
