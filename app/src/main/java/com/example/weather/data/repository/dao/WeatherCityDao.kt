@@ -13,7 +13,7 @@ class WeatherCityDao @Throws(SQLException::class) constructor(connectionSource: 
         initialize()
     }
 
-    fun getWeatherCityByName(nameCity: String): WeatherCity {
+    fun getWeatherCityByName(nameCity: String): WeatherCity? {
         return this.queryForFirst(
             this.queryBuilder()
                 .where().eq(DBNaming.WeatherCityEntry.COLUMN_NAME_CITY, nameCity)

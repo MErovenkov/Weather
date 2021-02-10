@@ -6,7 +6,8 @@ import androidx.navigation.navOptions
 import com.example.weather.R
 import com.example.weather.ui.fragment.DetailedWeatherFragment
 
-class Navigation(private var navController: NavController): IWeatherNavigation {
+class Navigation(private var navController: NavController)
+    : IWeatherNavigation, IDetailedWeatherNavigation {
 
     override fun openDetails(nameCity: String, isCurrentLocation: Boolean,
                              hasAnimationOpening: Boolean) {
@@ -15,6 +16,15 @@ class Navigation(private var navController: NavController): IWeatherNavigation {
             R.id.detailedWeatherFragment,
             DetailedWeatherFragment.getNewBundle(nameCity, isCurrentLocation),
             getCustomAnim(hasAnimationOpening)
+        )
+    }
+
+    override fun openDetailsByDeepLinkData(nameCity: String) {
+        navController.popBackStack(R.id.weatherFragment, false)
+        navController.navigate(
+            R.id.detailedWeatherFragment,
+            DetailedWeatherFragment.getNewBundleByDeepLinkData(nameCity),
+            getCustomAnim(false)
         )
     }
 
@@ -29,5 +39,10 @@ class Navigation(private var navController: NavController): IWeatherNavigation {
                 popExit = R.anim.slide_out_right
             }
         }
+    }
+
+    override fun popBackStack() {
+        navController.popBackStack(R.id.weatherFragment, true)
+        navController.navigate(R.id.weatherFragment)
     }
 }

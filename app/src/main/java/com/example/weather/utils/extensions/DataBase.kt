@@ -10,7 +10,7 @@ fun OrmLiteHelper.getWeatherCities(): ArrayList<WeatherCity> {
     return getWeatherCityDao().getWeatherCities()
 }
 
-fun OrmLiteHelper.getWeatherCityByName(nameCity: String): WeatherCity {
+fun OrmLiteHelper.getWeatherCityByName(nameCity: String): WeatherCity? {
     return getWeatherCityDao().getWeatherCityByName(nameCity)
 }
 

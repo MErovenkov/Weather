@@ -15,12 +15,16 @@ class DetailedWeatherViewModel(private val repository: Repository): ViewModel() 
 
     private lateinit var resource: MutableStateFlow<Resource<WeatherCity>>
 
-    fun initMutableStateFlow(nameCity: String, isCurrentLocation: Boolean) {
+    fun initResource(nameCity: String, isCurrentLocation: Boolean) {
         resource = if (isCurrentLocation) {
             MutableStateFlow(Resource(repository.getCurrentLocationWeather()))
         } else {
             MutableStateFlow(Resource(repository.getWeatherCityByName(nameCity)))
         }
+    }
+
+    fun initResourceByDeepLinkData(nameCity: String) {
+        resource = MutableStateFlow(repository.getWeatherCityByDeepLinkData(nameCity))
     }
 
     fun getResource(): StateFlow<Resource<WeatherCity>> = resource.asStateFlow()

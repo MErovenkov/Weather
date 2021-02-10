@@ -31,12 +31,26 @@ class MainActivity: AppCompatActivity() {
         setContentView(R.layout.activity_main)
 
         getActivityComponent(this).inject(this)
-        openDetailedWeather(intent)
+        handleIntent(intent)
     }
 
     override fun onNewIntent(intent: Intent?) {
         super.onNewIntent(intent)
-        openDetailedWeather(intent)
+        handleIntent(intent)
+    }
+
+    private fun handleIntent(intent: Intent?) {
+        if (Intent.ACTION_VIEW == intent?.action) {
+            handleDeepLink(intent)
+        } else {
+            openDetailedWeather(intent)
+        }
+    }
+
+    private fun handleDeepLink(intent: Intent?) {
+        intent?.data?.lastPathSegment?.also { nameCity ->
+            weatherNavigation.openDetailsByDeepLinkData(nameCity)
+        }
     }
 
     private fun openDetailedWeather(intent: Intent?) {

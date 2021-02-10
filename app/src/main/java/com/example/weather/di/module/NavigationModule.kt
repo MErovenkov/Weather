@@ -7,6 +7,7 @@ import androidx.navigation.findNavController
 import com.example.weather.R
 import com.example.weather.di.qualifier.ActivityContext
 import com.example.weather.di.scope.ActivityScope
+import com.example.weather.ui.navigation.IDetailedWeatherNavigation
 import com.example.weather.ui.navigation.IWeatherNavigation
 import com.example.weather.ui.navigation.Navigation
 import dagger.Module
@@ -24,6 +25,12 @@ class NavigationModule {
     @Provides
     @ActivityScope
     fun weatherNavigation(navController: NavController): IWeatherNavigation {
+        return Navigation(navController)
+    }
+
+    @Provides
+    @ActivityScope
+    fun detailedWeatherNavigation(navController: NavController): IDetailedWeatherNavigation {
         return Navigation(navController)
     }
 }

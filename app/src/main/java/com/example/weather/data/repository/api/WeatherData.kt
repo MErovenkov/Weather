@@ -52,7 +52,7 @@ class WeatherData(private val weatherApiRequester: WeatherApiRequester,
         return newWeatherCityList
     }
 
-    private fun broadcastingImmutableData(oldWeatherCity: WeatherCity, newWeatherCity: WeatherCity)
+    fun broadcastingImmutableData(oldWeatherCity: WeatherCity, newWeatherCity: WeatherCity)
             : WeatherCity {
         newWeatherCity.id = oldWeatherCity.id
         newWeatherCity.isCurrentLocation = oldWeatherCity.isCurrentLocation

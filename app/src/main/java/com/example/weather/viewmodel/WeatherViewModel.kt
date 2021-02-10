@@ -11,12 +11,15 @@ import kotlinx.coroutines.launch
 class WeatherViewModel(private val repository: Repository): ViewModel() {
 
     private var resourceRecycler: MutableStateFlow<Resource<ArrayList<WeatherCity>>>
-            = MutableStateFlow(Resource(repository.getWeatherCities()))
+            = MutableStateFlow(Resource(null))
 
     private var resourceLocation: MutableStateFlow<Resource<WeatherCity>>
             = MutableStateFlow(Resource(repository.getCurrentLocationWeather()))
 
-    fun getResourceRecycler(): StateFlow<Resource<ArrayList<WeatherCity>>> = resourceRecycler.asStateFlow()
+    fun getResourceRecycler(): StateFlow<Resource<ArrayList<WeatherCity>>> {
+        resourceRecycler = MutableStateFlow(Resource(repository.getWeatherCities()))
+        return resourceRecycler.asStateFlow()
+    }
 
     fun createWeatherData(nameCity: String) {
         viewModelScope.launch {
