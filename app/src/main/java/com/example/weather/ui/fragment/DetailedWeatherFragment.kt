@@ -46,8 +46,6 @@ class DetailedWeatherFragment: Fragment()  {
 
         hideKeyboard()
         getActivityComponent(context).inject(this)
-
-        YandexMetrica.reportEvent("Detailed weather is open")
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -64,6 +62,8 @@ class DetailedWeatherFragment: Fragment()  {
         savedInstanceState: Bundle?
     ): View {
         binding = FragmentDetailedWeatherBinding.inflate(layoutInflater)
+
+        YandexMetrica.reportEvent("Detailed weather is open")
 
         return binding.root
     }
