@@ -15,10 +15,6 @@ import com.example.weather.utils.CheckStatusNetwork
 import com.example.weather.utils.extensions.*
 import com.example.weather.ui.recycler.GenericAdapter
 import com.example.weather.viewmodel.DetailedWeatherViewModel
-import com.google.firebase.analytics.FirebaseAnalytics
-import com.google.firebase.analytics.ktx.analytics
-import com.google.firebase.analytics.ktx.logEvent
-import com.google.firebase.ktx.Firebase
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -65,11 +61,6 @@ class DetailedWeatherFragment: Fragment()  {
         savedInstanceState: Bundle?
     ): View {
         binding = FragmentDetailedWeatherBinding.inflate(layoutInflater)
-
-        Firebase.analytics.logEvent(FirebaseAnalytics.Event.SCREEN_VIEW) {
-            param(FirebaseAnalytics.Param.SCREEN_NAME, "Detailed weather")
-            param(FirebaseAnalytics.Param.SCREEN_CLASS, this@DetailedWeatherFragment.javaClass.simpleName)
-        }
 
         return binding.root
     }
