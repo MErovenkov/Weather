@@ -5,6 +5,7 @@ import androidx.navigation.NavOptions
 import androidx.navigation.navOptions
 import com.example.weather.R
 import com.example.weather.ui.fragment.DetailedWeatherFragment
+import com.yandex.metrica.YandexMetrica
 
 class Navigation(private var navController: NavController): IWeatherNavigation {
 
@@ -16,6 +17,8 @@ class Navigation(private var navController: NavController): IWeatherNavigation {
             DetailedWeatherFragment.getNewBundle(nameCity, isCurrentLocation),
             getCustomAnim(hasAnimationOpening)
         )
+
+        YandexMetrica.reportEvent("Detailed weather is open")
     }
 
     private fun getCustomAnim(hasAnimationOpening: Boolean): NavOptions {

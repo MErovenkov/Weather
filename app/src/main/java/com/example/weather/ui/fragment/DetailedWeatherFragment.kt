@@ -63,8 +63,6 @@ class DetailedWeatherFragment: Fragment()  {
     ): View {
         binding = FragmentDetailedWeatherBinding.inflate(layoutInflater)
 
-        YandexMetrica.reportEvent("Detailed weather is open")
-
         return binding.root
     }
 
