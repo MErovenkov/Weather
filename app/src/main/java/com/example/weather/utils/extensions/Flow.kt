@@ -65,3 +65,15 @@ fun <T1, T2> Flow<T1>.exceptionUpdateWeather(weatherCityData: T2): Flow<T1> {
         }
     }
 }
+
+@Suppress("UNCHECKED_CAST")
+fun <T> Flow<T>.exceptionGettingWeatherByDeepLink(): Flow<T> {
+    return catch { e ->
+        Log.w(TAG, e.stackTraceToString())
+        when (e) {
+            is NotFoundLocationException -> emit(Resource(EventStatus.CITY_NOT_FOUND, null) as T)
+            is ConnectException -> emit(Resource(EventStatus.LOST_INTERNET_ACCESS, null) as T)
+            is OverLimitApiKeyException -> emit(Resource(EventStatus.REQUEST_LIMIT_EXCEEDED, null) as T)
+        }
+    }
+}

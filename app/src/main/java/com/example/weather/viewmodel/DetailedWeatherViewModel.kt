@@ -13,7 +13,7 @@ import kotlinx.coroutines.launch
 
 class DetailedWeatherViewModel(private val repository: Repository): ViewModel() {
 
-    private lateinit var resource: MutableStateFlow<Resource<WeatherCity>>
+    private var resource: MutableStateFlow<Resource<WeatherCity>> = MutableStateFlow(Resource(null))
 
     fun initResource(nameCity: String, isCurrentLocation: Boolean) {
         resource = if (isCurrentLocation) {
@@ -24,7 +24,11 @@ class DetailedWeatherViewModel(private val repository: Repository): ViewModel() 
     }
 
     fun initResourceByDeepLinkData(nameCity: String) {
-        resource = MutableStateFlow(repository.getWeatherCityByDeepLinkData(nameCity))
+        viewModelScope.launch {
+            repository.getWeatherCityByDeepLinkData(nameCity).collect {
+                resource.value = it
+            }
+        }
     }
 
     fun getResource(): StateFlow<Resource<WeatherCity>> = resource.asStateFlow()

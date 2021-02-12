@@ -13,4 +13,5 @@ object EventStatus {
     const val LOCATION_INFO_FAILURE = R.string.location_information_failure
     const val IS_NOT_REFRESHING = 0
     const val CURRENT_LOCATION_RECEIVED = 1
+    const val CITY_WEATHER_DATA_RECEIVED = 2
 }

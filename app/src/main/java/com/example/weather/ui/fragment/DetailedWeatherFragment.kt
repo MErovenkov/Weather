@@ -5,7 +5,6 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -48,7 +47,7 @@ class DetailedWeatherFragment: Fragment()  {
     @Inject
     lateinit var detailedWeatherViewModel: DetailedWeatherViewModel
     @Inject
-    lateinit var weatherNavigation: IDetailedWeatherNavigation
+    lateinit var detailedWeatherNavigation: IDetailedWeatherNavigation
 
     private lateinit var binding: FragmentDetailedWeatherBinding
     private lateinit var adapterRecyclerView: GenericAdapter<WeatherFuture>
@@ -93,6 +92,11 @@ class DetailedWeatherFragment: Fragment()  {
         initSwipeRefreshLayout()
 
         viewModelCollector()
+
+        if (requireArguments().getBoolean(IS_DEEP_LINK_KEY)) {
+            visibilityElementsWithInfo(View.GONE)
+            swipeRefreshLayout.isRefreshing = true
+        }
     }
 
     private fun initRecyclerView() {
@@ -138,13 +142,18 @@ class DetailedWeatherFragment: Fragment()  {
                 resource.getEvent()?.let { event ->
                     val eventStatus: Int? = event.getStatusIfNotHandled()
 
-                    if(isDeepLinkException(eventStatus)) {
-                        weatherNavigation.popBackStack()
-                        Toast.makeText(requireContext(),
-                            eventStatus?.let { this@DetailedWeatherFragment.getString(it) },
-                            Toast.LENGTH_SHORT).show()
+                    when {
+                        isDeepLinkException(eventStatus) -> {
+                            detailedWeatherNavigation.popBackStack()
+                            eventStatus?.let { this@DetailedWeatherFragment.showToast(it) }
+                        }
+
+                        eventStatus == EventStatus.CITY_WEATHER_DATA_RECEIVED -> {
+                            visibilityElementsWithInfo(View.VISIBLE)
+                        }
+
+                        else -> eventStatus?.let { this@DetailedWeatherFragment.showToast(it) }
                     }
-                    eventStatus?.let { this@DetailedWeatherFragment.showToast(it) }
                     swipeRefreshLayout.isRefreshing = false
                 }
             }
@@ -156,5 +165,12 @@ class DetailedWeatherFragment: Fragment()  {
                 && (eventStatus == EventStatus.CITY_NOT_FOUND
                 || eventStatus == EventStatus.LOST_INTERNET_ACCESS
                 || eventStatus == EventStatus.REQUEST_LIMIT_EXCEEDED))
+    }
+
+    private fun visibilityElementsWithInfo(visibility: Int) {
+        binding.cityName.visibility = visibility
+        binding.currentTemperature.visibility = visibility
+        binding.iconCurrentWeather.visibility = visibility
+        binding.recyclerView.visibility = visibility
     }
 }
