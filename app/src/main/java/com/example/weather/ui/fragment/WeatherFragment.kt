@@ -56,7 +56,7 @@ class WeatherFragment: Fragment() {
         savedInstanceState: Bundle?
     ): View {
         binding = FragmentWeatherBinding.inflate(layoutInflater)
-        getActivityComponent(requireContext()).inject(this)
+        getFragmentComponent(requireContext()).inject(this)
 
         return binding.root
     }

@@ -7,30 +7,29 @@ import androidx.navigation.findNavController
 import com.example.weather.R
 import com.example.weather.di.qualifier.ActivityContext
 import com.example.weather.di.scope.ActivityScope
-import com.example.weather.ui.navigation.IDetailedWeatherNavigation
-import com.example.weather.ui.navigation.IWeatherNavigation
+import com.example.weather.ui.navigation.INavigation
 import com.example.weather.ui.navigation.Navigation
 import dagger.Module
 import dagger.Provides
+import javax.inject.Named
 
 @Module
-class NavigationModule {
+class NavigationActivityModule {
+
+    companion object {
+        private const val ACTIVITY_NAV_CONTROLLER = "ActivityNavController"
+    }
 
     @Provides
     @ActivityScope
+    @Named(ACTIVITY_NAV_CONTROLLER)
     fun navController(@ActivityContext context: Context): NavController {
         return (context as AppCompatActivity).findNavController(R.id.fragment_container)
     }
 
     @Provides
     @ActivityScope
-    fun weatherNavigation(navController: NavController): IWeatherNavigation {
-        return Navigation(navController)
-    }
-
-    @Provides
-    @ActivityScope
-    fun detailedWeatherNavigation(navController: NavController): IDetailedWeatherNavigation {
+    fun navigation(@Named(ACTIVITY_NAV_CONTROLLER) navController: NavController): INavigation {
         return Navigation(navController)
     }
 }

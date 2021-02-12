@@ -5,8 +5,9 @@ import android.content.Intent
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
 import com.example.weather.R
-import com.example.weather.ui.navigation.IWeatherNavigation
+import com.example.weather.ui.navigation.INavigation
 import com.example.weather.utils.extensions.getActivityComponent
+
 import javax.inject.Inject
 
 class MainActivity: AppCompatActivity() {
@@ -27,7 +28,7 @@ class MainActivity: AppCompatActivity() {
     }
 
     @Inject
-    lateinit var weatherNavigation: IWeatherNavigation
+    lateinit var navigation: INavigation
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -55,14 +56,14 @@ class MainActivity: AppCompatActivity() {
 
         if (!pathSegments.isNullOrEmpty()) {
             if (pathSegments[0] == CITY_PATH && pathSegments.size > 1) {
-                weatherNavigation.openDetailsByDeepLinkData(pathSegments[CITY_NAME_INDEX])
+                navigation.openDetailsByDeepLinkData(pathSegments[CITY_NAME_INDEX])
             }
         }
     }
 
     private fun openDetailedWeather(intent: Intent?) {
         intent?.getStringExtra(CITY_NAME_KEY)?.let { nameCity ->
-            weatherNavigation.openDetails(nameCity,
+            navigation.openDetails(nameCity,
                 intent.getBooleanExtra(IS_CURRENT_LOCATION_KEY, false),
                 hasAnimationOpening = false)
         }

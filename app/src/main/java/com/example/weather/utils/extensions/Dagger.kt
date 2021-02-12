@@ -7,15 +7,18 @@ import androidx.work.Worker
 import com.example.weather.MyApplication
 import com.example.weather.di.component.ActivityComponent
 import com.example.weather.di.component.ApplicationComponent
+import com.example.weather.di.component.FragmentComponent
 
 fun Worker.getApplicationComponent(): ApplicationComponent {
     return (this.applicationContext as MyApplication).appComponent
 }
 
-fun Fragment.getActivityComponent(context: Context): ActivityComponent {
-    return (context.applicationContext as MyApplication).appComponent.activityComponent().create(context)
+fun Fragment.getFragmentComponent(context: Context): FragmentComponent {
+    return (context.applicationContext as MyApplication).appComponent
+        .activityComponent().create(context).fragmentComponent().create(this)
 }
 
 fun AppCompatActivity.getActivityComponent(context: Context): ActivityComponent {
-    return (context.applicationContext as MyApplication).appComponent.activityComponent().create(context)
+    return (context.applicationContext as MyApplication).appComponent.activityComponent()
+        .create(context)
 }

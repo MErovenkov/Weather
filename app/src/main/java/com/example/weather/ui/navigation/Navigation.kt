@@ -6,8 +6,7 @@ import androidx.navigation.navOptions
 import com.example.weather.R
 import com.example.weather.ui.fragment.DetailedWeatherFragment
 
-class Navigation(private var navController: NavController)
-    : IWeatherNavigation, IDetailedWeatherNavigation {
+class Navigation(private var navController: NavController): INavigation {
 
     override fun openDetails(nameCity: String, isCurrentLocation: Boolean,
                              hasAnimationOpening: Boolean) {
