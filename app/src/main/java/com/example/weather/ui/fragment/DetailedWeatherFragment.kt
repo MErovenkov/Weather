@@ -57,7 +57,7 @@ class DetailedWeatherFragment: Fragment()  {
         super.onAttach(context)
 
         hideKeyboard()
-        getFragmentComponent(requireContext()).inject(this)
+        getFragmentComponent().inject(this)
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {

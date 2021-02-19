@@ -5,6 +5,7 @@ import android.content.Intent
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
 import com.example.weather.R
+import com.example.weather.di.component.ActivityComponent
 import com.example.weather.ui.navigation.INavigation
 import com.example.weather.utils.extensions.getActivityComponent
 
@@ -27,6 +28,10 @@ class MainActivity: AppCompatActivity() {
         }
     }
 
+    val activityComponent: ActivityComponent by lazy {
+        getActivityComponent()
+    }
+
     @Inject
     lateinit var navigation: INavigation
 
@@ -34,7 +39,7 @@ class MainActivity: AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
-        getActivityComponent(this).inject(this)
+        activityComponent.inject(this)
         handleIntent(intent)
     }
 
