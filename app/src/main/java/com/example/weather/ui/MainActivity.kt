@@ -8,7 +8,6 @@ import com.example.weather.R
 import com.example.weather.di.component.ActivityComponent
 import com.example.weather.ui.navigation.INavigation
 import com.example.weather.utils.extensions.getActivityComponent
-
 import javax.inject.Inject
 
 class MainActivity: AppCompatActivity() {

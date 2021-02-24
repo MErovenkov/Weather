@@ -8,6 +8,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
+import androidx.core.view.updatePadding
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.ItemTouchHelper
@@ -71,6 +72,11 @@ class WeatherFragment: Fragment() {
         locationDataCollector()
         locationServiceCollector()
 
+        binding.linearLayout.doOnApplyWindowInsets { mView, insets, padding ->
+            mView.updatePadding(top = padding.top + insets.systemWindowInsetTop,
+                                bottom = padding.bottom + insets.systemWindowInsetBottom)
+            insets
+        }
         binding.addingNewCity.setOnClickListener { createNewCity() }
         binding.titleCurrentLocation.setOnClickListener { openWeatherCurrentLocation() }
         binding.currentLocation.apply {
