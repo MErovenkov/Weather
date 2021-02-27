@@ -11,7 +11,7 @@ import com.example.weather.utils.extensions.getActivityComponent
 
 import javax.inject.Inject
 
-class MainActivity: AppCompatActivity() {
+class MainActivity: AppCompatActivity(), ActivityComponent.Holder {
 
     companion object {
         private const val CITY_NAME_INDEX = 1
@@ -28,7 +28,7 @@ class MainActivity: AppCompatActivity() {
         }
     }
 
-    val activityComponent: ActivityComponent by lazy {
+    override val activityComponent: ActivityComponent by lazy {
         getActivityComponent()
     }
 

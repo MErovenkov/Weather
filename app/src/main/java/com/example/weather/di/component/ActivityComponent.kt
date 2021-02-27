@@ -14,6 +14,10 @@ import dagger.Subcomponent
 @Subcomponent(modules = [ViewModelModule::class, NavigationActivityModule::class,
                          SubFragmentModule::class])
 interface ActivityComponent {
+    interface Holder {
+        val activityComponent: ActivityComponent
+    }
+
     @Subcomponent.Factory
     interface Factory {
         fun create(@ActivityContext @BindsInstance context: Context): ActivityComponent
