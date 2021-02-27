@@ -74,7 +74,9 @@ class WeatherFragment: Fragment() {
 
         binding.linearLayout.doOnApplyWindowInsets { mView, insets, padding ->
             mView.updatePadding(top = padding.top + insets.systemWindowInsetTop,
-                                bottom = padding.bottom + insets.systemWindowInsetBottom)
+                                bottom = padding.bottom + insets.systemWindowInsetBottom,
+                                left = padding.left + insets.systemWindowInsetLeft,
+                                right = padding.right + insets.systemWindowInsetRight)
             insets
         }
         binding.addingNewCity.setOnClickListener { createNewCity() }
