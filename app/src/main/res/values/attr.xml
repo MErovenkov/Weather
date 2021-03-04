@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- fragment -->
+    <attr name="fragment_background" format="reference"/>
+
+    <!-- text -->
+    <attr name="text_primary_color" format="color"/>
+    <attr name="text_or" format="color"/>
+
+    <!-- image -->
+    <attr name="image_tint" format="color"/>
+    <attr name="image_swap_theme_tint" format="color"/>
+
+    <!-- separate line -->
+    <attr name="separate_line_background" format="reference"/>
+
+    <!-- edit text -->
+    <attr name="edit_text_background_tint" format="color"/>
+    <attr name="edit_text_color_hint" format="color"/>
+</resources>

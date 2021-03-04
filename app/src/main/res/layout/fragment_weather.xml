@@ -1,10 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <androidx.swiperefreshlayout.widget.SwipeRefreshLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/aw_swipe_fresh"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@drawable/activity_background"
+    android:background="?attr/fragment_background"
     tools:context=".ui.fragment.WeatherFragment">
 
     <LinearLayout
@@ -13,7 +14,15 @@
         android:layout_height="match_parent"
         android:orientation="vertical"
         android:paddingHorizontal="30dp"
-        android:paddingVertical="30dp">
+        android:paddingVertical="25dp">
+
+        <ImageView
+            android:id="@+id/theme_switcher"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="10dp"
+            android:src="@drawable/ic_action_tonality"
+            app:tint="?attr/image_swap_theme_tint" />
 
         <TextView
             android:id="@+id/title_current_location"
@@ -24,6 +33,7 @@
             android:fontFamily="@font/merriweather"
             android:gravity="center_horizontal"
             android:maxLines="2"
+            android:textColor="?attr/text_primary_color"
             android:textSize="18sp" />
 
         <TextView
@@ -35,14 +45,15 @@
             android:layout_marginBottom="16dp"
             android:fontFamily="@font/merriweather"
             android:gravity="center_horizontal"
+            android:textColor="?attr/text_primary_color"
             android:textSize="20sp"
-            android:maxLines="2"
-            android:textColor="@color/black" />
+            android:maxLines="2" />
 
         <View
+            android:transitionName="separation_line"
             android:layout_width="match_parent"
             android:layout_height="1dp"
-            android:background="#7b7b7b"
+            android:background="?attr/separate_line_background"
             android:elevation="4dp"/>
 
         <androidx.recyclerview.widget.RecyclerView
@@ -64,7 +75,9 @@
             android:fontFamily="@font/merriweather"
             android:hint="@string/insert_new_city"
             android:inputType="textCapWords"
-            android:textColor="@color/black"
+            android:textColor="?attr/text_primary_color"
+            android:backgroundTint="?attr/edit_text_background_tint"
+            android:textColorHint="?attr/edit_text_color_hint"
             tools:ignore="LabelFor" />
     </LinearLayout>
 </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>

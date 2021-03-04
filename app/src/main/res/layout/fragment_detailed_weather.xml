@@ -1,28 +1,30 @@
 <?xml version="1.0" encoding="utf-8"?>
 <androidx.swiperefreshlayout.widget.SwipeRefreshLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/adw_swipe_fresh"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@drawable/activity_background"
-    android:paddingHorizontal="30dp"
+    android:background="?attr/fragment_background"
     tools:context=".ui.fragment.DetailedWeatherFragment">
 
     <LinearLayout
-        android:layout_width="0dp"
-        android:layout_height="0dp"
-        android:orientation="vertical">
+        android:id="@+id/linearLayout"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical"
+        android:paddingHorizontal="30dp"
+        android:paddingTop="25dp">
 
         <TextView
             android:id="@+id/city_name"
             android:layout_width="match_parent"
-            android:layout_height="50dp"
-            android:layout_marginTop="30dp"
+            android:layout_height="wrap_content"
             android:fontFamily="@font/merriweather"
             android:textAlignment="center"
-            android:textColor="@color/black"
-            android:textSize="32sp" />
+            android:textColor="?attr/text_primary_color"
+            android:textSize="32sp"/>
 
         <TextView
             android:id="@+id/current_temperature"
@@ -31,7 +33,7 @@
             android:layout_marginTop="5dp"
             android:fontFamily="@font/merriweather"
             android:textAlignment="center"
-            android:textColor="@color/black"
+            android:textColor="?attr/text_primary_color"
             android:textSize="26sp" />
 
         <ImageView
@@ -39,13 +41,14 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginBottom="5dp"
-            android:elevation="10dp"/>
+            android:elevation="10dp"
+            app:tint="?attr/image_tint" />
 
         <View
-            android:id="@+id/separation_line"
+            android:transitionName="separation_line"
             android:layout_width="match_parent"
             android:layout_height="1dp"
-            android:background="#7b7b7b"
+            android:background="?attr/separate_line_background"
             android:elevation="4dp"/>
 
         <androidx.recyclerview.widget.RecyclerView

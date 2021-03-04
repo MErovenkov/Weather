@@ -3,7 +3,7 @@ package com.example.weather.di.module
 import android.content.Context
 import androidx.appcompat.app.AppCompatActivity
 import androidx.navigation.NavController
-import androidx.navigation.findNavController
+import androidx.navigation.fragment.NavHostFragment
 import com.example.weather.R
 import com.example.weather.di.qualifier.ActivityContext
 import com.example.weather.di.scope.ActivityScope
@@ -24,7 +24,9 @@ class NavigationActivityModule {
     @ActivityScope
     @Named(ACTIVITY_NAV_CONTROLLER)
     fun navController(@ActivityContext context: Context): NavController {
-        return (context as AppCompatActivity).findNavController(R.id.fragment_container)
+        val navHostFragment = (context as AppCompatActivity)
+            .supportFragmentManager.findFragmentById(R.id.fragment_container) as NavHostFragment
+        return navHostFragment.navController
     }
 
     @Provides

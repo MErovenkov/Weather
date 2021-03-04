@@ -8,6 +8,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
+import androidx.core.view.updatePadding
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.ItemTouchHelper
@@ -21,6 +22,7 @@ import com.example.weather.data.model.WeatherCity
 import com.example.weather.ui.navigation.IWeatherNavigation
 import com.example.weather.ui.recycler.GenericAdapter
 import com.example.weather.ui.recycler.SwipeToDeleteCallback
+import com.example.weather.ui.theme.ChangeableTheme
 import com.example.weather.utils.CheckStatusNetwork
 import com.example.weather.utils.extensions.*
 import com.example.weather.utils.resource.event.EventStatus
@@ -76,6 +78,18 @@ class WeatherFragment: Fragment() {
         binding.currentLocation.apply {
             setOnClickListener { openWeatherCurrentLocation() }
             alpha = ALPHA_NOT_UPDATED_DATA
+        }
+
+        binding.linearLayout.doOnApplyWindowInsets { mView, insets, padding ->
+            mView.updatePadding(top = padding.top + insets.systemWindowInsetTop,
+                bottom = padding.bottom + insets.systemWindowInsetBottom,
+                left = padding.left + insets.systemWindowInsetLeft,
+                right = padding.right + insets.systemWindowInsetRight)
+            insets
+        }
+
+        binding.themeSwitcher.setOnClickListener {
+            (activity as ChangeableTheme).changeTheme(binding.themeSwitcher)
         }
     }
 
