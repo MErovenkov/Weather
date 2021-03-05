@@ -2,25 +2,15 @@ package com.example.weather.ui
 
 import android.content.Context
 import android.content.Intent
-import android.graphics.Bitmap
-import android.graphics.Canvas
 import android.os.Bundle
-import android.view.*
 import androidx.appcompat.app.AppCompatActivity
-import androidx.core.animation.doOnEnd
-import androidx.core.view.LayoutInflaterCompat
-import androidx.core.view.isVisible
 import com.example.weather.databinding.ActivityMainBinding
 import com.example.weather.di.component.ActivityComponent
 import com.example.weather.ui.navigation.INavigation
-import com.example.weather.ui.theme.ChangeableTheme
-import com.example.weather.ui.theme.IThemeManager
-import com.example.weather.ui.theme.LayoutInflaterFactory2
 import com.example.weather.utils.extensions.getActivityComponent
 import javax.inject.Inject
-import kotlin.math.hypot
 
-class MainActivity: AppCompatActivity(), ActivityComponent.Holder, ChangeableTheme {
+class MainActivity: AppCompatActivity(), ActivityComponent.Holder {
 
     companion object {
         private const val CITY_NAME_INDEX = 1
@@ -45,54 +35,14 @@ class MainActivity: AppCompatActivity(), ActivityComponent.Holder, ChangeableThe
 
     @Inject
     lateinit var navigation: INavigation
-    @Inject
-    lateinit var themeManager: IThemeManager
 
     override fun onCreate(savedInstanceState: Bundle?) {
-        LayoutInflaterCompat.setFactory2(
-            LayoutInflater.from(this), LayoutInflaterFactory2(delegate)
-        )
         super.onCreate(savedInstanceState)
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
         activityComponent.inject(this)
-        setTheme(themeManager.getSavedTheme())
         handleIntent(intent)
-    }
-
-    override fun changeTheme(viewSwitcher: View) {
-        val imageAnimThemeSwitch = binding.imageAnimThemeSwitch
-        val fragmentContainer = binding.fragmentContainer
-
-        if (imageAnimThemeSwitch.isVisible) {
-            return
-        }
-
-        val  w = fragmentContainer.measuredWidth
-        val  h = fragmentContainer.measuredHeight
-        val bitmap = Bitmap.createBitmap(w, h, Bitmap.Config.ARGB_8888)
-        val canvas = Canvas(bitmap)
-
-        fragmentContainer.draw(canvas)
-
-        imageAnimThemeSwitch.setImageBitmap(bitmap)
-        imageAnimThemeSwitch.isVisible = true
-
-        themeManager.setTheme(binding.root)
-
-        val finalRadius = hypot(w.toFloat(), h.toFloat())
-        val anim = ViewAnimationUtils.createCircularReveal(fragmentContainer,
-            (viewSwitcher.x + viewSwitcher.pivotX).toInt(),
-            (viewSwitcher.y + viewSwitcher.pivotY).toInt(),
-            0f, finalRadius)
-
-        anim.duration = 650L
-        anim.doOnEnd {
-            imageAnimThemeSwitch.setImageDrawable(null)
-            imageAnimThemeSwitch.isVisible = false
-        }
-        anim.start()
     }
 
     override fun onNewIntent(intent: Intent?) {

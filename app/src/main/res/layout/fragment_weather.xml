@@ -16,14 +16,6 @@
         android:paddingHorizontal="30dp"
         android:paddingVertical="25dp">
 
-        <ImageView
-            android:id="@+id/theme_switcher"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginBottom="10dp"
-            android:src="@drawable/ic_action_tonality"
-            app:tint="?attr/image_swap_theme_tint" />
-
         <TextView
             android:id="@+id/title_current_location"
             android:layout_width="match_parent"

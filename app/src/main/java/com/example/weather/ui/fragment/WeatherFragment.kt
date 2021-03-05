@@ -22,7 +22,6 @@ import com.example.weather.data.model.WeatherCity
 import com.example.weather.ui.navigation.IWeatherNavigation
 import com.example.weather.ui.recycler.GenericAdapter
 import com.example.weather.ui.recycler.SwipeToDeleteCallback
-import com.example.weather.ui.theme.ChangeableTheme
 import com.example.weather.utils.CheckStatusNetwork
 import com.example.weather.utils.extensions.*
 import com.example.weather.utils.resource.event.EventStatus
@@ -86,10 +85,6 @@ class WeatherFragment: Fragment() {
                 left = padding.left + insets.systemWindowInsetLeft,
                 right = padding.right + insets.systemWindowInsetRight)
             insets
-        }
-
-        binding.themeSwitcher.setOnClickListener {
-            (activity as ChangeableTheme).changeTheme(binding.themeSwitcher)
         }
     }
 

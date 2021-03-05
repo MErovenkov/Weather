@@ -3,7 +3,6 @@ package com.example.weather.di.component
 import android.content.Context
 import com.example.weather.di.module.NavigationActivityModule
 import com.example.weather.di.module.SubFragmentModule
-import com.example.weather.di.module.ThemeManagerModule
 import com.example.weather.di.module.ViewModelModule
 import com.example.weather.di.qualifier.ActivityContext
 import com.example.weather.di.scope.ActivityScope
@@ -13,7 +12,7 @@ import dagger.Subcomponent
 
 @ActivityScope
 @Subcomponent(modules = [ViewModelModule::class, NavigationActivityModule::class,
-                         SubFragmentModule::class, ThemeManagerModule::class])
+                         SubFragmentModule::class])
 interface ActivityComponent {
     interface Holder {
         val activityComponent: ActivityComponent
