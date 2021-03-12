@@ -5,6 +5,7 @@ import com.example.weather.di.module.NavigationFragmentModule
 import com.example.weather.di.qualifier.FragmentQualifier
 import com.example.weather.di.scope.FragmentScope
 import com.example.weather.ui.fragment.DetailedWeatherFragment
+import com.example.weather.ui.fragment.PrecipitationMapFragment
 import com.example.weather.ui.fragment.WeatherFragment
 import dagger.BindsInstance
 import dagger.Subcomponent
@@ -19,4 +20,5 @@ interface FragmentComponent {
 
     fun inject(weatherFragment: WeatherFragment)
     fun inject(detailedWeatherFragment: DetailedWeatherFragment)
+    fun inject(precipitationMapFragment: PrecipitationMapFragment)
 }

@@ -12,8 +12,13 @@ class ViewModelFactory(private val repository: Repository
         return when(modelClass) {
             WeatherViewModel::class.java ->
                 WeatherViewModel(repository) as T
+
             DetailedWeatherViewModel::class.java ->
                 DetailedWeatherViewModel(repository) as T
+
+            PrecipitationMapViewModel::class.java ->
+                PrecipitationMapViewModel(repository) as T
+
             else -> super.create(modelClass)
         }
     }

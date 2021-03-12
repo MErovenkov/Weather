@@ -5,11 +5,12 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.core.view.updatePadding
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
+import com.example.weather.R
+import com.example.weather.data.model.WeatherCity
 import com.example.weather.databinding.FragmentDetailedWeatherBinding
 import com.example.weather.data.model.WeatherFuture
 import com.example.weather.ui.navigation.IDetailedWeatherNavigation
@@ -53,6 +54,8 @@ class DetailedWeatherFragment: Fragment()  {
     private lateinit var binding: FragmentDetailedWeatherBinding
     private lateinit var adapterRecyclerView: GenericAdapter<WeatherFuture>
     private lateinit var swipeRefreshLayout: SwipeRefreshLayout
+
+    private lateinit var weatherCity: WeatherCity
 
     override fun onAttach(context: Context) {
         super.onAttach(context)
@@ -99,13 +102,20 @@ class DetailedWeatherFragment: Fragment()  {
             swipeRefreshLayout.isRefreshing = true
         }
 
-        binding.linearLayout.doOnApplyWindowInsets { mView, insets, padding ->
-            mView.updatePadding(top = padding.top + insets.systemWindowInsetTop,
-                bottom = padding.bottom + insets.systemWindowInsetBottom,
-                left = padding.left + insets.systemWindowInsetLeft,
-                right = padding.right + insets.systemWindowInsetRight)
-            insets
+        binding.iconPrecipitationMap.setOnClickListener {
+            if (CheckStatusNetwork.isNetworkAvailable()) {
+                try {
+                    detailedWeatherNavigation.openPrecipitationMap(
+                        weatherCity.nameCity, weatherCity.lat, weatherCity.lon
+                    )
+                } catch (e: UninitializedPropertyAccessException) {
+                    showToast(R.string.refresh_your_weather_data)
+                }
+            } else {
+                showNoInternetAccess()
+            }
         }
+        binding.linearLayout.updateAllPaddingByWindowInserts()
     }
 
     private fun initRecyclerView() {
@@ -133,6 +143,8 @@ class DetailedWeatherFragment: Fragment()  {
         viewLifecycleOwner.lifecycleScope.launch {
             detailedWeatherViewModel.getResource().collect { resource ->
                 resource.getData()?.let { weatherCity ->
+                    this@DetailedWeatherFragment.weatherCity = weatherCity
+
                     binding.apply {
                         cityName.text = weatherCity.nameCity
                         currentTemperature.text = weatherCity.weatherCurrent.temperature

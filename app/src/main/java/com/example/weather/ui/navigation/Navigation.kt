@@ -5,6 +5,7 @@ import androidx.navigation.NavOptions
 import androidx.navigation.navOptions
 import com.example.weather.R
 import com.example.weather.ui.fragment.DetailedWeatherFragment
+import com.example.weather.ui.fragment.PrecipitationMapFragment
 
 class Navigation(private var navController: NavController): INavigation {
 
@@ -24,6 +25,14 @@ class Navigation(private var navController: NavController): INavigation {
             R.id.detailedWeatherFragment,
             DetailedWeatherFragment.getNewBundleByDeepLinkData(nameCity),
             getCustomAnim(false)
+        )
+    }
+
+    override fun openPrecipitationMap(cityName: String, lat: String, lon: String) {
+        navController.navigate(
+            R.id.precipitationMapFragment,
+            PrecipitationMapFragment.getNewBundle(cityName, lat, lon),
+            getCustomAnim(true)
         )
     }
 

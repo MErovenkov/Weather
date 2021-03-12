@@ -2,8 +2,10 @@ package com.example.weather.data.repository.api.interfaces
 
 import com.example.weather.data.dto.WeatherCurrentDto
 import com.example.weather.data.dto.WeatherFutureDto
+import okhttp3.ResponseBody
 import retrofit2.Call
 import retrofit2.http.GET
+import retrofit2.http.Path
 import retrofit2.http.Query
 
 interface IWeatherApi {
@@ -28,4 +30,12 @@ interface IWeatherApi {
         @Query("lat") lat: String,
         @Query("lon") lon: String,
         @Query("appid") appid: String): Call<WeatherFutureDto>
+
+    @GET("/map/{layer}/{z}/{x}/{y}.png")
+    fun getPrecipitationBitmap(
+        @Path("layer") layer: String,
+        @Path("z") z: Int,
+        @Path("x") x: Int,
+        @Path("y") y: Int,
+        @Query("appid") appid: String): Call<ResponseBody>
 }

@@ -24,8 +24,9 @@ class MapperWeatherData(private val context: Context) {
         val weatherCurrent = GlobalScope.async(Dispatchers.IO) { getWeatherCurrent(weatherCurrentDto) }
         val weatherFuture = GlobalScope.async(Dispatchers.IO) { getWeatherFutureList(weatherFutureDto) }
 
-        return@runBlocking WeatherCity(weatherCurrentDto.nameCity, alertTomorrow.await(),
-                                       weatherCurrent.await(), weatherFuture.await())
+        return@runBlocking WeatherCity(weatherCurrentDto.nameCity,
+            weatherCurrentDto.coordinatesCity.lat, weatherCurrentDto.coordinatesCity.lon,
+            alertTomorrow.await(), weatherCurrent.await(), weatherFuture.await())
     }
 
     private fun getWeatherCurrent(weatherCurrentDto: WeatherCurrentDto): WeatherCurrent {

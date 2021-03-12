@@ -17,4 +17,11 @@
         android:label="detailedWeatherFragment"
         tools:layout="@layout/fragment_detailed_weather" >
     </fragment>
+
+    <fragment
+        android:id="@+id/precipitationMapFragment"
+        android:name="com.example.weather.ui.fragment.PrecipitationMapFragment"
+        android:label="precipitationMapFragment"
+        tools:layout="@layout/fragment_precipitation_map" >
+    </fragment>
 </navigation>

@@ -5,6 +5,10 @@
     <string name="open_weather_map_api_key_2">f50a9e7252d8adebd48a802bde82159c</string>
     <string name="open_weather_map_api_key_3">6ec6d5e8c18ae35c85a727373bcecb71</string>
 
+    <string name="google_maps_key"
+        templateMergeStrategy="preserve"
+        translatable="false">AIzaSyAMnd54M-yelODB1-a8JIALzd23V-yU8BY</string>
+
     <string name="temperature">\u00B0</string>
     <string name="protocol_tls">TLS</string>
 
@@ -17,6 +21,7 @@
     <string name="no_internet_access">Нет доступа в Интернет</string>
     <string name="lost_internet_access">Потерян доступа в Интернет</string>
     <string name="request_limit_exceeded">"Превышен лимит по запросам"</string>>
+    <string name="refresh_your_weather_data">"Обновите данные о погоде"</string>
 
     <string name="city_not_found">Такого города не существует</string>
     <string name="city_exist">Такой город уже есть</string>
@@ -31,6 +36,8 @@
     <string name="location_information_failure">Ошибка при получении информации о местоположении</string>>
     <string name="permission_denied">"Погода по геоданным недоступна, отсутствует разрешение на определение местонахождения"</string>
 
+    <string name="precipitation_tile_failure">"Не удалось получить карту осадков"</string>
+
     <!-- days of the week -->
     <string name="monday">Пн</string>
     <string name="tuesday">Вт</string>
@@ -39,4 +46,15 @@
     <string name="friday">Пт</string>
     <string name="saturday">Сб</string>
     <string name="sunday">Вс</string>
+
+    <!-- line precipitation -->
+    <string name="mm">мм</string>
+    <string name="one_and_a_half">1.5</string>
+    <string name="two">2</string>
+    <string name="three">3</string>
+    <string name="seven">7</string>
+    <string name="ten">10</string>
+    <string name="twenty">20</string>
+    <string name="thirty">30</string>
+
 </resources>

@@ -12,6 +12,11 @@ import javax.inject.Singleton
 
 @Module
 class NetworkServiceModule {
+
+    companion object {
+        private const val BASE_URL = "https://api.openweathermap.org"
+    }
+
     @Provides
     @Singleton
     fun weatherApi(retrofit: Retrofit): IWeatherApi {
@@ -23,7 +28,7 @@ class NetworkServiceModule {
     fun retrofit(okHttpClient: OkHttpClient, moshiConverterFactory: MoshiConverterFactory)
             : Retrofit {
         return Retrofit.Builder()
-            .baseUrl("https://api.openweathermap.org")
+            .baseUrl(BASE_URL)
             .client(okHttpClient)
             .addConverterFactory(moshiConverterFactory)
             .build()

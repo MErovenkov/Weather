@@ -44,6 +44,14 @@
             android:elevation="10dp"
             app:tint="?attr/image_tint" />
 
+        <ImageView
+            android:id="@+id/icon_precipitation_map"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="start"
+            android:src="@drawable/ic_precipitation_map"
+            app:tint="?attr/image_tint" />
+
         <View
             android:transitionName="separation_line"
             android:layout_width="match_parent"

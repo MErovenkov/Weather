@@ -8,7 +8,6 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
-import androidx.core.view.updatePadding
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.ItemTouchHelper
@@ -78,14 +77,7 @@ class WeatherFragment: Fragment() {
             setOnClickListener { openWeatherCurrentLocation() }
             alpha = ALPHA_NOT_UPDATED_DATA
         }
-
-        binding.linearLayout.doOnApplyWindowInsets { mView, insets, padding ->
-            mView.updatePadding(top = padding.top + insets.systemWindowInsetTop,
-                bottom = padding.bottom + insets.systemWindowInsetBottom,
-                left = padding.left + insets.systemWindowInsetLeft,
-                right = padding.right + insets.systemWindowInsetRight)
-            insets
-        }
+        binding.linearLayout.updateAllPaddingByWindowInserts()
     }
 
     override fun onStart() {

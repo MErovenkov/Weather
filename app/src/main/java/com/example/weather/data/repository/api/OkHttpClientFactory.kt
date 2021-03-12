@@ -1,6 +1,7 @@
 package com.example.weather.data.repository.api
 
 import android.util.Log
+import com.example.weather.utils.HostSelectionInterceptor
 import okhttp3.OkHttpClient
 import java.io.InputStream
 import java.security.KeyStore
@@ -12,15 +13,21 @@ import javax.net.ssl.TrustManagerFactory
 import javax.net.ssl.X509TrustManager
 
 object OkHttpClientFactory {
-    fun create(protocol: String, certificateInputStream: InputStream): OkHttpClient {
+    fun create(protocol: String, certificateApiInputStream: InputStream,
+               certificateTileInputStream: InputStream, hostSelectionInterceptor: HostSelectionInterceptor
+        ): OkHttpClient {
+
         try {
             val certificateFactory: CertificateFactory = CertificateFactory.getInstance("X.509")
-            val certificate: Certificate = certificateFactory.generateCertificate(certificateInputStream)
+            val certificate: Certificate = certificateFactory.generateCertificate(certificateApiInputStream)
+
+            val certificate1: Certificate = certificateFactory.generateCertificate(certificateTileInputStream)
 
             val keyStoreType: String = KeyStore.getDefaultType()
             val keyStore: KeyStore = KeyStore.getInstance(keyStoreType)
             keyStore.load(null)
             keyStore.setCertificateEntry("ca", certificate)
+            keyStore.setCertificateEntry("ct", certificate1)
 
             val tManagerFactoryAlgorithm = TrustManagerFactory.getDefaultAlgorithm()
             val trustManagerFactory = TrustManagerFactory.getInstance(tManagerFactoryAlgorithm)
@@ -30,7 +37,7 @@ object OkHttpClientFactory {
             sslContext.init(null, trustManagerFactory.trustManagers, null)
 
             val sslSocketFactory: SSLSocketFactory = sslContext.socketFactory
-            val builder = OkHttpClient.Builder()
+            val builder = OkHttpClient.Builder().addInterceptor(hostSelectionInterceptor)
             builder.sslSocketFactory(
                 sslSocketFactory,
                 trustManagerFactory.trustManagers

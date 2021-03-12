@@ -1,17 +1,19 @@
 package com.example.weather.data.repository.api
 
+import android.content.res.Resources.NotFoundException
+import com.example.weather.utils.resource.PrecipitationData
 import com.example.weather.data.model.WeatherCity
 import com.example.weather.utils.MapperWeatherData
-import com.example.weather.utils.exception.NotFoundLocationException
 import com.example.weather.utils.exception.OverLimitApiKeyException
 import java.net.ConnectException
+import java.net.SocketTimeoutException
 import kotlin.collections.ArrayList
 import kotlin.jvm.Throws
 
 class WeatherData(private val weatherApiRequester: WeatherApiRequester,
                   private val mapperWeatherData: MapperWeatherData) {
 
-    @Throws(NotFoundLocationException::class, OverLimitApiKeyException::class, ConnectException::class)
+    @Throws(NotFoundException::class, OverLimitApiKeyException::class, ConnectException::class)
     fun getWeatherCity(nameCity: String): WeatherCity {
        val weatherCurrentDto = weatherApiRequester.getWeatherCurrentDto(nameCity)
        val weatherFutureDto = weatherApiRequester.getWeatherFutureDto(
@@ -20,7 +22,7 @@ class WeatherData(private val weatherApiRequester: WeatherApiRequester,
         return mapperWeatherData.getWeatherCity(weatherCurrentDto, weatherFutureDto)
     }
 
-    @Throws(OverLimitApiKeyException::class, ConnectException::class)
+    @Throws(NotFoundException::class, OverLimitApiKeyException::class, ConnectException::class)
     fun getWeatherCityByCoordinate(coordinateLat: Double, coordinateLon: Double): WeatherCity {
         val weatherCurrentDto = weatherApiRequester
             .getWeatherCurrentDtoByCoordinate(coordinateLat.toString(), coordinateLon.toString())
@@ -70,5 +72,12 @@ class WeatherData(private val weatherApiRequester: WeatherApiRequester,
         }
 
         return newWeatherCity
+    }
+
+    @Throws(NotFoundException::class, OverLimitApiKeyException::class,
+            ConnectException::class, SocketTimeoutException::class)
+    fun getPrecipitationData(layer: String, zoom: Int, x: Int, y: Int): PrecipitationData {
+        return PrecipitationData(weatherApiRequester
+            .getPrecipitationBitmap(layer, zoom, x, y), zoom, x, y)
     }
 }
