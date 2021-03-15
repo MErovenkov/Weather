@@ -1,14 +1,6 @@
 <resources>
     <string name="app_name">Погода</string>
 
-    <string name="open_weather_map_api_key_1">61a25b412bb7c531e7fc8d4ca71457e5</string>
-    <string name="open_weather_map_api_key_2">f50a9e7252d8adebd48a802bde82159c</string>
-    <string name="open_weather_map_api_key_3">6ec6d5e8c18ae35c85a727373bcecb71</string>
-
-    <string name="google_maps_key"
-        templateMergeStrategy="preserve"
-        translatable="false">AIzaSyAMnd54M-yelODB1-a8JIALzd23V-yU8BY</string>
-
     <string name="temperature">\u00B0</string>
     <string name="protocol_tls">TLS</string>
 

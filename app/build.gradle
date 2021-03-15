@@ -7,6 +7,11 @@ android {
     compileSdkVersion 30
     buildToolsVersion "30.0.3"
 
+    Properties properties = new Properties()
+    if (rootProject.file("keys.properties").exists()) {
+        properties.load(rootProject.file("keys.properties").newDataInputStream())
+    }
+
     defaultConfig {
         applicationId "com.example.weather"
         minSdkVersion 21
@@ -15,12 +20,32 @@ android {
         versionName "1.0"
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+
+        manifestPlaceholders = [ googleMapsApiKey : properties.getProperty("googleMapsApiKey", "") ]
+
+        resValue "string", "open_weather_map_api_key_1", properties.getProperty('openWeatherMapApiKey1')
+        resValue "string", "open_weather_map_api_key_2", properties.getProperty('openWeatherMapApiKey1')
+        resValue "string", "open_weather_map_api_key_3", properties.getProperty('openWeatherMapApiKey1')
+    }
+
+    signingConfigs {
+        config {
+            storeFile file(properties.getProperty("nameStoreFile"))
+            storePassword properties.getProperty("storePassword")
+            keyAlias properties.getProperty("keyAlias")
+            keyPassword properties.getProperty("keyPassword")
+        }
     }
 
     buildTypes {
         release {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+            signingConfig signingConfigs.config
+        }
+
+        debug {
+            signingConfig signingConfigs.config
         }
     }
 
