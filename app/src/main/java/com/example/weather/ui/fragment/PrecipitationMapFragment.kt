@@ -14,7 +14,6 @@ import com.example.weather.utils.extensions.getFragmentComponent
 import com.example.weather.utils.extensions.showToast
 import com.example.weather.utils.extensions.updateAllPaddingByWindowInserts
 import com.example.weather.utils.resource.PrecipitationData
-import com.example.weather.utils.resource.event.EventStatus
 import com.example.weather.viewmodel.PrecipitationMapViewModel
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.GoogleMap
@@ -49,7 +48,6 @@ class PrecipitationMapFragment: Fragment(), OnMapReadyCallback, TileProvider {
 
     private lateinit var googleMap: GoogleMap
     private lateinit var binding: FragmentPrecipitationMapBinding
-    private lateinit var tileOverlay: TileOverlay
 
     private var precipitationDataList: ArrayList<PrecipitationData> = ArrayList()
     private var eventShown: Boolean = false
@@ -81,13 +79,6 @@ class PrecipitationMapFragment: Fragment(), OnMapReadyCallback, TileProvider {
         binding.constrainLayout.updateAllPaddingByWindowInserts()
     }
 
-    override fun onStop() {
-        super.onStop()
-
-        precipitationDataList.clear()
-        tileOverlay.clearTileCache()
-    }
-
     override fun onMapReady(googleMap: GoogleMap) {
         val cityPosition = LatLng(
             requireArguments().getString(LAT_KEY)!!.toDouble(),
@@ -96,17 +87,16 @@ class PrecipitationMapFragment: Fragment(), OnMapReadyCallback, TileProvider {
 
         this.googleMap = googleMap
 
-        this.googleMap.addMarker(
-            MarkerOptions().position(cityPosition)
-                .title(requireArguments().getString(CITY_NAME_KEY))
-        )
-        this.googleMap.moveCamera(CameraUpdateFactory.newLatLng(cityPosition))
-        this.googleMap.animateCamera(CameraUpdateFactory.newLatLngZoom(cityPosition, 10f))
-
-        tileOverlay = this.googleMap.addTileOverlay(TileOverlayOptions().tileProvider(this))
+        this.googleMap.apply {
+            addMarker(MarkerOptions().position(cityPosition).title(requireArguments()
+                .getString(CITY_NAME_KEY)))
+            moveCamera(CameraUpdateFactory.newLatLng(cityPosition))
+            animateCamera(CameraUpdateFactory.newLatLngZoom(cityPosition, 10f))
+            addTileOverlay(TileOverlayOptions().tileProvider(this@PrecipitationMapFragment))
+        }
     }
 
-    private fun precipitationDataCollector(){
+    private fun precipitationDataCollector() {
         viewLifecycleOwner.lifecycleScope.launch {
             precipitationMapViewModel.getResource().collect { resource ->
                 resource.getData()?.let { precipitationData ->
@@ -119,12 +109,7 @@ class PrecipitationMapFragment: Fragment(), OnMapReadyCallback, TileProvider {
                 resource.getEvent()?.let { event ->
                     val eventStatus: Int? = event.getStatusIfNotHandled()
 
-                    if ((eventStatus == EventStatus.LOST_INTERNET_ACCESS
-                                || eventStatus == EventStatus.REQUEST_LIMIT_EXCEEDED
-                                || eventStatus == EventStatus.PRECIPITATION_TILE_FAILURE)
-                        && !this@PrecipitationMapFragment.eventShown) {
-
-                        tileOverlay.clearTileCache()
+                    if (eventStatus != null && !this@PrecipitationMapFragment.eventShown) {
                         this@PrecipitationMapFragment.eventShown = true
                         eventStatus.let { this@PrecipitationMapFragment.showToast(eventStatus) }
                     }
