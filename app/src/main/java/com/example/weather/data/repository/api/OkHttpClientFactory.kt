@@ -50,6 +50,9 @@ object OkHttpClientFactory {
         } catch (e: Exception) {
             Log.w(e.toString(), e.stackTraceToString())
             throw RuntimeException(e)
+        } finally {
+            certificateApiInputStream.close()
+            certificateTileInputStream.close()
         }
     }
 }
