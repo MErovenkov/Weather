@@ -85,14 +85,12 @@ class PrecipitationMapFragment: Fragment(), OnMapReadyCallback, TileProvider {
             requireArguments().getString(LON_KEY)!!.toDouble()
         )
 
-        this.googleMap = googleMap
-
-        this.googleMap.apply {
+        this.googleMap = googleMap.apply {
             addMarker(MarkerOptions().position(cityPosition).title(requireArguments()
                 .getString(CITY_NAME_KEY)))
             moveCamera(CameraUpdateFactory.newLatLng(cityPosition))
             animateCamera(CameraUpdateFactory.newLatLngZoom(cityPosition, 10f))
-            addTileOverlay(TileOverlayOptions().tileProvider(this@PrecipitationMapFragment))
+            addTileOverlay(TileOverlayOptions().tileProvider(customTileProvider))
         }
     }
 

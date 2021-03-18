@@ -24,24 +24,27 @@ object OkHttpClientFactory {
             val certificate1: Certificate = certificateFactory.generateCertificate(certificateTileInputStream)
 
             val keyStoreType: String = KeyStore.getDefaultType()
-            val keyStore: KeyStore = KeyStore.getInstance(keyStoreType)
-            keyStore.load(null)
-            keyStore.setCertificateEntry("ca", certificate)
-            keyStore.setCertificateEntry("ct", certificate1)
+            val keyStore: KeyStore = KeyStore.getInstance(keyStoreType).apply {
+                load(null)
+                setCertificateEntry("ca", certificate)
+                setCertificateEntry("ct", certificate1)
+            }
 
             val tManagerFactoryAlgorithm = TrustManagerFactory.getDefaultAlgorithm()
-            val trustManagerFactory = TrustManagerFactory.getInstance(tManagerFactoryAlgorithm)
-            trustManagerFactory.init(keyStore)
+            val trustManagerFactory = TrustManagerFactory
+                .getInstance(tManagerFactoryAlgorithm).apply { init(keyStore) }
 
-            val sslContext = SSLContext.getInstance(protocol)
-            sslContext.init(null, trustManagerFactory.trustManagers, null)
+            val sslContext = SSLContext.getInstance(protocol).apply {
+                init(null, trustManagerFactory.trustManagers, null)
+            }
 
             val sslSocketFactory: SSLSocketFactory = sslContext.socketFactory
-            val builder = OkHttpClient.Builder().addInterceptor(hostSelectionInterceptor)
-            builder.sslSocketFactory(
+            val builder = OkHttpClient.Builder().apply {
+                sslSocketFactory(
                 sslSocketFactory,
                 trustManagerFactory.trustManagers
                     .first { trustManager -> trustManager is X509TrustManager } as X509TrustManager)
+            }
 
             return builder.build()
         } catch (e: Exception) {
