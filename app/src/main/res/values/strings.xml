@@ -11,7 +11,7 @@
 
     <!-- Toast messages -->
     <string name="no_internet_access">Нет доступа в Интернет</string>
-    <string name="lost_internet_access">Потерян доступа в Интернет</string>
+    <string name="lost_internet_access">Потерян доступ в Интернет</string>
     <string name="request_limit_exceeded">"Превышен лимит по запросам"</string>>
     <string name="refresh_your_weather_data">"Обновите данные о погоде"</string>
 
