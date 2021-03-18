@@ -7,7 +7,6 @@ import com.example.weather.data.repository.api.WeatherApiRequester
 import com.example.weather.data.repository.api.WeatherData
 import com.example.weather.data.repository.api.interfaces.IWeatherApi
 import com.example.weather.utils.ApiKeyChanger
-import com.example.weather.utils.HostSelectionInterceptor
 import dagger.Module
 import dagger.Provides
 import javax.inject.Singleton
@@ -25,9 +24,8 @@ class WeatherDataModule {
     @Provides
     @Singleton
     fun weatherApiRequester(weatherApiServer: IWeatherApi,
-                            hostSelectionInterceptor: HostSelectionInterceptor,
                             apiKeyChanger: ApiKeyChanger): WeatherApiRequester {
-        return WeatherApiRequester(weatherApiServer, hostSelectionInterceptor, apiKeyChanger)
+        return WeatherApiRequester(weatherApiServer, apiKeyChanger)
     }
 
     @Provides

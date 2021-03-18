@@ -31,7 +31,7 @@ interface IWeatherApi {
         @Query("lon") lon: String,
         @Query("appid") appid: String): Call<WeatherFutureDto>
 
-    @GET("/map/{layer}/{z}/{x}/{y}.png")
+    @GET("https://tile.openweathermap.org/map/{layer}/{z}/{x}/{y}.png")
     fun getPrecipitationBitmap(
         @Path("layer") layer: String,
         @Path("z") z: Int,

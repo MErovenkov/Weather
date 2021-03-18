@@ -1,7 +1,6 @@
 package com.example.weather.data.repository.api
 
 import android.util.Log
-import com.example.weather.utils.HostSelectionInterceptor
 import okhttp3.OkHttpClient
 import java.io.InputStream
 import java.security.KeyStore
@@ -14,7 +13,7 @@ import javax.net.ssl.X509TrustManager
 
 object OkHttpClientFactory {
     fun create(protocol: String, certificateApiInputStream: InputStream,
-               certificateTileInputStream: InputStream, hostSelectionInterceptor: HostSelectionInterceptor
+               certificateTileInputStream: InputStream
         ): OkHttpClient {
 
         try {

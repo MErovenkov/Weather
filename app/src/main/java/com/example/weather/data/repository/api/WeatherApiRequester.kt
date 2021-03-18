@@ -6,7 +6,6 @@ import com.example.weather.data.dto.WeatherCurrentDto
 import com.example.weather.data.dto.WeatherFutureDto
 import com.example.weather.data.repository.api.interfaces.IWeatherApi
 import com.example.weather.utils.ApiKeyChanger
-import com.example.weather.utils.HostSelectionInterceptor
 import com.example.weather.utils.RequestData
 import com.example.weather.utils.exception.OverLimitApiKeyException
 import okhttp3.ResponseBody
@@ -17,13 +16,10 @@ import java.net.ConnectException
 import java.net.SocketTimeoutException
 
 class WeatherApiRequester(private val weatherApiService: IWeatherApi,
-                          private val hostSelectionInterceptor: HostSelectionInterceptor,
                           private val apiKeyChanger: ApiKeyChanger) {
 
     companion object {
         private const val CODE_RESPONSE_KEY_OVER_LIMIT = 429
-        private const val BASE_URL = "api.openweathermap.org"
-        private const val TILE_URL = "tile.openweathermap.org"
     }
 
     @Throws(NotFoundException::class, OverLimitApiKeyException::class, ConnectException::class)
@@ -84,14 +80,12 @@ class WeatherApiRequester(private val weatherApiService: IWeatherApi,
     private fun <T> getResponseByRequestData(requestData: RequestData): Response<T> {
         return when {
             requestData.nameCity != null -> {
-                hostSelectionInterceptor.setHost(BASE_URL)
                 weatherApiService
                     .getWeatherCurrent(requestData.nameCity, apiKeyChanger.getApiKey())
                     .execute() as Response<T>
             }
 
             requestData.isCurrent -> {
-                hostSelectionInterceptor.setHost(BASE_URL)
                 weatherApiService
                     .getWeatherCurrentByCoordinate(requestData.coordinateLat!!,
                                                    requestData.coordinateLon!!,
@@ -100,7 +94,6 @@ class WeatherApiRequester(private val weatherApiService: IWeatherApi,
             }
 
             requestData.isTileUrl -> {
-                hostSelectionInterceptor.setHost(TILE_URL)
                 weatherApiService.
                     getPrecipitationBitmap(requestData.layer!!,
                                           requestData.zoom!!,
@@ -111,7 +104,6 @@ class WeatherApiRequester(private val weatherApiService: IWeatherApi,
             }
 
             else -> {
-                hostSelectionInterceptor.setHost(BASE_URL)
                 weatherApiService
                     .getWeatherFuture(requestData.coordinateLat!!, requestData.coordinateLon!!,
                                       apiKeyChanger.getApiKey())
