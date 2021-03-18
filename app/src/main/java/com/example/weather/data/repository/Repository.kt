@@ -1,6 +1,6 @@
 package com.example.weather.data.repository
 
-import com.example.weather.utils.resource.PrecipitationData
+import com.example.weather.utils.resource.TileData
 import com.example.weather.data.repository.api.WeatherData
 import com.example.weather.data.repository.dao.OrmLiteHelper
 import com.example.weather.data.model.WeatherCity
@@ -114,13 +114,13 @@ class Repository(private val dataBaseHelper: OrmLiteHelper,
     }.exceptionGettingWeatherByDeepLink()
 
     /** Precipitation */
-    fun getPrecipitationData(layer: String, zoom: Int, x: Int, y: Int)
-        : Flow<Resource<PrecipitationData>> = flow {
+    fun getTileData(layer: String, zoom: Int, x: Int, y: Int)
+        : Flow<Resource<TileData>> = flow {
 
-        val newWeatherCity = withContext(Dispatchers.IO) {
-            weatherData.getPrecipitationData(layer, zoom, x, y)
+        val newTileData = withContext(Dispatchers.IO) {
+            weatherData.getTileData(layer, zoom, x, y)
         }
 
-        emit(Resource(newWeatherCity))
+        emit(Resource(EventStatus.PRECIPITATION_TILE_ACCEPTED, newTileData))
     }.exceptionGettingPrecipitation()
 }

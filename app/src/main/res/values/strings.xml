@@ -28,7 +28,7 @@
     <string name="location_information_failure">Ошибка при получении информации о местоположении</string>>
     <string name="permission_denied">"Погода по геоданным недоступна, отсутствует разрешение на определение местонахождения"</string>
 
-    <string name="precipitation_tile_failure">"Не удалось получить карту осадков"</string>
+    <string name="precipitation_tile_failure">"Не удалось получить фрагмент карты осадков"</string>
 
     <!-- days of the week -->
     <string name="monday">Пн</string>

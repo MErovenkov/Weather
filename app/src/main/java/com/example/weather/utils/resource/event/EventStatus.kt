@@ -12,7 +12,9 @@ object EventStatus {
     const val REQUEST_LIMIT_EXCEEDED = R.string.request_limit_exceeded
     const val LOCATION_INFO_FAILURE = R.string.location_information_failure
     const val PRECIPITATION_TILE_FAILURE = R.string.precipitation_tile_failure
+
     const val IS_NOT_REFRESHING = 0
     const val CURRENT_LOCATION_RECEIVED = 1
     const val CITY_WEATHER_DATA_RECEIVED = 2
+    const val PRECIPITATION_TILE_ACCEPTED = 3
 }

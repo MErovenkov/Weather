@@ -2,8 +2,9 @@ package com.example.weather.viewmodel
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.weather.utils.resource.PrecipitationData
+import com.example.weather.utils.resource.TileData
 import com.example.weather.data.repository.Repository
+import com.example.weather.utils.extensions.getData
 import com.example.weather.utils.resource.Resource
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -13,15 +14,40 @@ import kotlinx.coroutines.launch
 
 class PrecipitationMapViewModel(private val repository: Repository): ViewModel() {
 
-    private var resource: MutableStateFlow<Resource<PrecipitationData>> = MutableStateFlow(Resource(null))
+    private var resourceTileDataList: MutableStateFlow<Resource<ArrayList<TileData>>>
+        = MutableStateFlow(Resource(ArrayList()))
 
-    fun getResource(): StateFlow<Resource<PrecipitationData>> = resource.asStateFlow()
+    fun getResource(): StateFlow<Resource<ArrayList<TileData>>> = resourceTileDataList.asStateFlow()
 
-    fun createPrecipitationData(layer: String, zoom: Int, x: Int, y: Int) {
+    fun getTileData(layer: String, zoom: Int, x: Int, y: Int) {
         viewModelScope.launch {
-           repository.getPrecipitationData(layer, zoom, x, y).collect {
-               resource.value = it
+            if(!isExistTileData(zoom, x, y)) {
+               repository.getTileData(layer, zoom, x, y).collect {
+                   addTileData(it)
+               }
            }
+        }
+    }
+
+    private fun addTileData(resourceTileData: Resource<TileData>) {
+        val tmp: ArrayList<TileData> = ArrayList(resourceTileDataList.getData()!!)
+
+        resourceTileData.getData()?.let { tmp.add(it) }
+
+        resourceTileDataList.value =
+            resourceTileData.getEvent()?.getStatusIfNotHandled()?.let { Resource(it, tmp) }!!
+    }
+
+    private fun isExistTileData(zoom: Int, x: Int, y: Int): Boolean {
+        return if (resourceTileDataList.getData().isNullOrEmpty()) {
+            false
+        } else {
+            resourceTileDataList.getData().let { tileDataList ->
+                tileDataList!!.any {
+                        tileData -> tileData.x == x
+                        && tileData.y == y
+                        && tileData.zoom == zoom }
+            }
         }
     }
 }

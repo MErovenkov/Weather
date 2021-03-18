@@ -1,7 +1,7 @@
 package com.example.weather.data.repository.api
 
 import android.content.res.Resources.NotFoundException
-import com.example.weather.utils.resource.PrecipitationData
+import com.example.weather.utils.resource.TileData
 import com.example.weather.data.model.WeatherCity
 import com.example.weather.utils.MapperWeatherData
 import com.example.weather.utils.exception.OverLimitApiKeyException
@@ -76,8 +76,7 @@ class WeatherData(private val weatherApiRequester: WeatherApiRequester,
 
     @Throws(NotFoundException::class, OverLimitApiKeyException::class,
             ConnectException::class, SocketTimeoutException::class)
-    fun getPrecipitationData(layer: String, zoom: Int, x: Int, y: Int): PrecipitationData {
-        return PrecipitationData(weatherApiRequester
-            .getPrecipitationBitmap(layer, zoom, x, y), zoom, x, y)
+    fun getTileData(layer: String, zoom: Int, x: Int, y: Int): TileData {
+        return TileData(weatherApiRequester.getTileBitmap(layer, zoom, x, y), zoom, x, y)
     }
 }

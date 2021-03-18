@@ -10,10 +10,11 @@ import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
 import com.example.weather.R
 import com.example.weather.databinding.FragmentPrecipitationMapBinding
+import com.example.weather.utils.CustomTileProvider
 import com.example.weather.utils.extensions.getFragmentComponent
 import com.example.weather.utils.extensions.showToast
 import com.example.weather.utils.extensions.updateAllPaddingByWindowInserts
-import com.example.weather.utils.resource.PrecipitationData
+import com.example.weather.utils.resource.event.EventStatus
 import com.example.weather.viewmodel.PrecipitationMapViewModel
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.GoogleMap
@@ -22,10 +23,9 @@ import com.google.android.gms.maps.SupportMapFragment
 import com.google.android.gms.maps.model.*
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
-import java.io.ByteArrayOutputStream
 import javax.inject.Inject
 
-class PrecipitationMapFragment: Fragment(), OnMapReadyCallback, TileProvider {
+class PrecipitationMapFragment: Fragment(), OnMapReadyCallback {
 
     companion object {
         private const val TILE_TYPE = "precipitation_new"
@@ -47,9 +47,9 @@ class PrecipitationMapFragment: Fragment(), OnMapReadyCallback, TileProvider {
     lateinit var precipitationMapViewModel: PrecipitationMapViewModel
 
     private lateinit var googleMap: GoogleMap
+    private lateinit var customTileProvider: CustomTileProvider
     private lateinit var binding: FragmentPrecipitationMapBinding
 
-    private var precipitationDataList: ArrayList<PrecipitationData> = ArrayList()
     private var eventShown: Boolean = false
 
     override fun onAttach(context: Context) {
@@ -74,9 +74,20 @@ class PrecipitationMapFragment: Fragment(), OnMapReadyCallback, TileProvider {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        precipitationDataCollector()
+        initCustomTileProvider()
+        tileDataCollector()
 
         binding.constrainLayout.updateAllPaddingByWindowInserts()
+    }
+
+    private fun initCustomTileProvider() {
+        customTileProvider =
+            object: CustomTileProvider() {
+                override fun getTile(x: Int, y: Int, zoom: Int): Tile? {
+                    precipitationMapViewModel.getTileData(TILE_TYPE, zoom, x, y)
+                    return super.getTile(x, y, zoom)
+                }
+            }
     }
 
     override fun onMapReady(googleMap: GoogleMap) {
@@ -94,63 +105,28 @@ class PrecipitationMapFragment: Fragment(), OnMapReadyCallback, TileProvider {
         }
     }
 
-    private fun precipitationDataCollector() {
+    private fun tileDataCollector() {
         viewLifecycleOwner.lifecycleScope.launch {
             precipitationMapViewModel.getResource().collect { resource ->
-                resource.getData()?.let { precipitationData ->
-                    if (!isExistPrecipitationData(precipitationData)) {
-                        precipitationDataList.add(precipitationData)
-                        this@PrecipitationMapFragment.eventShown = false
-                    }
+                resource.getData()?.let { tileDataList ->
+                    customTileProvider.updateTileDataList(tileDataList)
                 }
 
                 resource.getEvent()?.let { event ->
                     val eventStatus: Int? = event.getStatusIfNotHandled()
 
-                    if (eventStatus != null && !this@PrecipitationMapFragment.eventShown) {
+                    if (this@PrecipitationMapFragment.eventShown
+                        && eventStatus == EventStatus.PRECIPITATION_TILE_ACCEPTED) {
+
+                        this@PrecipitationMapFragment.eventShown = false
+                    } else if (!this@PrecipitationMapFragment.eventShown
+                        && eventStatus != EventStatus.PRECIPITATION_TILE_ACCEPTED) {
+
                         this@PrecipitationMapFragment.eventShown = true
-                        eventStatus.let { this@PrecipitationMapFragment.showToast(eventStatus) }
+                        eventStatus?.let { this@PrecipitationMapFragment.showToast(eventStatus)}
                     }
                 }
             }
         }
-    }
-
-    private fun isExistPrecipitationData(tmpPrecipitationData: PrecipitationData): Boolean {
-        return  precipitationDataList.any {
-                precipitationData -> precipitationData.x == tmpPrecipitationData.x
-                && precipitationData.y == tmpPrecipitationData.y
-                && precipitationData.zoom == tmpPrecipitationData.zoom }
-    }
-
-    override fun getTile(x: Int, y: Int, zoom: Int): Tile? {
-        var tile: Tile? = null
-        val precipitationData = precipitationDataList
-                                .firstOrNull { bb -> bb.x == x && bb.y == y && bb.zoom == zoom}
-
-        if (precipitationData != null) {
-            val bitmap: Bitmap = adjustColor(precipitationData.bitmap)
-            val stream = ByteArrayOutputStream()
-
-            bitmap.compress(Bitmap.CompressFormat.PNG, 100, stream)
-            tile = Tile(256, 256, stream.toByteArray())
-        } else {
-            precipitationMapViewModel.createPrecipitationData(TILE_TYPE, zoom, x, y)
-        }
-
-        return tile
-    }
-
-    private fun adjustColor(bitmap: Bitmap): Bitmap {
-        val colorMatrix = ColorMatrix()
-        val paint = Paint()
-        val adjustedBitmap = Bitmap.createBitmap(256, 256, Bitmap.Config.ARGB_8888)
-        val canvas = Canvas(adjustedBitmap)
-
-        colorMatrix.setScale(0f, 0f, 255f, 1.5f)
-        paint.colorFilter = ColorMatrixColorFilter(colorMatrix)
-        canvas.drawBitmap(bitmap, 0f, 0f, paint)
-
-        return adjustedBitmap
     }
 }

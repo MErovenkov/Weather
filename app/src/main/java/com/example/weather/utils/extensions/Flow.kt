@@ -88,6 +88,7 @@ fun <T> Flow<T>.exceptionGettingPrecipitation(): Flow<T> {
             is NotFoundException -> emit(Resource(EventStatus.PRECIPITATION_TILE_FAILURE, null) as T)
             is SocketTimeoutException -> emit(Resource(EventStatus.LOST_INTERNET_ACCESS, null) as T)
             is UnknownHostException -> emit(Resource(EventStatus.LOST_INTERNET_ACCESS, null) as T)
+            is ConnectException -> emit(Resource(EventStatus.LOST_INTERNET_ACCESS, null) as T)
             is OverLimitApiKeyException -> emit(Resource(EventStatus.REQUEST_LIMIT_EXCEEDED, null) as T)
         }
     }
