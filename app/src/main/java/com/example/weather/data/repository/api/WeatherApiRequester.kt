@@ -10,8 +10,6 @@ import com.example.weather.utils.RequestData
 import com.example.weather.utils.exception.OverLimitApiKeyException
 import okhttp3.ResponseBody
 import retrofit2.Response
-import java.io.InputStream
-import java.lang.Exception
 import java.net.ConnectException
 import java.net.SocketTimeoutException
 
@@ -42,18 +40,8 @@ class WeatherApiRequester(private val weatherApiService: IWeatherApi,
     @Throws(NotFoundException::class, OverLimitApiKeyException::class,
             ConnectException::class, SocketTimeoutException::class)
     fun getTileBitmap(layer: String, zoom: Int, x: Int, y: Int): Bitmap {
-        var stream: InputStream? = null
-
-        try {
-            val responseBody = getResponseBody(RequestData(true, layer, zoom, x, y)) as ResponseBody
-            stream = responseBody.byteStream()
-
-            return BitmapFactory.decodeStream(stream)!!
-        } catch (e: Exception){
-            throw e
-        } finally {
-            stream?.close()
-        }
+        val responseBody = getResponseBody(RequestData(true, layer, zoom, x, y)) as ResponseBody
+        return responseBody.byteStream().use { BitmapFactory.decodeStream(it)}
     }
 
     private fun <T> getResponseBody(requestData: RequestData): T {

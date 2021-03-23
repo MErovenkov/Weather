@@ -10,7 +10,7 @@ import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
 import com.example.weather.R
 import com.example.weather.databinding.FragmentPrecipitationMapBinding
-import com.example.weather.utils.CustomTileProvider
+import com.example.weather.ui.map.tile.CustomTileProvider
 import com.example.weather.utils.extensions.getFragmentComponent
 import com.example.weather.utils.extensions.showToast
 import com.example.weather.utils.extensions.updateAllPaddingByWindowInserts

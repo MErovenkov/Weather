@@ -18,15 +18,17 @@ object OkHttpClientFactory {
 
         try {
             val certificateFactory: CertificateFactory = CertificateFactory.getInstance("X.509")
-            val certificate: Certificate = certificateFactory.generateCertificate(certificateApiInputStream)
+            val certificateApi: Certificate = certificateApiInputStream
+                .use { certificateFactory.generateCertificate(it) }
 
-            val certificate1: Certificate = certificateFactory.generateCertificate(certificateTileInputStream)
+            val certificateTile: Certificate = certificateTileInputStream
+                .use { certificateFactory.generateCertificate(it) }
 
             val keyStoreType: String = KeyStore.getDefaultType()
             val keyStore: KeyStore = KeyStore.getInstance(keyStoreType).apply {
                 load(null)
-                setCertificateEntry("ca", certificate)
-                setCertificateEntry("ct", certificate1)
+                setCertificateEntry("ca", certificateApi)
+                setCertificateEntry("ct", certificateTile)
             }
 
             val tManagerFactoryAlgorithm = TrustManagerFactory.getDefaultAlgorithm()
@@ -49,9 +51,6 @@ object OkHttpClientFactory {
         } catch (e: Exception) {
             Log.w(e.toString(), e.stackTraceToString())
             throw RuntimeException(e)
-        } finally {
-            certificateApiInputStream.close()
-            certificateTileInputStream.close()
         }
     }
 }

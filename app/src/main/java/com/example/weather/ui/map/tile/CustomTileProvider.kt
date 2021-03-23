@@ -1,4 +1,4 @@
-package com.example.weather.utils
+package com.example.weather.ui.map.tile
 
 import android.graphics.*
 import android.util.Log
@@ -28,12 +28,10 @@ open class CustomTileProvider: TileProvider {
             try {
                 val bitmap: Bitmap = adjustColor(tileData.bitmap)
 
-                bitmap.compress(Bitmap.CompressFormat.PNG, 100, stream)
+                stream.use { bitmap.compress(Bitmap.CompressFormat.PNG, 100, it) }
                 tile = Tile(256, 256, stream.toByteArray())
             } catch (e: Exception) {
                 Log.w(TAG, e.stackTraceToString())
-            } finally {
-                stream.close()
             }
         }
 
