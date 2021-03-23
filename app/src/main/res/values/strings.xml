@@ -39,7 +39,7 @@
     <string name="saturday">Сб</string>
     <string name="sunday">Вс</string>
 
-    <!-- line precipitation -->
+    <!-- scale precipitation -->
     <string name="mm">мм</string>
     <string name="one_and_a_half">1.5</string>
     <string name="two">2</string>
@@ -49,4 +49,15 @@
     <string name="twenty">20</string>
     <string name="thirty">30</string>
 
+    <!-- array scale precipitation -->
+    <string-array name="textScalePrecipitation">
+        <item>@string/mm</item>
+        <item>@string/one_and_a_half</item>
+        <item>@string/two</item>
+        <item>@string/three</item>
+        <item>@string/seven</item>
+        <item>@string/ten</item>
+        <item>@string/twenty</item>
+        <item>@string/thirty</item>
+    </string-array>
 </resources>

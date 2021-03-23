@@ -14,109 +14,17 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"/>
 
-    <LinearLayout
+    <com.example.weather.ui.widget.WeatherScale
         android:layout_width="280dp"
-        android:layout_height="30dp"
+        android:layout_height="32dp"
         android:layout_marginEnd="5dp"
         android:layout_marginBottom="2dp"
-        android:background="@drawable/background_line_precipitation"
-        android:orientation="vertical"
         app:layout_constraintBottom_toBottomOf="@+id/map"
-        app:layout_constraintEnd_toEndOf="@+id/map">
-
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="24dp"
-            android:orientation="horizontal"
-            android:gravity="center">
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:fontFamily="@font/merriweather"
-                android:paddingStart="3dp"
-                android:paddingEnd="20dp"
-                android:text="@string/mm"
-                android:textColor="?attr/text_primary_color"
-                android:textSize="13sp" />
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:fontFamily="@font/merriweather"
-                android:paddingStart="0dp"
-                android:paddingEnd="23dp"
-                android:text="@string/one_and_a_half"
-                android:textColor="?attr/text_primary_color"
-                android:textSize="13sp" />
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:fontFamily="@font/merriweather"
-                android:paddingStart="0dp"
-                android:paddingEnd="23dp"
-                android:text="@string/two"
-                android:textColor="?attr/text_primary_color"
-                android:textSize="13sp" />
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:fontFamily="@font/merriweather"
-                android:paddingStart="0dp"
-                android:paddingEnd="23dp"
-                android:text="@string/three"
-                android:textColor="?attr/text_primary_color"
-                android:textSize="13sp" />
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:fontFamily="@font/merriweather"
-                android:paddingStart="0dp"
-                android:paddingEnd="23dp"
-                android:text="@string/seven"
-                android:textColor="?attr/text_primary_color"
-                android:textSize="13sp" />
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:fontFamily="@font/merriweather"
-                android:paddingStart="0dp"
-                android:paddingEnd="23dp"
-                android:text="@string/ten"
-                android:textColor="?attr/text_primary_color"
-                android:textSize="13sp" />
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:fontFamily="@font/merriweather"
-                android:paddingStart="0dp"
-                android:paddingEnd="23dp"
-                android:text="@string/twenty"
-                android:textColor="?attr/text_primary_color"
-                android:textSize="13sp" />
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:fontFamily="@font/merriweather"
-                android:text="@string/thirty"
-                android:textColor="?attr/text_primary_color"
-                android:textSize="13sp" />
-
-        </LinearLayout>
-
-        <ImageView
-            android:id="@+id/imageView"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="5dp"
-            android:layout_marginEnd="5dp"
-            android:layout_marginBottom="3dp"
-            android:background="@drawable/gradient_line_precipitation" />
-    </LinearLayout>
+        app:layout_constraintEnd_toEndOf="@+id/map"
+        app:backgroundColor="?attr/background_scale_color"
+        app:markupText="@array/textScalePrecipitation"
+        app:scaleColors="@drawable/gradient_line_precipitation"
+        app:textColor="?attr/text_primary_color"
+        app:textFont="@font/merriweather"
+        app:textSize="13sp" />
 </androidx.constraintlayout.widget.ConstraintLayout>

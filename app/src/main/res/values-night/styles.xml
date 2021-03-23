@@ -22,5 +22,8 @@
         <!-- edit text -->
         <item name="edit_text_background_tint">@color/dark_grey</item>
         <item name="edit_text_color_hint">@color/white_35</item>
+
+        <!-- weather scale -->
+        <item name="background_scale_color">@color/light_black</item>
     </style>
 </resources>

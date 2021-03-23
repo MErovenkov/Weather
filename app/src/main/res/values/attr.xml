@@ -17,4 +17,21 @@
     <!-- edit text -->
     <attr name="edit_text_background_tint" format="color"/>
     <attr name="edit_text_color_hint" format="color"/>
+
+    <!-- widget.WeatherScale -->
+    <attr name="background_scale_color" format="color"/>
+
+    <declare-styleable name="WeatherScale">
+        <!-- background -->
+        <attr name="shadowColor" format="color"/>
+        <attr name="backgroundColor" format="color"/>
+        <!-- scale -->
+        <attr name="scaleColors" format="reference" />
+        <attr name="colorPosition" format="reference" />
+        <!-- text -->
+        <attr name="textSize" format="dimension"/>
+        <attr name="textColor" format="color"/>
+        <attr name="textFont" format="reference"/>
+        <attr name="markupText" format="reference" />
+    </declare-styleable>
 </resources>
