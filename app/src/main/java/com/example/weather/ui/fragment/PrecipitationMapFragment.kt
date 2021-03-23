@@ -47,8 +47,15 @@ class PrecipitationMapFragment: Fragment(), OnMapReadyCallback {
     lateinit var precipitationMapViewModel: PrecipitationMapViewModel
 
     private lateinit var googleMap: GoogleMap
-    private lateinit var customTileProvider: CustomTileProvider
     private lateinit var binding: FragmentPrecipitationMapBinding
+
+    private val customTileProvider: CustomTileProvider =
+        object: CustomTileProvider() {
+            override fun getTile(x: Int, y: Int, zoom: Int): Tile? {
+                precipitationMapViewModel.getTileData(TILE_TYPE, zoom, x, y)
+                return super.getTile(x, y, zoom)
+            }
+        }
 
     private var eventShown: Boolean = false
 
@@ -74,20 +81,9 @@ class PrecipitationMapFragment: Fragment(), OnMapReadyCallback {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        initCustomTileProvider()
         tileDataCollector()
 
         binding.constrainLayout.updateAllPaddingByWindowInserts()
-    }
-
-    private fun initCustomTileProvider() {
-        customTileProvider =
-            object: CustomTileProvider() {
-                override fun getTile(x: Int, y: Int, zoom: Int): Tile? {
-                    precipitationMapViewModel.getTileData(TILE_TYPE, zoom, x, y)
-                    return super.getTile(x, y, zoom)
-                }
-            }
     }
 
     override fun onMapReady(googleMap: GoogleMap) {
