@@ -17,14 +17,15 @@
     <com.example.weather.ui.widget.WeatherScale
         android:layout_width="280dp"
         android:layout_height="32dp"
+        android:paddingTop="4dp"
         android:layout_marginEnd="5dp"
         android:layout_marginBottom="2dp"
+        android:fontFamily="@font/merriweather"
         app:layout_constraintBottom_toBottomOf="@+id/map"
         app:layout_constraintEnd_toEndOf="@+id/map"
         app:backgroundColor="?attr/background_scale_color"
         app:markupText="@array/textScalePrecipitation"
         app:scaleColors="@drawable/gradient_line_precipitation"
         app:textColor="?attr/text_primary_color"
-        app:textFont="@font/merriweather"
         app:textSize="13sp" />
 </androidx.constraintlayout.widget.ConstraintLayout>

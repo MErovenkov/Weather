@@ -6,133 +6,113 @@ import android.util.AttributeSet
 import android.view.View
 import androidx.core.content.res.ResourcesCompat
 import androidx.core.graphics.drawable.toBitmap
+import androidx.core.graphics.toRectF
 import com.example.weather.R
 
-class WeatherScale(context: Context, attributeSet: AttributeSet): View(context, attributeSet) {
+class WeatherScale: View {
 
     companion object {
-        private const val DEFAULT_SHADOW_COLOR = Color.GRAY
-        private const val DEFAULT_SCALE_BACKGROUND_COLOR = Color.WHITE
-
-        private val DEFAULT_SCALE_COLORS = intArrayOf(Color.WHITE, Color.BLACK)
-
-        private const val DEFAULT_TEXT_COLOR = Color.BLACK
-        private val DEFAULT_TEXT_FONT = Typeface.defaultFromStyle(Typeface.NORMAL)
-        private val DEFAULT_MARKUP_TEXT = arrayOf<CharSequence>("mm", "30", "50", "60")
+        private const val DEFAULT_VIEW_WIDTH = 280f
+        private const val DEFAULT_VIEW_HEIGHT = 17.3f
+        private const val DEFAULT_LINE_HEIGHT = 5f
+        private const val DEFAULT_TEXT_SIZE = 13f
     }
 
-    private val paint = Paint()
-    private var layoutWidth = 0f
-    private var layoutHeight = 0f
-    private var indent = 20f
+    private val indent = dpToPx(6.6f).toInt()
+    private val cornerRadius = dpToPx(6.6f)
 
     /** background */
-    private var shadowColor = DEFAULT_SHADOW_COLOR
-    private var backgroundScaleColor = DEFAULT_SCALE_BACKGROUND_COLOR
+    private var contourColor = Color.GRAY
+    private val contourPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply { style = Paint.Style.STROKE }
 
-    /** gradient */
-    private var isDrawableScaleColors = false
-    private var scaleColorsId: Int = 0
-    private var scaleColors = DEFAULT_SCALE_COLORS
-    private var colorPosition: FloatArray = FloatArray(DEFAULT_SCALE_COLORS.size)
+    private var backgroundScaleColor = Color.WHITE
+    private val backgroundPaint = Paint(Paint.ANTI_ALIAS_FLAG)
+    private var backgroundRect = Rect()
+
+    /** line */
+    private var isDrawableLineColors = false
+    private var lineColorsId: Int = 0
+    private var lineColors = intArrayOf(Color.WHITE, Color.BLACK)
+    private var lineColorPosition: FloatArray = FloatArray(lineColors.size)
+
+    private var lineHeight = dpToPx(DEFAULT_LINE_HEIGHT)
+    private val linePaint = Paint(Paint.ANTI_ALIAS_FLAG)
+    private var lineRect = Rect()
+    private var lineBitmap: Bitmap? = null
 
     /** text */
-    private var textSize: Float = 0f
-    private var textColor = DEFAULT_TEXT_COLOR
-    private var textFont: Typeface = DEFAULT_TEXT_FONT
-    private var markupText = DEFAULT_MARKUP_TEXT
+    private var textSize: Float = spToPx(DEFAULT_TEXT_SIZE)
+    private var textColor = Color.BLACK
+    private var textFont: Typeface = Typeface.defaultFromStyle(Typeface.NORMAL)
+    private val textPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply { textAlign = Paint.Align.CENTER }
+    private val textBounds = Rect()
+    private var textPositionY = 0f
+    private val textPositionXList: ArrayList<Float> = ArrayList()
 
-    init {
-        setupAttributes(attributeSet)
-    }
+    private var markupText = arrayOf<CharSequence>("mm", "30", "50", "60")
+    private var markupTextWidth = 0f
+    private var markupTextHeight = 0f
 
-    private fun setupAttributes(attributeSet: AttributeSet) {
-        val typedArray = context.theme.obtainStyledAttributes(attributeSet, R.styleable.WeatherScale,
-            0, 0)
+    constructor(context: Context) : this(context, null, 0)
+    constructor(context: Context, attrs: AttributeSet) : this(context, attrs, 0)
+    constructor(context: Context, attrs: AttributeSet?, defStyleAttr: Int)
+            : super(context, attrs, defStyleAttr) {
 
-        /** background */
-        shadowColor = typedArray.getColor(R.styleable.WeatherScale_shadowColor, DEFAULT_SHADOW_COLOR)
-        backgroundScaleColor = typedArray.getColor(R.styleable.WeatherScale_backgroundColor,
-            DEFAULT_SCALE_BACKGROUND_COLOR)
+        if (attrs != null) {
+            val typedArray = context.theme.obtainStyledAttributes(attrs, R.styleable.WeatherScale,
+                defStyleAttr, 0)
 
-        /** gradient */
-        val scaleColorsPath = typedArray.getString(R.styleable.WeatherScale_scaleColors)
-        isDrawableScaleColors = scaleColorsPath != null && scaleColorsPath.startsWith("res/drawable")
+            /** background */
+            contourColor = typedArray.getColor(R.styleable.WeatherScale_shadowColor, contourColor)
+            backgroundScaleColor = typedArray.getColor(R.styleable.WeatherScale_backgroundColor,
+                backgroundScaleColor)
 
-        when(isDrawableScaleColors) {
-            true -> scaleColorsId = typedArray
-                .getResourceId(R.styleable.WeatherScale_scaleColors, 0)
+            /** line */
+            val scaleColorsPath = typedArray.getString(R.styleable.WeatherScale_scaleColors)
+            isDrawableLineColors = scaleColorsPath != null && scaleColorsPath.startsWith("res/drawable")
 
-            else -> {
-                scaleColors = getScaleColors(typedArray
-                    .getResourceId(R.styleable.WeatherScale_scaleColors, 0))
-                colorPosition = getColorPosition(typedArray
-                    .getResourceId(R.styleable.WeatherScale_colorPosition, 0), scaleColors)
+            when(isDrawableLineColors) {
+                true -> {
+                    lineColorsId = typedArray
+                        .getResourceId(R.styleable.WeatherScale_scaleColors, 0)
+                    lineBitmap = ResourcesCompat
+                        .getDrawable(context.resources, lineColorsId, null)!!.toBitmap()
+                }
+
+                else -> {
+                    lineColors = getLineColors(typedArray
+                        .getResourceId(R.styleable.WeatherScale_scaleColors, 0))
+                    lineColorPosition = getColorsPosition(typedArray
+                        .getResourceId(R.styleable.WeatherScale_colorPosition, 0), lineColors)
+                }
             }
+            lineHeight = typedArray.getDimension(R.styleable.WeatherScale_lineHeight, lineHeight)
+
+            /** text */
+            textSize = typedArray.getDimension(R.styleable.WeatherScale_textSize, textSize)
+            textColor = typedArray.getColor(R.styleable.WeatherScale_textColor, textColor)
+            textFont = getTextFont(typedArray.getResourceId(R.styleable.WeatherScale_android_fontFamily, 0))
+            markupText = typedArray.getTextArray(R.styleable.WeatherScale_markupText) ?: markupText
+
+            typedArray.recycle()
         }
 
-        /** text */
-        textSize = typedArray.getDimension(R.styleable.WeatherScale_textSize, 0f)
-        textColor = typedArray.getColor(R.styleable.WeatherScale_textColor, DEFAULT_TEXT_COLOR)
-        textFont = getTextFont(typedArray.getResourceId(R.styleable.WeatherScale_textFont, 0))
-        markupText = typedArray.getTextArray(R.styleable.WeatherScale_markupText) ?: DEFAULT_MARKUP_TEXT
-
-        typedArray.recycle()
+        setupPaint()
+        setupMarkupTextSize()
     }
 
-    override fun onMeasure(widthMeasureSpec: Int, heightMeasureSpec: Int) {
-        super.onMeasure(widthMeasureSpec, heightMeasureSpec)
+    private fun dpToPx(dp: Float): Float = context.resources.displayMetrics.density * dp
 
-        layoutWidth = measuredWidth.toFloat()
-        layoutHeight = measuredHeight.toFloat()
-    }
+    private fun spToPx(sp: Float): Float = context.resources.displayMetrics.scaledDensity * sp
 
-    override fun onDraw(canvas: Canvas) {
-        super.onDraw(canvas)
-
-        drawBackground(canvas)
-        drawGradientLine(canvas)
-        drawMarkupScale(canvas)
-    }
-
-    /** background */
-    private fun drawBackground(canvas: Canvas) {
-        val cornerRadius = 20f
-        var rect = RectF(0f, 0f, layoutWidth, layoutHeight)
-
-        paint.color = shadowColor
-        canvas.drawRoundRect(rect, cornerRadius, cornerRadius, paint)
-
-        rect = RectF(1f, 0f, layoutWidth - 1f, layoutHeight - 5f)
-        paint.color = backgroundScaleColor
-        canvas.drawRoundRect(rect, cornerRadius, cornerRadius, paint)
-    }
-
-    /** gradient */
-    private fun drawGradientLine(canvas: Canvas) {
-        val rect = RectF(indent,layoutHeight * 0.75f,
-            layoutWidth - indent, layoutHeight * 0.9f)
-
-        if (scaleColorsId != 0 && isDrawableScaleColors) {
-            canvas.drawBitmap(ResourcesCompat
-                .getDrawable(context.resources, scaleColorsId, null)!!.toBitmap(),
-                null, rect, null)
-        } else {
-            paint.shader = LinearGradient(0f, 0f, layoutWidth, 0f,
-                scaleColors, colorPosition, Shader.TileMode.CLAMP)
-
-            canvas.drawRect(rect, paint)
-        }
-    }
-
-    private fun getScaleColors(scaleColorsId: Int): IntArray {
+    private fun getLineColors(scaleColorsId: Int): IntArray {
         return when(scaleColorsId) {
-            0 -> DEFAULT_SCALE_COLORS
+            0 -> lineColors
             else -> context.resources.getIntArray(scaleColorsId)
         }
     }
 
-    private fun getColorPosition(colorPositionId: Int, scaleColors: IntArray): FloatArray {
+    private fun getColorsPosition(colorPositionId: Int, scaleColors: IntArray): FloatArray {
         var positionArray = FloatArray(scaleColors.size)
 
         when(colorPositionId) {
@@ -153,34 +133,129 @@ class WeatherScale(context: Context, attributeSet: AttributeSet): View(context, 
         return positionArray
     }
 
-    /** text */
-    private fun drawMarkupScale(canvas: Canvas) {
-        val textPositionY = layoutHeight * 0.5f
+    private fun getTextFont(textFontId: Int): Typeface {
+        return when(textFontId) {
+            0 -> Typeface.defaultFromStyle(Typeface.NORMAL)
+            else -> ResourcesCompat.getFont(context, textFontId)!!
+        }
+    }
 
-        when(textSize) {
-            0f -> textSize = layoutWidth * 0.05f + layoutHeight * 0.025f
+    private fun setupPaint() {
+        with(contourPaint) {
+            color = contourColor
         }
 
-        val paint = Paint().apply {
-            flags = Paint.ANTI_ALIAS_FLAG
+        with(backgroundPaint) {
+            color = backgroundScaleColor
+        }
+
+        with(textPaint) {
             textSize = this@WeatherScale.textSize
             color = this@WeatherScale.textColor
             typeface = this@WeatherScale.textFont
         }
+    }
 
-        val stepPosition = (layoutWidth + indent) / markupText.size
-        var textPositionX = indent
+    private fun setupMarkupTextSize() {
+        for (i in markupText.indices) {
+            textPaint.getTextBounds(markupText[i].toString(), 0, markupText[i].length, textBounds)
+            markupTextWidth += textBounds.width() * 2
 
-        for (element in markupText) {
-            canvas.drawText(element, 0, element.length, textPositionX, textPositionY, paint)
-            textPositionX += stepPosition
+            if (textBounds.height() > markupTextHeight) {
+                markupTextHeight = textBounds.height().toFloat()
+                                   - (textPaint.descent() + textPaint.ascent()) / 2
+            }
         }
     }
 
-    private fun getTextFont(textFontId: Int): Typeface {
-        return when(textFontId) {
-            0 -> DEFAULT_TEXT_FONT
-            else -> ResourcesCompat.getFont(context, textFontId)!!
+    override fun onMeasure(widthMeasureSpec: Int, heightMeasureSpec: Int) {
+        val viewWidth = when (MeasureSpec.getMode(widthMeasureSpec)) {
+            MeasureSpec.EXACTLY -> MeasureSpec.getSize(widthMeasureSpec).toFloat()
+
+            MeasureSpec.AT_MOST -> resolveSize((markupTextWidth
+                    + paddingLeft + paddingRight).toInt(), widthMeasureSpec).toFloat()
+
+            else -> dpToPx(DEFAULT_VIEW_WIDTH)
+        }
+
+        val viewHeight = when (MeasureSpec.getMode(heightMeasureSpec)) {
+            MeasureSpec.EXACTLY -> MeasureSpec.getSize(heightMeasureSpec).toFloat()
+
+            MeasureSpec.AT_MOST -> resolveSize((markupTextHeight + lineHeight
+                    + paddingTop * 2 + paddingBottom * 2).toInt(),
+                heightMeasureSpec).toFloat()
+
+            else -> dpToPx(DEFAULT_VIEW_HEIGHT)
+        }
+
+        setMeasuredDimension(viewWidth.toInt(), viewHeight.toInt())
+    }
+
+    override fun onSizeChanged(w: Int, h: Int, oldw: Int, oldh: Int) {
+        setupMarkupTextPosition(w, h)
+        setupRect(w, h)
+        setupPaintRequiringDimensions(w)
+    }
+
+    private fun setupMarkupTextPosition(w: Int, h: Int) {
+        textPaint.getTextBounds(markupText[0].toString(), 0, markupText[0].length, textBounds)
+        val markupTextStartPosition = textBounds.width() / 2f + paddingLeft
+
+        textPaint.getTextBounds(markupText[markupText.size - 1].toString(), 0,
+            markupText[markupText.size - 1].length, textBounds)
+        val markupTextEndPosition = (textBounds.width() / 2f) + paddingRight
+
+        var textPositionX = markupTextStartPosition + indent
+        val stepPosition = (w - markupTextEndPosition - markupTextStartPosition - indent * 2) / (markupText.size - 1)
+
+        for (element in markupText) {
+            textPositionXList.add(textPositionX)
+            textPositionX += stepPosition
+        }
+
+        textPositionY = (h - (h - textBounds.height())).toFloat() + paddingTop
+    }
+
+    private fun setupRect(w: Int, h: Int) {
+        backgroundRect = Rect(0, 0, w, h)
+
+        lineRect = Rect(indent + paddingLeft,
+            (textPositionY + textPaint.descent()).toInt() + paddingTop + paddingBottom,
+            w - indent - paddingRight,
+            (textPositionY + lineHeight + textPaint.descent()).toInt() + paddingTop + paddingBottom)
+    }
+
+    private fun setupPaintRequiringDimensions(w: Int) {
+        with(linePaint) {
+            shader = LinearGradient(0f, 0f, w.toFloat(), 0f,
+                lineColors, lineColorPosition, Shader.TileMode.CLAMP)
+        }
+    }
+
+    override fun onDraw(canvas: Canvas) {
+        drawBackground(canvas)
+        drawGradientLine(canvas)
+        drawMarkupScale(canvas)
+    }
+
+    private fun drawBackground(canvas: Canvas) {
+        canvas.apply {
+            drawRoundRect(backgroundRect.toRectF(), cornerRadius, cornerRadius, backgroundPaint)
+            drawRoundRect(backgroundRect.toRectF(), cornerRadius, cornerRadius, contourPaint)
+        }
+    }
+
+    private fun drawGradientLine(canvas: Canvas) {
+        when(isDrawableLineColors) {
+            true -> canvas.drawBitmap(lineBitmap!!, null, lineRect, null)
+            else -> canvas.drawRoundRect(lineRect.toRectF(), cornerRadius, cornerRadius, linePaint)
+        }
+    }
+
+    private fun drawMarkupScale(canvas: Canvas) {
+        for (i in markupText.indices) {
+            canvas.drawText(markupText[i], 0, markupText[i].length,
+                textPositionXList[i], textPositionY, textPaint)
         }
     }
 }

@@ -25,13 +25,14 @@
         <!-- background -->
         <attr name="shadowColor" format="color"/>
         <attr name="backgroundColor" format="color"/>
-        <!-- scale -->
-        <attr name="scaleColors" format="reference" />
-        <attr name="colorPosition" format="reference" />
+        <!-- line -->
+        <attr name="scaleColors" format="reference"/>
+        <attr name="colorPosition" format="reference"/>
+        <attr name="lineHeight" format="dimension"/>
         <!-- text -->
         <attr name="textSize" format="dimension"/>
         <attr name="textColor" format="color"/>
-        <attr name="textFont" format="reference"/>
-        <attr name="markupText" format="reference" />
+        <attr name="android:fontFamily" format="string"/>
+        <attr name="markupText" format="reference"/>
     </declare-styleable>
 </resources>
