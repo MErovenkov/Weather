@@ -2,6 +2,7 @@ package com.example.weather.ui.widget
 
 import android.content.Context
 import android.graphics.*
+import android.graphics.drawable.Drawable
 import android.util.AttributeSet
 import android.view.View
 import androidx.core.content.res.ResourcesCompat
@@ -37,7 +38,7 @@ class WeatherScale: View {
     private var lineHeight = dpToPx(DEFAULT_LINE_HEIGHT)
     private val linePaint = Paint(Paint.ANTI_ALIAS_FLAG)
     private var lineRect = RectF()
-    private var lineBitmap: Bitmap? = null
+    private var lineDrawable: Drawable? = null
 
     /** text */
     private var textSize: Float = spToPx(DEFAULT_TEXT_SIZE)
@@ -68,14 +69,15 @@ class WeatherScale: View {
 
             /** line */
             val scaleColorsPath = typedArray.getString(R.styleable.WeatherScale_scaleColors)
-            isDrawableLineColors = scaleColorsPath != null && scaleColorsPath.startsWith("res/drawable")
+            isDrawableLineColors = scaleColorsPath != null
+                                   && scaleColorsPath.startsWith("res/drawable")
 
             when(isDrawableLineColors) {
                 true -> {
                     lineColorsId = typedArray
                         .getResourceId(R.styleable.WeatherScale_scaleColors, 0)
-                    lineBitmap = ResourcesCompat
-                        .getDrawable(context.resources, lineColorsId, null)!!.toBitmap()
+                    lineDrawable = ResourcesCompat
+                        .getDrawable(context.resources, lineColorsId, null)
                 }
 
                 else -> {
@@ -193,6 +195,8 @@ class WeatherScale: View {
         setupMarkupTextPosition(w, h)
         setupRect(w, h)
         setupPaintRequiringDimensions(w)
+
+        lineDrawable?.let { it.bounds = lineRect.toRect() }
     }
 
     private fun setupMarkupTextPosition(w: Int, h: Int) {
@@ -249,7 +253,7 @@ class WeatherScale: View {
     @Suppress("NOTHING_TO_INLINE")
     private inline  fun drawGradientLine(canvas: Canvas) {
         when(isDrawableLineColors) {
-            true -> canvas.drawBitmap(lineBitmap!!, null, lineRect, null)
+            true -> lineDrawable!!.draw(canvas)
             else -> canvas.drawRoundRect(lineRect, cornerRadius, cornerRadius, linePaint)
         }
     }
