@@ -5,8 +5,7 @@ import android.graphics.*
 import android.util.AttributeSet
 import android.view.View
 import androidx.core.content.res.ResourcesCompat
-import androidx.core.graphics.drawable.toBitmap
-import androidx.core.graphics.toRectF
+import androidx.core.graphics.toRect
 import com.example.weather.R
 
 class WeatherScale: View {
@@ -27,7 +26,7 @@ class WeatherScale: View {
 
     private var backgroundScaleColor = Color.WHITE
     private val backgroundPaint = Paint(Paint.ANTI_ALIAS_FLAG)
-    private var backgroundRect = Rect()
+    private var backgroundRect = RectF()
 
     /** line */
     private var isDrawableLineColors = false
@@ -37,7 +36,7 @@ class WeatherScale: View {
 
     private var lineHeight = dpToPx(DEFAULT_LINE_HEIGHT)
     private val linePaint = Paint(Paint.ANTI_ALIAS_FLAG)
-    private var lineRect = Rect()
+    private var lineRect = RectF()
     private var lineBitmap: Bitmap? = null
 
     /** text */
@@ -217,12 +216,14 @@ class WeatherScale: View {
     }
 
     private fun setupRect(w: Int, h: Int) {
-        backgroundRect = Rect(0, 0, w, h)
+        backgroundRect = RectF(0f, 0f, w.toFloat(), h.toFloat())
 
-        lineRect = Rect(indent + paddingLeft,
-            (textPositionY + textPaint.descent()).toInt() + paddingTop + paddingBottom,
-            w - indent - paddingRight,
-            (textPositionY + lineHeight + textPaint.descent()).toInt() + paddingTop + paddingBottom)
+        lineRect = RectF(
+            (indent + paddingLeft).toFloat(),
+            ((textPositionY + textPaint.descent()).toInt() + paddingTop + paddingBottom).toFloat(),
+            (w - indent - paddingRight).toFloat(),
+            ((textPositionY + lineHeight + textPaint.descent()).toInt() + paddingTop + paddingBottom).toFloat()
+        )
     }
 
     private fun setupPaintRequiringDimensions(w: Int) {
@@ -238,21 +239,24 @@ class WeatherScale: View {
         drawMarkupScale(canvas)
     }
 
-    private fun drawBackground(canvas: Canvas) {
+    @Suppress("NOTHING_TO_INLINE")
+    private inline fun drawBackground(canvas: Canvas) {
         canvas.apply {
-            drawRoundRect(backgroundRect.toRectF(), cornerRadius, cornerRadius, backgroundPaint)
-            drawRoundRect(backgroundRect.toRectF(), cornerRadius, cornerRadius, contourPaint)
+            drawRoundRect(backgroundRect, cornerRadius, cornerRadius, backgroundPaint)
+            drawRoundRect(backgroundRect, cornerRadius, cornerRadius, contourPaint)
         }
     }
 
-    private fun drawGradientLine(canvas: Canvas) {
+    @Suppress("NOTHING_TO_INLINE")
+    private inline  fun drawGradientLine(canvas: Canvas) {
         when(isDrawableLineColors) {
             true -> canvas.drawBitmap(lineBitmap!!, null, lineRect, null)
-            else -> canvas.drawRoundRect(lineRect.toRectF(), cornerRadius, cornerRadius, linePaint)
+            else -> canvas.drawRoundRect(lineRect, cornerRadius, cornerRadius, linePaint)
         }
     }
 
-    private fun drawMarkupScale(canvas: Canvas) {
+    @Suppress("NOTHING_TO_INLINE")
+    private inline  fun drawMarkupScale(canvas: Canvas) {
         for (i in markupText.indices) {
             canvas.drawText(markupText[i], 0, markupText[i].length,
                 textPositionXList[i], textPositionY, textPaint)
