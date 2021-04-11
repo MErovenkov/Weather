@@ -161,8 +161,7 @@ class WeatherScale: View {
             markupTextWidth += textBounds.width() * 2
 
             if (textBounds.height() > markupTextHeight) {
-                markupTextHeight = textBounds.height().toFloat()
-                                   - (textPaint.descent() + textPaint.ascent()) / 2
+                markupTextHeight = textBounds.height().toFloat() - (textPaint.descent() + textPaint.ascent())
             }
         }
     }
@@ -181,7 +180,7 @@ class WeatherScale: View {
             MeasureSpec.EXACTLY -> MeasureSpec.getSize(heightMeasureSpec).toFloat()
 
             MeasureSpec.AT_MOST -> resolveSize((markupTextHeight + lineHeight
-                    + paddingTop * 2 + paddingBottom * 2).toInt(),
+                    + paddingTop + paddingBottom).toInt(),
                 heightMeasureSpec).toFloat()
 
             else -> dpToPx(DEFAULT_VIEW_HEIGHT)
@@ -220,9 +219,9 @@ class WeatherScale: View {
 
         lineRect = RectF(
             (indent + paddingLeft).toFloat(),
-            ((textPositionY + textPaint.descent()).toInt() + paddingTop + paddingBottom).toFloat(),
+            (textPositionY + textBounds.height() / 2),
             (w - indent - paddingRight).toFloat(),
-            ((textPositionY + lineHeight + textPaint.descent()).toInt() + paddingTop + paddingBottom).toFloat()
+            (textPositionY + lineHeight + textBounds.height() / 2)
         )
     }
 
