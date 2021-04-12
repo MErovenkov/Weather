@@ -9,7 +9,7 @@ data class WeatherFutureDto (
     val days: List<Day>,
 
     @Json(name = "alerts")
-    val alerts: List<Alert> = ArrayList()
+    val alerts: List<Alert>?
 ) {
     data class Alert(
         @Json(name = "start")

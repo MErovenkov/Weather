@@ -54,13 +54,15 @@ class MapperWeatherData(private val context: Context) {
     private fun getAlertTomorrow(weatherFutureDto: WeatherFutureDto): String {
         var alertMassage = ""
 
-        for (alert in weatherFutureDto.alerts) {
-            if (alert.description.isNotEmpty()
-                && isTomorrow(alert.start, alert.end, weatherFutureDto.days[TOMORROW].date)) {
-
-                    alertMassage += "${formatAlertMassage(alert.description)}. "
-            }
-        }
+       if (!weatherFutureDto.alerts.isNullOrEmpty()) {
+           for (alert in weatherFutureDto.alerts) {
+               if (alert.description.isNotEmpty()
+                   && isTomorrow(alert.start, alert.end, weatherFutureDto.days[TOMORROW].date)
+               ) {
+                   alertMassage += "${formatAlertMassage(alert.description)}. "
+               }
+           }
+       }
 
         return alertMassage
     }
