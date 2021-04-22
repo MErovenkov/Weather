@@ -7,11 +7,8 @@ import com.example.weather.data.model.WeatherCity
 import com.example.weather.utils.resource.event.EventStatus
 import com.example.weather.utils.extensions.*
 import com.example.weather.utils.resource.Resource
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.flow.*
-import kotlinx.coroutines.withContext
+import io.reactivex.rxjava3.core.Single
 
-@Suppress("BlockingMethodInNonBlockingContext")
 class Repository(private val dataBaseHelper: OrmLiteHelper,
                  private val weatherData: WeatherData) {
 
@@ -21,35 +18,30 @@ class Repository(private val dataBaseHelper: OrmLiteHelper,
     fun getWeatherCityByName(nameCity: String): WeatherCity? =
         dataBaseHelper.getWeatherCityByName(nameCity)
 
-    fun createWeatherCity(nameCity: String): Flow<Resource<WeatherCity>> = flow {
-        val newWeatherCity = withContext(Dispatchers.IO) {
-            weatherData.getWeatherCity(nameCity)
-        }
+    fun createWeatherCity(nameCity: String): Single<Resource<WeatherCity>> = Single.fromCallable {
+        val newWeatherCity = weatherData.getWeatherCity(nameCity)
 
-        emit(Resource(EventStatus.CITY_ADDED,
-            dataBaseHelper.createWeatherCity(newWeatherCity)))
+        return@fromCallable Resource(EventStatus.CITY_ADDED,
+                                     dataBaseHelper.createWeatherCity(newWeatherCity))
     }.exceptionCreateWeather()
 
-    fun updateWeatherCity(weatherCity: WeatherCity): Flow<Resource<WeatherCity>> = flow {
-        val newWeatherCity = withContext(Dispatchers.IO) {
-            weatherData.getUpdateWeatherCity(weatherCity)
-        }
+    fun updateWeatherCity(weatherCity: WeatherCity)
+            : Single<Resource<WeatherCity>> = Single.fromCallable  {
+        val newWeatherCity = weatherData.getUpdateWeatherCity(weatherCity)
 
-        emit(Resource(EventStatus.CITY_WEATHER_DATA_UPDATED,
-            dataBaseHelper.updateWeatherCity(newWeatherCity)))
+        return@fromCallable Resource(EventStatus.CITY_WEATHER_DATA_UPDATED,
+                                     dataBaseHelper.updateWeatherCity(newWeatherCity))
     }.exceptionUpdateWeather(weatherCity)
 
-    fun updateWeatherCities(): Flow<Resource<ArrayList<WeatherCity>>> = flow {
-        val weatherCityList = withContext(Dispatchers.IO) {
-            weatherData.getUpdatedWeatherCityList(dataBaseHelper.getWeatherCities())
-        }
+    fun updateWeatherCities(): Single<Resource<ArrayList<WeatherCity>>> = Single.fromCallable {
+        val weatherCityList = weatherData.getUpdatedWeatherCityList(dataBaseHelper.getWeatherCities())
 
         if (weatherCityList.isNotEmpty()) {
-            emit(Resource(EventStatus.CITY_WEATHER_DATA_UPDATED,
-                dataBaseHelper.updateRecyclerCitiesWeather(weatherCityList)))
+            return@fromCallable Resource(EventStatus.CITY_WEATHER_DATA_UPDATED,
+                dataBaseHelper.updateRecyclerCitiesWeather(weatherCityList))
 
-        } else emit(Resource(EventStatus.IS_NOT_REFRESHING,
-            dataBaseHelper.getWeatherCities()))
+        } else return@fromCallable Resource(EventStatus.IS_NOT_REFRESHING,
+            dataBaseHelper.getWeatherCities())
     }.exceptionUpdateWeather(dataBaseHelper.getWeatherCities())
 
     fun deletedWeatherCity(weatherCity: WeatherCity) {
@@ -63,23 +55,20 @@ class Repository(private val dataBaseHelper: OrmLiteHelper,
         dataBaseHelper.getCurrentLocationWeather()
 
     fun createWeatherCurrentLocation(coordinateLat: Double, coordinateLon: Double)
-            : Flow<Resource<WeatherCity>> = flow {
+            : Single<Resource<WeatherCity>> = Single.fromCallable {
+        val newWeatherCity: WeatherCity = weatherData
+                                            .getWeatherCityByCoordinate(coordinateLat, coordinateLon)
 
-        val newWeatherCity: WeatherCity = withContext(Dispatchers.IO) {
-            weatherData.getWeatherCityByCoordinate(coordinateLat, coordinateLon)
-        }
-
-        emit(Resource(EventStatus.CURRENT_LOCATION_RECEIVED,
+        return@fromCallable (Resource(EventStatus.CURRENT_LOCATION_RECEIVED,
             changeWeatherCurrentLocation(newWeatherCity)))
     }.exceptionCreateWeatherLocation()
 
-    fun createWeatherCurrentLocation(nameCity: String): Flow<Resource<WeatherCity>> = flow {
-        val newWeatherCity: WeatherCity = withContext(Dispatchers.IO) {
-            weatherData.getWeatherCity(nameCity)
-        }
+    fun createWeatherCurrentLocation(nameCity: String)
+            : Single<Resource<WeatherCity>> = Single.fromCallable {
+        val newWeatherCity: WeatherCity = weatherData.getWeatherCity(nameCity)
 
-        emit(Resource(EventStatus.CURRENT_LOCATION_RECEIVED,
-            changeWeatherCurrentLocation(newWeatherCity)))
+        return@fromCallable (Resource(EventStatus.CURRENT_LOCATION_RECEIVED,
+                                      changeWeatherCurrentLocation(newWeatherCity)))
     }.exceptionCreateWeatherLocation()
 
     private fun changeWeatherCurrentLocation(newWeatherCity: WeatherCity): WeatherCity {
@@ -97,30 +86,25 @@ class Repository(private val dataBaseHelper: OrmLiteHelper,
     /**
      * Deep link
      * */
-    fun getWeatherCityByDeepLinkData(nameCity: String): Flow<Resource<WeatherCity>> = flow {
-            val newWeatherCity = withContext(Dispatchers.IO) {
-                weatherData.getWeatherCity(nameCity)
-            }
+    fun getWeatherCityByDeepLinkData(nameCity: String)
+            : Single<Resource<WeatherCity>> = Single.fromCallable {
+        val newWeatherCity = weatherData.getWeatherCity(nameCity)
+        val oldWeatherCity = getWeatherCityByName(newWeatherCity.nameCity)
 
-            val oldWeatherCity = getWeatherCityByName(newWeatherCity.nameCity)
-
-            if (oldWeatherCity != null) {
-                emit(Resource(EventStatus.CITY_WEATHER_DATA_RECEIVED,
-                    dataBaseHelper.updateWeatherCity(
-                    weatherData.broadcastingImmutableData(oldWeatherCity, newWeatherCity))))
-            } else {
-                emit(Resource(EventStatus.CITY_WEATHER_DATA_RECEIVED, newWeatherCity))
-            }
+        if (oldWeatherCity != null) {
+            return@fromCallable (Resource(EventStatus.CITY_WEATHER_DATA_RECEIVED,
+                dataBaseHelper.updateWeatherCity(
+                weatherData.broadcastingImmutableData(oldWeatherCity, newWeatherCity))))
+        } else {
+            return@fromCallable (Resource(EventStatus.CITY_WEATHER_DATA_RECEIVED, newWeatherCity))
+        }
     }.exceptionGettingWeatherByDeepLink()
 
     /** Precipitation */
     fun getTileData(layer: String, zoom: Int, x: Int, y: Int)
-        : Flow<Resource<TileData>> = flow {
+            : Single<Resource<TileData>> = Single.fromCallable {
+        val newTileData = weatherData.getTileData(layer, zoom, x, y)
 
-        val newTileData = withContext(Dispatchers.IO) {
-            weatherData.getTileData(layer, zoom, x, y)
-        }
-
-        emit(Resource(EventStatus.PRECIPITATION_TILE_ACCEPTED, newTileData))
+        return@fromCallable (Resource(EventStatus.PRECIPITATION_TILE_ACCEPTED, newTileData))
     }.exceptionGettingPrecipitation()
 }

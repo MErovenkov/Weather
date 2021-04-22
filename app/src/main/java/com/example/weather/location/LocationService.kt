@@ -14,9 +14,7 @@ import com.example.weather.utils.resource.Resource
 import com.example.weather.utils.resource.event.EventStatus
 import com.google.android.gms.common.api.ResolvableApiException
 import com.google.android.gms.location.*
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.asStateFlow
+import io.reactivex.rxjava3.subjects.PublishSubject
 
 class LocationService(
     private val settingsClient: SettingsClient,
@@ -25,13 +23,11 @@ class LocationService(
 ) {
     private val tag = this.javaClass.simpleName
 
+    val resourceLocationData: PublishSubject<Resource<LocationData>> = PublishSubject.create()
+
     private lateinit var geocoder: Geocoder
     private var fusedLocationProviderClient: FusedLocationProviderClient? = null
     private var locationCallback: LocationCallback? = null
-
-    private var resource: MutableStateFlow<Resource<LocationData>>
-            = MutableStateFlow(Resource(null))
-    fun getResource(): StateFlow<Resource<LocationData>> = resource.asStateFlow()
 
     init {
         createLocationCallback()
@@ -56,11 +52,11 @@ class LocationService(
                 (0..maxAddressLineIndex).map { locality }
             }
 
-            resource.value = Resource(LocationData(location.latitude, location.longitude,
-                cityName[0]))
+            resourceLocationData.onNext(Resource(LocationData(location.latitude, location.longitude,
+                cityName[0])))
 
             Log.i(tag, "Locality received")
-        } else resource.value = Resource(EventStatus.LOCATION_INFO_FAILURE)
+        } else resourceLocationData.onNext(Resource(EventStatus.LOCATION_INFO_FAILURE))
     }
 
     fun startLocationService(fragment: Fragment) {

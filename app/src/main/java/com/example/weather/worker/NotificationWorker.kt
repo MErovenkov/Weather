@@ -18,8 +18,7 @@ import com.example.weather.data.repository.Repository
 import com.example.weather.ui.MainActivity
 import com.example.weather.utils.extensions.cancelNotification
 import com.example.weather.utils.extensions.getApplicationComponent
-import kotlinx.coroutines.*
-import kotlinx.coroutines.flow.collect
+import io.reactivex.rxjava3.functions.Consumer
 import javax.inject.Inject
 
 class NotificationWorker(context: Context, params: WorkerParameters) : Worker(context, params) {
@@ -96,24 +95,24 @@ class NotificationWorker(context: Context, params: WorkerParameters) : Worker(co
         return "${applicationContext.getString(R.string.alert_for_tomorrow)}:\n${alertTomorrow}"
     }
 
-    private fun getWeatherCitiesByAlerts(): ArrayList<WeatherCity> = runBlocking {
+    private fun getWeatherCitiesByAlerts(): ArrayList<WeatherCity>  {
         val dangerousCities: ArrayList<WeatherCity> = ArrayList()
 
-        repository.updateWeatherCities().collect {
+        repository.updateWeatherCities().subscribe (Consumer {
             dangerousCities.addAll(it.getData()!!
                 .filter { weatherCity ->  weatherCity.alertTomorrow.isNotBlank()})
-        }
+        })
 
         repository.getCurrentLocationWeather()?.let { it ->
-            repository.updateWeatherCity(it).collect { resource ->
-                if (resource.getData()?.alertTomorrow!!.isNotBlank()) {
-                    dangerousCities.add(resource.getData()!!)
+            repository.updateWeatherCity(it).subscribe (Consumer {
+                if (it.getData()?.alertTomorrow!!.isNotBlank()) {
+                    dangerousCities.add(it.getData()!!)
                 } else {
                     applicationContext.cancelNotification(CURRENT_LOCATION_ID)
                 }
-            }
+            })
         }
 
-        return@runBlocking dangerousCities
+        return dangerousCities
     }
 }

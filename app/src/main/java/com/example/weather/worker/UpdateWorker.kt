@@ -28,7 +28,7 @@ class UpdateWorker(context: Context, params: WorkerParameters) : Worker(context,
 
     override fun doWork(): Result {
         return try {
-            repository.updateWeatherCities()
+            repository.updateWeatherCities().subscribe()
             Log.i(tag, "Update all cities weather is complete")
             success()
         } catch (e: Exception) {

@@ -1,43 +1,36 @@
 package com.example.weather.viewmodel
 
-import androidx.lifecycle.*
 import com.example.weather.data.repository.Repository
 import com.example.weather.data.model.WeatherCity
 import com.example.weather.utils.resource.Resource
-import com.example.weather.utils.extensions.getData
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.collect
-import kotlinx.coroutines.launch
+import io.reactivex.rxjava3.functions.Consumer
+import io.reactivex.rxjava3.schedulers.Schedulers
+import io.reactivex.rxjava3.subjects.BehaviorSubject
 
-class DetailedWeatherViewModel(private val repository: Repository): ViewModel() {
-
-    private var resource: MutableStateFlow<Resource<WeatherCity>> = MutableStateFlow(Resource(null))
+class DetailedWeatherViewModel(private val repository: Repository): BaseViewModel() {
+    val resourceDetailedWeather: BehaviorSubject<Resource<WeatherCity>> = BehaviorSubject.create()
 
     fun initResource(nameCity: String, isCurrentLocation: Boolean) {
-        resource = if (isCurrentLocation) {
-            MutableStateFlow(Resource(repository.getCurrentLocationWeather()))
-        } else {
-            MutableStateFlow(Resource(repository.getWeatherCityByName(nameCity)))
-        }
+        resourceDetailedWeather.onNext(Resource(
+            when(isCurrentLocation) {
+                true -> repository.getCurrentLocationWeather()
+                false -> repository.getWeatherCityByName(nameCity)
+            }
+        ))
     }
 
     fun initResourceByDeepLinkData(nameCity: String) {
-        viewModelScope.launch {
-            repository.getWeatherCityByDeepLinkData(nameCity).collect {
-                resource.value = it
-            }
-        }
+        compositeDisposable.add(repository.getWeatherCityByDeepLinkData(nameCity)
+            .subscribeOn(Schedulers.io())
+            .subscribe(Consumer { resourceDetailedWeather.onNext(it) })
+        )
     }
 
-    fun getResource(): StateFlow<Resource<WeatherCity>> = resource.asStateFlow()
-
     fun updateWeatherCity() {
-        viewModelScope.launch {
-            repository.updateWeatherCity(resource.getData()!!).collect {
-                resource.value = it
-            }
-        }
+        compositeDisposable.add(resourceDetailedWeather.value.getData()?.let { weatherCity ->
+            repository.updateWeatherCity(weatherCity)
+                .subscribeOn(Schedulers.io())
+                .subscribe(Consumer { resourceDetailedWeather.onNext(it) })
+        })
     }
 }

@@ -8,8 +8,6 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
-import androidx.fragment.app.Fragment
-import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -26,11 +24,10 @@ import com.example.weather.utils.extensions.*
 import com.example.weather.utils.resource.event.EventStatus
 import com.example.weather.viewmodel.WeatherViewModel
 import com.example.weather.worker.NotificationWorker
-import kotlinx.coroutines.flow.collect
-import kotlinx.coroutines.launch
+import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
 import javax.inject.Inject
 
-class WeatherFragment: Fragment() {
+class WeatherFragment: BaseFragment() {
 
     companion object {
         private const val ALPHA_NOT_UPDATED_DATA = 0.5F
@@ -67,9 +64,12 @@ class WeatherFragment: Fragment() {
         initRecyclerView()
         initSwipeRefreshLayout()
 
-        recyclerDataCollector()
-        locationDataCollector()
-        locationServiceCollector()
+        subscribeRecyclerData()
+        subscribeWeatherLocation()
+        subscribeLocationService()
+
+        weatherViewModel.getWeatherCities()
+        weatherViewModel.getCurrentLocation()
 
         binding.addingNewCity.setOnClickListener { createNewCity() }
         binding.titleCurrentLocation.setOnClickListener { openWeatherCurrentLocation() }
@@ -90,11 +90,6 @@ class WeatherFragment: Fragment() {
                 }
             }
         }
-    }
-
-    override fun onStop() {
-        super.onStop()
-        locationService.stopLocationUpdates()
     }
 
     private fun initRecyclerView() {
@@ -131,64 +126,64 @@ class WeatherFragment: Fragment() {
         }
     }
 
-    private fun recyclerDataCollector() {
-        viewLifecycleOwner.lifecycleScope.launch {
-            weatherViewModel.getResourceRecycler().collect { resource ->
-                resource.getData()?.let { weatherCities ->
-                    adapterRecyclerView.update(weatherCities)
-                }
-
-                resource.getEvent()?.let { event ->
-                    val eventStatus: Int? = event.getStatusIfNotHandled()
-
-                    if (eventStatus != EventStatus.IS_NOT_REFRESHING) {
-                        eventStatus?.let { this@WeatherFragment.showToast(it)}
-                    }
-
-                    swipeRefreshLayout.isRefreshing = false
-                }
+    private fun subscribeRecyclerData() {
+        compositeDisposable.add(weatherViewModel.resourceRecycler
+                                                .observeOn(AndroidSchedulers.mainThread())
+                                                .subscribe { resource ->
+            resource.getData()?.let { weatherCities ->
+                adapterRecyclerView.update(weatherCities)
             }
-        }
+
+            resource.getEvent()?.let { event ->
+                val eventStatus: Int? = event.getStatusIfNotHandled()
+
+                if (eventStatus != EventStatus.IS_NOT_REFRESHING) {
+                    eventStatus?.let { this@WeatherFragment.showToast(it)}
+                }
+
+                swipeRefreshLayout.isRefreshing = false
+            }
+        })
     }
 
-    private fun locationDataCollector() {
-        viewLifecycleOwner.lifecycleScope.launch {
-            weatherViewModel.getResourceLocation().collect { resource ->
-                resource.getData().let { weatherLocation ->
-                    weatherCurrentLocation = weatherLocation
+    private fun subscribeWeatherLocation() {
+        compositeDisposable.add(weatherViewModel.resourceWeatherLocation
+                                                .observeOn(AndroidSchedulers.mainThread())
+                                                .subscribe { resource ->
+            resource.getData().let { weatherLocation ->
+                weatherCurrentLocation = weatherLocation
 
-                    if (weatherCurrentLocation == null) {
-                        showLocationDefinition()
-                    } else if (!this@WeatherFragment.hasLocationPermission()) {
-                        showLocationDefinition()
-                        weatherViewModel.deleteWeatherCity(weatherCurrentLocation!!)
-                        requireContext().cancelNotification(NotificationWorker.CURRENT_LOCATION_ID)
-                    } else {
-                        binding.currentLocation.visibility = View.VISIBLE
-                        binding.currentLocation.text = (weatherCurrentLocation!!.nameCity
-                                + "\n" + weatherCurrentLocation!!.weatherCurrent.temperature)
+                if (weatherCurrentLocation == null) {
+                    showLocationDefinition()
+                } else if (!this@WeatherFragment.hasLocationPermission()) {
+                    showLocationDefinition()
+                    weatherViewModel.deleteWeatherCity(weatherCurrentLocation!!)
+                    requireContext().cancelNotification(NotificationWorker.CURRENT_LOCATION_ID)
+                } else {
+                    binding.currentLocation.visibility = View.VISIBLE
+                    binding.currentLocation.text = (weatherCurrentLocation!!.nameCity
+                            + "\n" + weatherCurrentLocation!!.weatherCurrent.temperature)
 
-                        binding.titleCurrentLocation.text =
-                            (this@WeatherFragment.getString(R.string.weather_current_location))
-                    }
-                }
-
-                resource.getEvent()?.let { event ->
-                    when (val eventStatus: Int? = event.getStatusIfNotHandled()) {
-                        EventStatus.LOCATION_INFO_FAILURE -> {
-                            showLocationDefinition()
-                            this@WeatherFragment.showToast(EventStatus.LOCATION_INFO_FAILURE)
-                        }
-
-                        EventStatus.CURRENT_LOCATION_RECEIVED -> {
-                            binding.currentLocation.alpha = ALPHA_UPDATED_DATA
-                        }
-
-                        else -> eventStatus?.let { this@WeatherFragment.showToast(it) }
-                    }
+                    binding.titleCurrentLocation.text =
+                        (this@WeatherFragment.getString(R.string.weather_current_location))
                 }
             }
-        }
+
+            resource.getEvent()?.let { event ->
+                when (val eventStatus: Int? = event.getStatusIfNotHandled()) {
+                    EventStatus.LOCATION_INFO_FAILURE -> {
+                        showLocationDefinition()
+                        this@WeatherFragment.showToast(EventStatus.LOCATION_INFO_FAILURE)
+                    }
+
+                    EventStatus.CURRENT_LOCATION_RECEIVED -> {
+                        binding.currentLocation.alpha = ALPHA_UPDATED_DATA
+                    }
+
+                    else -> eventStatus?.let { this@WeatherFragment.showToast(it) }
+                }
+            }
+        })
     }
 
     private fun showLocationDefinition() {
@@ -197,23 +192,21 @@ class WeatherFragment: Fragment() {
             this@WeatherFragment.getString(R.string.location_definition)
     }
 
-    private fun locationServiceCollector() {
-        viewLifecycleOwner.lifecycleScope.launch {
-            locationService.getResource().collect { resource ->
-                resource.getData()?.let { locationData ->
-                    if (locationData.name.isNullOrEmpty()) {
-                        weatherViewModel
-                            .createWeatherCurrentLocation(locationData.lat, locationData.lon)
-                    } else weatherViewModel.createWeatherCurrentLocation(locationData.name)
-                }
-
-                resource.getEvent()?.let { event ->
-                    val eventStatus: Int? = event.getStatusIfNotHandled()
-
-                    eventStatus?.let { this@WeatherFragment.showToast(it) }
-                }
+    private fun subscribeLocationService() {
+        compositeDisposable.add(locationService.resourceLocationData.subscribe { resource ->
+            resource.getData()?.let { locationData ->
+                if (locationData.name.isNullOrEmpty()) {
+                    weatherViewModel
+                        .createWeatherCurrentLocation(locationData.lat, locationData.lon)
+                } else weatherViewModel.createWeatherCurrentLocation(locationData.name)
             }
-        }
+
+            resource.getEvent()?.let { event ->
+                val eventStatus: Int? = event.getStatusIfNotHandled()
+
+                eventStatus?.let { this@WeatherFragment.showToast(it) }
+            }
+        })
     }
 
     private fun createNewCity() {
@@ -281,5 +274,20 @@ class WeatherFragment: Fragment() {
                 ).show()
             }
         }
+    }
+
+    override fun onPause() {
+        super.onPause()
+        swipeRefreshLayout.isRefreshing = false
+    }
+
+    override fun onStop() {
+        super.onStop()
+        locationService.stopLocationUpdates()
+    }
+
+    override fun onDestroyView() {
+        super.onDestroyView()
+        weatherViewModel.compositeDisposable.clear()
     }
 }

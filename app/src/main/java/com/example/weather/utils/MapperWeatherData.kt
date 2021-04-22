@@ -7,7 +7,6 @@ import com.example.weather.data.dto.WeatherFutureDto
 import com.example.weather.data.model.WeatherCity
 import com.example.weather.data.model.WeatherCurrent
 import com.example.weather.data.model.WeatherFuture
-import kotlinx.coroutines.*
 import java.util.*
 import kotlin.collections.ArrayList
 
@@ -19,14 +18,13 @@ class MapperWeatherData(private val context: Context) {
     }
 
     fun getWeatherCity(weatherCurrentDto: WeatherCurrentDto,
-                               weatherFutureDto: WeatherFutureDto): WeatherCity = runBlocking {
-        val alertTomorrow = GlobalScope.async(Dispatchers.IO) { getAlertTomorrow(weatherFutureDto) }
-        val weatherCurrent = GlobalScope.async(Dispatchers.IO) { getWeatherCurrent(weatherCurrentDto) }
-        val weatherFuture = GlobalScope.async(Dispatchers.IO) { getWeatherFutureList(weatherFutureDto) }
+                       weatherFutureDto: WeatherFutureDto): WeatherCity {
+        val alertTomorrow =  getAlertTomorrow(weatherFutureDto)
+        val weatherCurrent = getWeatherCurrent(weatherCurrentDto)
+        val weatherFuture =  getWeatherFutureList(weatherFutureDto)
 
-        return@runBlocking WeatherCity(weatherCurrentDto.nameCity,
-            weatherCurrentDto.coordinatesCity.lat, weatherCurrentDto.coordinatesCity.lon,
-            alertTomorrow.await(), weatherCurrent.await(), weatherFuture.await())
+        return WeatherCity(weatherCurrentDto.nameCity, weatherCurrentDto.coordinatesCity.lat,
+            weatherCurrentDto.coordinatesCity.lon, alertTomorrow, weatherCurrent, weatherFuture)
     }
 
     private fun getWeatherCurrent(weatherCurrentDto: WeatherCurrentDto): WeatherCurrent {

@@ -5,8 +5,6 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.fragment.app.Fragment
-import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
 import com.example.weather.R
@@ -19,11 +17,10 @@ import com.example.weather.utils.extensions.*
 import com.example.weather.ui.recycler.GenericAdapter
 import com.example.weather.utils.resource.event.EventStatus
 import com.example.weather.viewmodel.DetailedWeatherViewModel
-import kotlinx.coroutines.flow.collect
-import kotlinx.coroutines.launch
+import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
 import javax.inject.Inject
 
-class DetailedWeatherFragment: Fragment()  {
+class DetailedWeatherFragment: BaseFragment()  {
 
     companion object {
         private const val CITY_NAME_KEY = "cityName"
@@ -64,21 +61,6 @@ class DetailedWeatherFragment: Fragment()  {
         getFragmentComponent().inject(this)
     }
 
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-
-        if (requireArguments().getBoolean(IS_DEEP_LINK_KEY)) {
-            detailedWeatherViewModel
-                .initResourceByDeepLinkData(
-                    requireArguments().getString(CITY_NAME_KEY).toString())
-        } else {
-            detailedWeatherViewModel
-                .initResource(
-                    requireArguments().getString(CITY_NAME_KEY).toString(),
-                    requireArguments().getBoolean(IS_CURRENT_LOCATION_KEY))
-        }
-    }
-
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
@@ -95,7 +77,18 @@ class DetailedWeatherFragment: Fragment()  {
         initRecyclerView()
         initSwipeRefreshLayout()
 
-        viewModelCollector()
+        subscribeDetailedWeather()
+
+        if (requireArguments().getBoolean(IS_DEEP_LINK_KEY)) {
+            detailedWeatherViewModel
+                .initResourceByDeepLinkData(
+                    requireArguments().getString(CITY_NAME_KEY).toString())
+        } else {
+            detailedWeatherViewModel
+                .initResource(
+                    requireArguments().getString(CITY_NAME_KEY).toString(),
+                    requireArguments().getBoolean(IS_CURRENT_LOCATION_KEY))
+        }
 
         if (requireArguments().getBoolean(IS_DEEP_LINK_KEY)) {
             visibilityElementsWithInfo(View.GONE)
@@ -139,46 +132,43 @@ class DetailedWeatherFragment: Fragment()  {
         }
     }
 
-    private fun viewModelCollector() {
-        viewLifecycleOwner.lifecycleScope.launch {
-            detailedWeatherViewModel.getResource().collect { resource ->
-                resource.getData()?.let { weatherCity ->
-                    this@DetailedWeatherFragment.weatherCity = weatherCity
+    private fun subscribeDetailedWeather() {
+        compositeDisposable.add(detailedWeatherViewModel.resourceDetailedWeather
+                                                        .observeOn(AndroidSchedulers.mainThread())
+                                                        .subscribe { resource ->
+            resource.getData()?.let { weatherCity ->
+                this@DetailedWeatherFragment.weatherCity = weatherCity
 
-                    binding.apply {
-                        cityName.text = weatherCity.nameCity
-                        currentTemperature.text = weatherCity.weatherCurrent.temperature
-                        iconCurrentWeather.setImageResource(
-                            resources.getIdentifier(
-                                "ic_current_w${weatherCity.weatherCurrent.nameIconWeather}",
-                                "drawable", requireContext().packageName
-                            )
-                        )
-                    }
-
-                    adapterRecyclerView
-                        .update(ArrayList(weatherCity.weatherFutureList))
+                binding.apply {
+                    cityName.text = weatherCity.nameCity
+                    currentTemperature.text = weatherCity.weatherCurrent.temperature
+                    iconCurrentWeather.setImageResource(
+                        resources.getIdentifier(
+                            "ic_current_w${weatherCity.weatherCurrent.nameIconWeather}",
+                            "drawable", requireContext().packageName)
+                    )
                 }
-
-                resource.getEvent()?.let { event ->
-                    val eventStatus: Int? = event.getStatusIfNotHandled()
-
-                    when {
-                        isDeepLinkException(eventStatus) -> {
-                            detailedWeatherNavigation.popBackStack()
-                            eventStatus?.let { this@DetailedWeatherFragment.showToast(it) }
-                        }
-
-                        eventStatus == EventStatus.CITY_WEATHER_DATA_RECEIVED -> {
-                            visibilityElementsWithInfo(View.VISIBLE)
-                        }
-
-                        else -> eventStatus?.let { this@DetailedWeatherFragment.showToast(it) }
-                    }
-                    swipeRefreshLayout.isRefreshing = false
-                }
+                adapterRecyclerView.update(ArrayList(weatherCity.weatherFutureList))
             }
-        }
+
+            resource.getEvent()?.let { event ->
+                val eventStatus: Int? = event.getStatusIfNotHandled()
+
+                when {
+                    isDeepLinkException(eventStatus) -> {
+                        detailedWeatherNavigation.popBackStack()
+                        eventStatus?.let { this@DetailedWeatherFragment.showToast(it) }
+                    }
+
+                    eventStatus == EventStatus.CITY_WEATHER_DATA_RECEIVED -> {
+                        visibilityElementsWithInfo(View.VISIBLE)
+                    }
+
+                    else -> eventStatus?.let { this@DetailedWeatherFragment.showToast(it) }
+                }
+                swipeRefreshLayout.isRefreshing = false
+            }
+        })
     }
 
     private fun isDeepLinkException(eventStatus: Int?): Boolean {
@@ -193,5 +183,10 @@ class DetailedWeatherFragment: Fragment()  {
         binding.currentTemperature.visibility = visibility
         binding.iconCurrentWeather.visibility = visibility
         binding.recyclerView.visibility = visibility
+    }
+
+    override fun onDestroyView() {
+        super.onDestroyView()
+        detailedWeatherViewModel.compositeDisposable.clear()
     }
 }

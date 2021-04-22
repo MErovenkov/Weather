@@ -6,8 +6,6 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.fragment.app.Fragment
-import androidx.lifecycle.lifecycleScope
 import com.example.weather.R
 import com.example.weather.databinding.FragmentPrecipitationMapBinding
 import com.example.weather.ui.map.tile.CustomTileProvider
@@ -21,11 +19,10 @@ import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.OnMapReadyCallback
 import com.google.android.gms.maps.SupportMapFragment
 import com.google.android.gms.maps.model.*
-import kotlinx.coroutines.flow.collect
-import kotlinx.coroutines.launch
+import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
 import javax.inject.Inject
 
-class PrecipitationMapFragment: Fragment(), OnMapReadyCallback {
+class PrecipitationMapFragment: BaseFragment(), OnMapReadyCallback {
 
     companion object {
         private const val TILE_TYPE = "precipitation_new"
@@ -81,7 +78,7 @@ class PrecipitationMapFragment: Fragment(), OnMapReadyCallback {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        tileDataCollector()
+        subscribeTileData()
 
         binding.constrainLayout.updateAllPaddingByWindowInserts()
     }
@@ -101,28 +98,34 @@ class PrecipitationMapFragment: Fragment(), OnMapReadyCallback {
         }
     }
 
-    private fun tileDataCollector() {
-        viewLifecycleOwner.lifecycleScope.launch {
-            precipitationMapViewModel.getResource().collect { resource ->
-                resource.getData()?.let { tileDataList ->
-                    customTileProvider.updateTileDataList(tileDataList)
-                }
+    private fun subscribeTileData() {
+        compositeDisposable.add(precipitationMapViewModel.resourceTileDataList
+                                                         .observeOn(AndroidSchedulers.mainThread())
+                                                         .subscribe { resource ->
+            resource.getData()?.let { tileDataList ->
+                customTileProvider.updateTileDataList(tileDataList)
+            }
 
-                resource.getEvent()?.let { event ->
-                    val eventStatus: Int? = event.getStatusIfNotHandled()
+            resource.getEvent()?.let { event ->
+                val eventStatus: Int? = event.getStatusIfNotHandled()
 
-                    if (this@PrecipitationMapFragment.eventShown
-                        && eventStatus == EventStatus.PRECIPITATION_TILE_ACCEPTED) {
+                if (this@PrecipitationMapFragment.eventShown
+                    && eventStatus == EventStatus.PRECIPITATION_TILE_ACCEPTED) {
 
-                        this@PrecipitationMapFragment.eventShown = false
-                    } else if (!this@PrecipitationMapFragment.eventShown
-                        && eventStatus != EventStatus.PRECIPITATION_TILE_ACCEPTED) {
+                    this@PrecipitationMapFragment.eventShown = false
+                } else if (!this@PrecipitationMapFragment.eventShown
+                    && eventStatus != EventStatus.PRECIPITATION_TILE_ACCEPTED) {
 
-                        this@PrecipitationMapFragment.eventShown = true
-                        eventStatus?.let { this@PrecipitationMapFragment.showToast(eventStatus)}
-                    }
+                    this@PrecipitationMapFragment.eventShown = true
+                    eventStatus?.let { this@PrecipitationMapFragment.showToast(eventStatus)}
                 }
             }
-        }
+        })
+    }
+
+    override fun onDestroyView() {
+        super.onDestroyView()
+        precipitationMapViewModel.compositeDisposable.clear()
+        precipitationMapViewModel.clearTileData()
     }
 }
