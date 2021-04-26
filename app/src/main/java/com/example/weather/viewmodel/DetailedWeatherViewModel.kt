@@ -3,15 +3,15 @@ package com.example.weather.viewmodel
 import com.example.weather.data.repository.Repository
 import com.example.weather.data.model.WeatherCity
 import com.example.weather.utils.resource.Resource
+import com.jakewharton.rxrelay3.BehaviorRelay
 import io.reactivex.rxjava3.functions.Consumer
 import io.reactivex.rxjava3.schedulers.Schedulers
-import io.reactivex.rxjava3.subjects.BehaviorSubject
 
 class DetailedWeatherViewModel(private val repository: Repository): BaseViewModel() {
-    val resourceDetailedWeather: BehaviorSubject<Resource<WeatherCity>> = BehaviorSubject.create()
+    val resourceDetailedWeather: BehaviorRelay<Resource<WeatherCity>> = BehaviorRelay.create()
 
     fun initResource(nameCity: String, isCurrentLocation: Boolean) {
-        resourceDetailedWeather.onNext(Resource(
+        resourceDetailedWeather.accept(Resource(
             when(isCurrentLocation) {
                 true -> repository.getCurrentLocationWeather()
                 false -> repository.getWeatherCityByName(nameCity)
@@ -22,7 +22,7 @@ class DetailedWeatherViewModel(private val repository: Repository): BaseViewMode
     fun initResourceByDeepLinkData(nameCity: String) {
         compositeDisposable.add(repository.getWeatherCityByDeepLinkData(nameCity)
             .subscribeOn(Schedulers.io())
-            .subscribe(Consumer { resourceDetailedWeather.onNext(it) })
+            .subscribe(Consumer { resourceDetailedWeather.accept(it) })
         )
     }
 
@@ -30,7 +30,7 @@ class DetailedWeatherViewModel(private val repository: Repository): BaseViewMode
         compositeDisposable.add(resourceDetailedWeather.value.getData()?.let { weatherCity ->
             repository.updateWeatherCity(weatherCity)
                 .subscribeOn(Schedulers.io())
-                .subscribe(Consumer { resourceDetailedWeather.onNext(it) })
+                .subscribe(Consumer { resourceDetailedWeather.accept(it) })
         })
     }
 }

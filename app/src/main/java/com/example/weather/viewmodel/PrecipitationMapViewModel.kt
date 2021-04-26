@@ -3,12 +3,12 @@ package com.example.weather.viewmodel
 import com.example.weather.utils.resource.TileData
 import com.example.weather.data.repository.Repository
 import com.example.weather.utils.resource.Resource
+import com.jakewharton.rxrelay3.PublishRelay
 import io.reactivex.rxjava3.functions.Consumer
 import io.reactivex.rxjava3.schedulers.Schedulers
-import io.reactivex.rxjava3.subjects.PublishSubject
 
 class PrecipitationMapViewModel(private val repository: Repository): BaseViewModel() {
-    val resourceTileDataList: PublishSubject<Resource<ArrayList<TileData>>> = PublishSubject.create()
+    val resourceTileDataList: PublishRelay<Resource<ArrayList<TileData>>> = PublishRelay.create()
     private val tileDataList: ArrayList<TileData> = ArrayList()
 
     fun getTileData(layer: String, zoom: Int, x: Int, y: Int) {
@@ -22,7 +22,7 @@ class PrecipitationMapViewModel(private val repository: Repository): BaseViewMod
 
     private fun addTileData(resourceTileData: Resource<TileData>) {
         resourceTileData.getData()?.let { tileDataList.add(it) }
-        resourceTileDataList.onNext(
+        resourceTileDataList.accept(
             resourceTileData.getEvent()?.getStatusIfNotHandled()?.let {
                 Resource(it, tileDataList) }!!
         )

@@ -14,7 +14,7 @@ import com.example.weather.utils.resource.Resource
 import com.example.weather.utils.resource.event.EventStatus
 import com.google.android.gms.common.api.ResolvableApiException
 import com.google.android.gms.location.*
-import io.reactivex.rxjava3.subjects.PublishSubject
+import com.jakewharton.rxrelay3.PublishRelay
 
 class LocationService(
     private val settingsClient: SettingsClient,
@@ -23,7 +23,7 @@ class LocationService(
 ) {
     private val tag = this.javaClass.simpleName
 
-    val resourceLocationData: PublishSubject<Resource<LocationData>> = PublishSubject.create()
+    val resourceLocationData: PublishRelay<Resource<LocationData>> = PublishRelay.create()
 
     private lateinit var geocoder: Geocoder
     private var fusedLocationProviderClient: FusedLocationProviderClient? = null
@@ -52,11 +52,11 @@ class LocationService(
                 (0..maxAddressLineIndex).map { locality }
             }
 
-            resourceLocationData.onNext(Resource(LocationData(location.latitude, location.longitude,
+            resourceLocationData.accept(Resource(LocationData(location.latitude, location.longitude,
                 cityName[0])))
 
             Log.i(tag, "Locality received")
-        } else resourceLocationData.onNext(Resource(EventStatus.LOCATION_INFO_FAILURE))
+        } else resourceLocationData.accept(Resource(EventStatus.LOCATION_INFO_FAILURE))
     }
 
     fun startLocationService(fragment: Fragment) {
