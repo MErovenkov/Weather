@@ -68,9 +68,6 @@ class WeatherFragment: BaseFragment() {
         subscribeWeatherLocation()
         subscribeLocationService()
 
-        weatherViewModel.getWeatherCities()
-        weatherViewModel.getCurrentLocation()
-
         binding.addingNewCity.setOnClickListener { createNewCity() }
         binding.titleCurrentLocation.setOnClickListener { openWeatherCurrentLocation() }
         binding.currentLocation.apply {

@@ -9,12 +9,11 @@ import io.reactivex.rxjava3.subjects.BehaviorSubject
 import kotlin.collections.ArrayList
 
 class WeatherViewModel(private val repository: Repository): BaseViewModel() {
-    val resourceRecycler: BehaviorSubject<Resource<ArrayList<WeatherCity>>> = BehaviorSubject.create()
-    val resourceWeatherLocation: BehaviorSubject<Resource<WeatherCity>> = BehaviorSubject.create()
+    val resourceRecycler: BehaviorSubject<Resource<ArrayList<WeatherCity>>> = BehaviorSubject
+        .createDefault(Resource(repository.getWeatherCities()))
 
-    fun getWeatherCities() {
-        resourceRecycler.onNext(Resource(repository.getWeatherCities()))
-    }
+    val resourceWeatherLocation: BehaviorSubject<Resource<WeatherCity>> = BehaviorSubject
+        .createDefault(Resource(repository.getCurrentLocationWeather()))
 
     fun createWeatherData(nameCity: String) {
         compositeDisposable.add(repository.createWeatherCity(nameCity)
@@ -45,11 +44,6 @@ class WeatherViewModel(private val repository: Repository): BaseViewModel() {
     /**
      *  Current Location
      * */
-
-    fun getCurrentLocation() {
-        resourceWeatherLocation.onNext(Resource(repository.getCurrentLocationWeather()))
-    }
-
     fun createWeatherCurrentLocation(coordinateLat: Double, coordinateLon: Double) {
         compositeDisposable.add(repository.createWeatherCurrentLocation(coordinateLat, coordinateLon)
             .subscribeOn(Schedulers.io())
