@@ -1,12 +1,14 @@
 package com.example.weather
 
 import android.app.Application
+import android.util.Log
 import androidx.work.*
 import com.example.weather.di.component.ApplicationComponent
 import com.example.weather.di.component.DaggerApplicationComponent
 import com.example.weather.utils.CheckStatusNetwork
 import com.example.weather.worker.NotificationWorker
 import com.example.weather.worker.UpdateWorker
+import io.reactivex.rxjava3.plugins.RxJavaPlugins
 import java.util.concurrent.TimeUnit
 
 class MyApplication: Application(){
@@ -23,6 +25,7 @@ class MyApplication: Application(){
         super.onCreate()
         initWorkers()
         CheckStatusNetwork.registerNetworkCallback(applicationContext)
+        RxJavaPlugins.setErrorHandler { Log.w("RxJava", it.stackTraceToString()) }
     }
 
     private fun initWorkers() {

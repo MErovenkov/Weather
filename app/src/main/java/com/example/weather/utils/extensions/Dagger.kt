@@ -2,13 +2,13 @@ package com.example.weather.utils.extensions
 
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
-import androidx.work.Worker
+import androidx.work.rxjava3.RxWorker
 import com.example.weather.MyApplication
 import com.example.weather.di.component.ActivityComponent
 import com.example.weather.di.component.ApplicationComponent
 import com.example.weather.di.component.FragmentComponent
 
-fun Worker.getApplicationComponent(): ApplicationComponent {
+fun RxWorker.getApplicationComponent(): ApplicationComponent {
     return (this.applicationContext as MyApplication).appComponent
 }
 

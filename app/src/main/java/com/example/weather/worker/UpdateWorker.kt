@@ -4,14 +4,14 @@ import android.content.Context
 import android.util.Log
 import androidx.work.ListenableWorker.Result.retry
 import androidx.work.ListenableWorker.Result.success
-import androidx.work.Worker
 import androidx.work.WorkerParameters
 import com.example.weather.data.repository.Repository
 import com.example.weather.utils.extensions.getApplicationComponent
-import java.lang.Exception
+import io.reactivex.rxjava3.core.Single
+import androidx.work.rxjava3.RxWorker
 import javax.inject.Inject
 
-class UpdateWorker(context: Context, params: WorkerParameters) : Worker(context, params) {
+class UpdateWorker(context: Context, params: WorkerParameters): RxWorker(context, params) {
 
     companion object {
         const val NAME_WORKER = "updateWeatherData"
@@ -26,14 +26,14 @@ class UpdateWorker(context: Context, params: WorkerParameters) : Worker(context,
         getApplicationComponent().inject(this)
     }
 
-    override fun doWork(): Result {
-        return try {
-            repository.updateWeatherCities().subscribe()
-            Log.i(tag, "Update all cities weather is complete")
-            success()
-        } catch (e: Exception) {
-            Log.w(tag, e.stackTraceToString())
-            retry()
-        }
+    override fun createWork(): Single<Result> {
+        return repository.updateWeatherCities()
+            .map {
+                Log.i(tag, "Update all cities weather is complete")
+                success()
+            }.onErrorReturn { e ->
+                Log.w(tag, e.stackTraceToString())
+                retry()
+            }
     }
 }

@@ -10,18 +10,19 @@ import android.util.Log
 import androidx.core.app.NotificationCompat
 import androidx.work.ListenableWorker.Result.retry
 import androidx.work.ListenableWorker.Result.success
-import androidx.work.Worker
 import androidx.work.WorkerParameters
+import androidx.work.rxjava3.RxWorker
 import com.example.weather.R
 import com.example.weather.data.model.WeatherCity
 import com.example.weather.data.repository.Repository
 import com.example.weather.ui.MainActivity
 import com.example.weather.utils.extensions.cancelNotification
 import com.example.weather.utils.extensions.getApplicationComponent
+import io.reactivex.rxjava3.core.Single
 import io.reactivex.rxjava3.functions.Consumer
 import javax.inject.Inject
 
-class NotificationWorker(context: Context, params: WorkerParameters) : Worker(context, params) {
+class NotificationWorker(context: Context, params: WorkerParameters): RxWorker(context, params) {
 
     companion object {
         const val NAME_WORKER = "notificationAlert"
@@ -38,15 +39,16 @@ class NotificationWorker(context: Context, params: WorkerParameters) : Worker(co
         getApplicationComponent().inject(this)
     }
 
-    override fun doWork(): Result {
-        return try {
-            sendNotification(getWeatherCitiesByAlerts())
-            Log.i(tag, "Notification worker is complete")
-            success()
-        } catch (e: Exception) {
-            Log.w(tag, e.stackTraceToString())
-            retry()
-        }
+    override fun createWork(): Single<Result> {
+        return getWeatherCitiesByAlerts()
+            .map {
+                sendNotification(it)
+                Log.i(tag, "Notification worker is complete")
+                success()
+            }.onErrorReturn { e ->
+                Log.w(tag, e.stackTraceToString())
+                retry()
+            }
     }
 
     private fun sendNotification(weatherCities: ArrayList<WeatherCity>) {
@@ -95,7 +97,7 @@ class NotificationWorker(context: Context, params: WorkerParameters) : Worker(co
         return "${applicationContext.getString(R.string.alert_for_tomorrow)}:\n${alertTomorrow}"
     }
 
-    private fun getWeatherCitiesByAlerts(): ArrayList<WeatherCity>  {
+    private fun getWeatherCitiesByAlerts(): Single<ArrayList<WeatherCity>> = Single.fromCallable {
         val dangerousCities: ArrayList<WeatherCity> = ArrayList()
 
         repository.updateWeatherCities().subscribe (Consumer {
@@ -113,6 +115,6 @@ class NotificationWorker(context: Context, params: WorkerParameters) : Worker(co
             })
         }
 
-        return dangerousCities
+        return@fromCallable dangerousCities
     }
 }
