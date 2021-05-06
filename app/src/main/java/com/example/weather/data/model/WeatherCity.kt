@@ -25,7 +25,7 @@ class WeatherCity {
     var isCurrentLocation: Boolean = false
 
     @DatabaseField(columnName = DBNaming.WeatherFutureEntry.COLUMN_ALERT_TOMORROW)
-    lateinit var alertTomorrow: String
+    var alertTomorrow: String = ""
 
     @DatabaseField(columnName = DBNaming.WeatherCityEntry.COLUMN_WEATHER_CURRENT, foreign = true,
         foreignAutoRefresh = true, foreignAutoCreate = true)

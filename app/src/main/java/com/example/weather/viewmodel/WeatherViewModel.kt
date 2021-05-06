@@ -9,11 +9,13 @@ import io.reactivex.rxjava3.schedulers.Schedulers
 import kotlin.collections.ArrayList
 
 class WeatherViewModel(private val repository: Repository): BaseViewModel() {
-    val resourceRecycler: BehaviorRelay<Resource<ArrayList<WeatherCity>>> = BehaviorRelay
-        .createDefault(Resource(repository.getWeatherCities()))
+    val resourceRecycler: BehaviorRelay<Resource<ArrayList<WeatherCity>>> by lazy {
+        BehaviorRelay.createDefault(Resource(repository.getWeatherCities()))
+    }
 
-    val resourceWeatherLocation: BehaviorRelay<Resource<WeatherCity>> = BehaviorRelay
-        .createDefault(Resource(repository.getCurrentLocationWeather()))
+    val resourceWeatherLocation: BehaviorRelay<Resource<WeatherCity>> by lazy {
+        BehaviorRelay.createDefault(Resource(repository.getCurrentLocationWeather()))
+    }
 
     fun createWeatherData(nameCity: String) {
         compositeDisposable.add(repository.createWeatherCity(nameCity)
