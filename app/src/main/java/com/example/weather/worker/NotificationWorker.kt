@@ -2,7 +2,7 @@ package com.example.weather.worker
 
 import android.app.NotificationChannel
 import android.app.NotificationManager
-import android.app.PendingIntent.*
+import android.app.PendingIntent.getActivity
 import android.content.Context
 import android.content.Context.NOTIFICATION_SERVICE
 import android.os.Build
@@ -19,7 +19,6 @@ import com.example.weather.ui.MainActivity
 import com.example.weather.utils.extensions.cancelNotification
 import com.example.weather.utils.extensions.getApplicationComponent
 import io.reactivex.rxjava3.core.Single
-import io.reactivex.rxjava3.functions.Consumer
 import javax.inject.Inject
 
 class NotificationWorker(context: Context, params: WorkerParameters): RxWorker(context, params) {
@@ -40,7 +39,17 @@ class NotificationWorker(context: Context, params: WorkerParameters): RxWorker(c
     }
 
     override fun createWork(): Single<Result> {
-        return getWeatherCitiesByAlerts()
+        return repository.updateWeatherCities()
+            .map { resource -> resource.getData() }
+            .flattenAsObservable { weatherCityList -> weatherCityList }
+            .mergeWith(
+                repository.getCurrentLocationWeather()?.let { weatherCity ->
+                    repository.updateWeatherCity(weatherCity)
+                        .map { resource -> resource?.getData() }
+                } ?: Single.just(WeatherCity())
+            )
+            .filter { weatherCity -> checkingAlertTomorrow(weatherCity) }
+            .toList()
             .map {
                 sendNotification(it)
                 Log.i(tag, "Notification worker is complete")
@@ -51,7 +60,18 @@ class NotificationWorker(context: Context, params: WorkerParameters): RxWorker(c
             }
     }
 
-    private fun sendNotification(weatherCities: ArrayList<WeatherCity>) {
+    private fun checkingAlertTomorrow(weatherCity: WeatherCity):Boolean {
+        return if(weatherCity.alertTomorrow.isNotBlank()) {
+            true
+        } else {
+            if (weatherCity.isCurrentLocation) {
+                applicationContext.cancelNotification(CURRENT_LOCATION_ID)
+            }
+            false
+        }
+    }
+
+    private fun sendNotification(weatherCities: List<WeatherCity>) {
         val uniqueWeatherCities: ArrayList<WeatherCity> = weatherCities
             .distinctBy { weatherCity -> weatherCity.nameCity } as ArrayList<WeatherCity>
 
@@ -95,26 +115,5 @@ class NotificationWorker(context: Context, params: WorkerParameters): RxWorker(c
 
     private fun formatDescription(alertTomorrow: String): String {
         return "${applicationContext.getString(R.string.alert_for_tomorrow)}:\n${alertTomorrow}"
-    }
-
-    private fun getWeatherCitiesByAlerts(): Single<ArrayList<WeatherCity>> = Single.fromCallable {
-        val dangerousCities: ArrayList<WeatherCity> = ArrayList()
-
-        repository.updateWeatherCities().subscribe (Consumer {
-            dangerousCities.addAll(it.getData()!!
-                .filter { weatherCity ->  weatherCity.alertTomorrow.isNotBlank()})
-        })
-
-        repository.getCurrentLocationWeather()?.let { it ->
-            repository.updateWeatherCity(it).subscribe (Consumer {
-                if (it.getData()?.alertTomorrow!!.isNotBlank()) {
-                    dangerousCities.add(it.getData()!!)
-                } else {
-                    applicationContext.cancelNotification(CURRENT_LOCATION_ID)
-                }
-            })
-        }
-
-        return@fromCallable dangerousCities
     }
 }
