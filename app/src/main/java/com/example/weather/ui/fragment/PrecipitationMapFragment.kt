@@ -49,7 +49,7 @@ class PrecipitationMapFragment: BaseFragment(), OnMapReadyCallback {
     private val customTileProvider: CustomTileProvider =
         object: CustomTileProvider() {
             override fun getTile(x: Int, y: Int, zoom: Int): Tile? {
-                precipitationMapViewModel.getTileData(TILE_TYPE, zoom, x, y)
+                precipitationMapViewModel.searchTileData(TILE_TYPE, zoom, x, y)
                 return super.getTile(x, y, zoom)
             }
         }
@@ -99,7 +99,7 @@ class PrecipitationMapFragment: BaseFragment(), OnMapReadyCallback {
     }
 
     private fun subscribeTileData() {
-        compositeDisposable.add(precipitationMapViewModel.resourceTileDataList
+        compositeDisposable.add(precipitationMapViewModel.getResourceTileDataList()
                                                          .observeOn(AndroidSchedulers.mainThread())
                                                          .subscribe { resource ->
             resource.getData()?.let { tileDataList ->

@@ -133,7 +133,7 @@ class DetailedWeatherFragment: BaseFragment()  {
     }
 
     private fun subscribeDetailedWeather() {
-        compositeDisposable.add(detailedWeatherViewModel.resourceDetailedWeather
+        compositeDisposable.add(detailedWeatherViewModel.getResourceDetailedWeather()
                                                         .observeOn(AndroidSchedulers.mainThread())
                                                         .subscribe { resource ->
             resource.getData()?.let { weatherCity ->

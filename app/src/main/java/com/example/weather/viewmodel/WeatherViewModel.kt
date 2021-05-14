@@ -4,17 +4,36 @@ import com.example.weather.data.model.WeatherCity
 import com.example.weather.data.repository.Repository
 import com.example.weather.utils.resource.Resource
 import com.jakewharton.rxrelay3.BehaviorRelay
+import io.reactivex.rxjava3.core.Observable
 import io.reactivex.rxjava3.functions.Consumer
 import io.reactivex.rxjava3.schedulers.Schedulers
-import kotlin.collections.ArrayList
 
 class WeatherViewModel(private val repository: Repository): BaseViewModel() {
-    val resourceRecycler: BehaviorRelay<Resource<ArrayList<WeatherCity>>> by lazy {
-        BehaviorRelay.createDefault(Resource(repository.getWeatherCities()))
+    private val resourceRecycler: BehaviorRelay<Resource<ArrayList<WeatherCity>>> = BehaviorRelay.create()
+    private val resourceWeatherLocation: BehaviorRelay<Resource<WeatherCity>>
+        = BehaviorRelay.createDefault(Resource(null))
+
+    fun getResourceRecycler(): Observable<Resource<ArrayList<WeatherCity>>> {
+        return repository.getWeatherCities()
+            .switchMap {
+                if (resourceRecycler.value == null) {
+                    resourceRecycler.accept(Resource(it))
+                }
+               resourceRecycler
+            }
     }
 
-    val resourceWeatherLocation: BehaviorRelay<Resource<WeatherCity>> by lazy {
-        BehaviorRelay.createDefault(Resource(repository.getCurrentLocationWeather()))
+    fun getResourceWeatherLocation(): Observable<Resource<WeatherCity>> {
+        return resourceWeatherLocation.mergeWith (
+            repository.getCurrentLocationWeather()
+                .toObservable()
+                .switchMap {
+                    if (resourceWeatherLocation.value.getData() == null) {
+                        resourceWeatherLocation.accept(Resource(it))
+                    }
+                    resourceWeatherLocation
+                }
+        )
     }
 
     fun createWeatherData(nameCity: String) {

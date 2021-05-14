@@ -18,7 +18,6 @@ import com.example.weather.data.repository.Repository
 import com.example.weather.ui.MainActivity
 import com.example.weather.utils.extensions.cancelNotification
 import com.example.weather.utils.extensions.getApplicationComponent
-import io.reactivex.rxjava3.core.Maybe
 import io.reactivex.rxjava3.core.Single
 import javax.inject.Inject
 
@@ -44,10 +43,10 @@ class NotificationWorker(context: Context, params: WorkerParameters): RxWorker(c
             .map { resource -> resource.getData() }
             .flattenAsObservable { weatherCityList -> weatherCityList }
             .mergeWith(
-                repository.getCurrentLocationWeather()?.let { weatherCity ->
-                    repository.updateWeatherCity(weatherCity)
+                repository.getCurrentLocationWeather().flatMap {
+                    repository.updateWeatherCity(it)
                         .map { resource -> resource?.getData() }.toMaybe()
-                } ?: Maybe.empty()
+                }
             )
             .filter { weatherCity -> checkingAlertTomorrow(weatherCity) }
             .toList()

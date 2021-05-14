@@ -4,14 +4,17 @@ import com.example.weather.utils.resource.TileData
 import com.example.weather.data.repository.Repository
 import com.example.weather.utils.resource.Resource
 import com.jakewharton.rxrelay3.PublishRelay
+import io.reactivex.rxjava3.core.Observable
 import io.reactivex.rxjava3.functions.Consumer
 import io.reactivex.rxjava3.schedulers.Schedulers
 
 class PrecipitationMapViewModel(private val repository: Repository): BaseViewModel() {
-    val resourceTileDataList: PublishRelay<Resource<ArrayList<TileData>>> = PublishRelay.create()
+    private val resourceTileDataList: PublishRelay<Resource<ArrayList<TileData>>> = PublishRelay.create()
     private val tileDataList: ArrayList<TileData> = ArrayList()
 
-    fun getTileData(layer: String, zoom: Int, x: Int, y: Int) {
+    fun getResourceTileDataList(): Observable<Resource<ArrayList<TileData>>> = resourceTileDataList
+
+    fun searchTileData(layer: String, zoom: Int, x: Int, y: Int) {
         if(!isExistTileData(zoom, x, y)) {
             compositeDisposable.add(repository.getTileData(layer, zoom, x, y)
                 .subscribeOn(Schedulers.io())

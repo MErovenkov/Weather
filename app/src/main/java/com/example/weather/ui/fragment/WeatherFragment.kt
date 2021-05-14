@@ -124,7 +124,7 @@ class WeatherFragment: BaseFragment() {
     }
 
     private fun subscribeRecyclerData() {
-        compositeDisposable.add(weatherViewModel.resourceRecycler
+        compositeDisposable.add(weatherViewModel.getResourceRecycler()
                                                 .observeOn(AndroidSchedulers.mainThread())
                                                 .subscribe { resource ->
             resource.getData()?.let { weatherCities ->
@@ -144,7 +144,7 @@ class WeatherFragment: BaseFragment() {
     }
 
     private fun subscribeWeatherLocation() {
-        compositeDisposable.add(weatherViewModel.resourceWeatherLocation
+        compositeDisposable.add(weatherViewModel.getResourceWeatherLocation()
                                                 .observeOn(AndroidSchedulers.mainThread())
                                                 .subscribe { resource ->
             resource.getData().let { weatherLocation ->
