@@ -14,26 +14,28 @@ class WeatherViewModel(private val repository: Repository): BaseViewModel() {
         = BehaviorRelay.createDefault(Resource(null))
 
     fun getResourceRecycler(): Observable<Resource<ArrayList<WeatherCity>>> {
-        return repository.getWeatherCities()
-            .switchMap {
-                if (resourceRecycler.value == null) {
+        return if (resourceRecycler.value == null) {
+            repository.getWeatherCities()
+                .switchMap {
                     resourceRecycler.accept(Resource(it))
+                    resourceRecycler
                 }
-               resourceRecycler
-            }
+        } else resourceRecycler
     }
 
     fun getResourceWeatherLocation(): Observable<Resource<WeatherCity>> {
-        return resourceWeatherLocation.mergeWith (
-            repository.getCurrentLocationWeather()
+        return if (resourceWeatherLocation.value.getData() == null
+            && resourceWeatherLocation.value.getEvent() == null) {
+
+            resourceWeatherLocation.mergeWith(
+                repository.getCurrentLocationWeather()
                 .toObservable()
                 .switchMap {
-                    if (resourceWeatherLocation.value.getData() == null) {
-                        resourceWeatherLocation.accept(Resource(it))
-                    }
+                    resourceWeatherLocation.accept(Resource(it))
                     resourceWeatherLocation
                 }
-        )
+            )
+        } else resourceWeatherLocation
     }
 
     fun createWeatherData(nameCity: String) {
