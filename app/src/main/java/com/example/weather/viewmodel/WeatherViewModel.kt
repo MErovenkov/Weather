@@ -13,8 +13,8 @@ class WeatherViewModel(private val repository: Repository): BaseViewModel() {
     private val resourceWeatherLocation: BehaviorRelay<Resource<WeatherCity>>
         = BehaviorRelay.createDefault(Resource(null))
 
-    fun getResourceRecycler(): Observable<Resource<ArrayList<WeatherCity>>> {
-        return if (resourceRecycler.value == null) {
+    fun getResourceRecycler(): Observable<Resource<ArrayList<WeatherCity>>> = Observable.defer {
+        if (resourceRecycler.value == null) {
             repository.getWeatherCities()
                 .switchMap {
                     resourceRecycler.accept(Resource(it))
@@ -23,8 +23,8 @@ class WeatherViewModel(private val repository: Repository): BaseViewModel() {
         } else resourceRecycler
     }
 
-    fun getResourceWeatherLocation(): Observable<Resource<WeatherCity>> {
-        return if (resourceWeatherLocation.value.getData() == null
+    fun getResourceWeatherLocation(): Observable<Resource<WeatherCity>> = Observable.defer {
+        if (resourceWeatherLocation.value.getData() == null
             && resourceWeatherLocation.value.getEvent() == null) {
 
             resourceWeatherLocation.mergeWith(
