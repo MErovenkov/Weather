@@ -1,13 +1,15 @@
 package com.example.weather.utils
 
+import android.annotation.SuppressLint
 import android.content.Context
 import android.net.ConnectivityManager
 import android.net.Network
 import android.net.NetworkRequest
-import kotlinx.coroutines.flow.MutableStateFlow
+import com.jakewharton.rxrelay3.BehaviorRelay
 
+@SuppressLint("StaticFieldLeak")
 object CheckStatusNetwork {
-    private var isActive: MutableStateFlow<Boolean> = MutableStateFlow(false)
+    private var isActive: BehaviorRelay<Boolean> = BehaviorRelay.createDefault(false)
     private lateinit var mContext: Context
     private lateinit var connectivityManager: ConnectivityManager
     private lateinit var networkCallback: ConnectivityManager.NetworkCallback
@@ -21,12 +23,12 @@ object CheckStatusNetwork {
         networkCallback = object : ConnectivityManager.NetworkCallback() {
             override fun onAvailable(network: Network) {
                 super.onAvailable(network)
-                isActive.value = true
+                isActive.accept(true)
             }
 
             override fun onLost(network: Network) {
                 super.onLost(network)
-                isActive.value = false
+                isActive.accept(false)
             }
         }
 
@@ -36,7 +38,7 @@ object CheckStatusNetwork {
             networkCallback)
     }
 
-    fun getNetworkAvailable(): MutableStateFlow<Boolean> {
+    fun getNetworkAvailable(): BehaviorRelay<Boolean> {
         return isActive
     }
 }
