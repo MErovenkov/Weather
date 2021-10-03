@@ -9,6 +9,9 @@
         android:name="com.example.weather.ui.fragment.WeatherFragment"
         android:label="weatherFragment"
         tools:layout="@layout/fragment_weather">
+        <action
+            android:id="@+id/action_weatherFragment_to_detailedWeatherFragment"
+            app:destination="@id/detailedWeatherFragment" />
     </fragment>
 
     <fragment
@@ -16,6 +19,12 @@
         android:name="com.example.weather.ui.fragment.DetailedWeatherFragment"
         android:label="detailedWeatherFragment"
         tools:layout="@layout/fragment_detailed_weather" >
+        <action
+            android:id="@+id/action_detailedWeatherFragment_to_precipitationMapFragment"
+            app:destination="@id/precipitationMapFragment" />
+        <action
+            android:id="@+id/action_detailedWeatherFragment_to_weatherFragment"
+            app:destination="@id/weatherFragment" />
     </fragment>
 
     <fragment
@@ -23,5 +32,8 @@
         android:name="com.example.weather.ui.fragment.PrecipitationMapFragment"
         android:label="precipitationMapFragment"
         tools:layout="@layout/fragment_precipitation_map" >
+        <action
+            android:id="@+id/action_precipitationMapFragment_to_detailedWeatherFragment"
+            app:destination="@id/detailedWeatherFragment" />
     </fragment>
 </navigation>

@@ -40,11 +40,11 @@ class Navigation(private var navController: NavController): INavigation {
         return navOptions {
             anim {
                 if (hasAnimationOpening) {
-                    enter = R.anim.slide_in_right
-                    exit = R.anim.slide_out_left
+                    enter = R.anim.slide_in_down
+                    exit = R.anim.slide_out_up
                 }
-                popEnter = R.anim.slide_in_left
-                popExit = R.anim.slide_out_right
+                popEnter = R.anim.slide_in_up
+                popExit = R.anim.slide_out_down
             }
         }
     }

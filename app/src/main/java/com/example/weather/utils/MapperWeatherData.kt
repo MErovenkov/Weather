@@ -31,7 +31,7 @@ class MapperWeatherData(private val context: Context) {
 
     private fun getWeatherCurrent(weatherCurrentDto: WeatherCurrentDto): WeatherCurrent {
         return WeatherCurrent(getTemperatureCelsius(weatherCurrentDto.currentTemperature.temp),
-            weatherCurrentDto.weatherInfo[SOLO_ELEMENT].nameIconWeather
+            getNameIcon(weatherCurrentDto.weatherInfo[SOLO_ELEMENT].nameIconWeather)
         )
     }
 
@@ -44,7 +44,7 @@ class MapperWeatherData(private val context: Context) {
                     getNameDay(dayFuture.date),
                     getTemperatureCelsius(dayFuture.temperature.max),
                     getTemperatureCelsius(dayFuture.temperature.min),
-                    dayFuture.weatherInfo[SOLO_ELEMENT].nameIconWeather
+                    getNameIcon(dayFuture.weatherInfo[SOLO_ELEMENT].nameIconWeather)
                 )
             )
         }
@@ -93,7 +93,14 @@ class MapperWeatherData(private val context: Context) {
     }
 
     private fun formatAlertMassage(alertMassage: String): String {
-        return alertMassage.substring(0, 1).toUpperCase(Locale.ROOT) +
-                alertMassage.substring(1).toLowerCase(Locale.ROOT)
+        return alertMassage.substring(0, 1).uppercase(Locale.ROOT) +
+                alertMassage.substring(1).lowercase(Locale.ROOT)
+    }
+
+    private fun getNameIcon (dataName: String): String {
+        return if (context.resources.getIdentifier("ic_w${dataName}",
+                "drawable", "com.example.weather") == 0) {
+            dataName.substring(0, dataName.length - 1)
+        } else dataName
     }
 }

@@ -115,7 +115,6 @@ class DetailedWeatherFragment: Fragment()  {
                 showNoInternetAccess()
             }
         }
-        binding.linearLayout.updateAllPaddingByWindowInserts()
     }
 
     private fun initRecyclerView() {
@@ -150,7 +149,7 @@ class DetailedWeatherFragment: Fragment()  {
                         currentTemperature.text = weatherCity.weatherCurrent.temperature
                         iconCurrentWeather.setImageResource(
                             resources.getIdentifier(
-                                "ic_current_w${weatherCity.weatherCurrent.nameIconWeather}",
+                                "ic_w${weatherCity.weatherCurrent.nameIconWeather}",
                                 "drawable", requireContext().packageName
                             )
                         )

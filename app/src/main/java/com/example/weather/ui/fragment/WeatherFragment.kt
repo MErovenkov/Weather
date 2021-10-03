@@ -72,12 +72,10 @@ class WeatherFragment: Fragment() {
         locationServiceCollector()
 
         binding.addingNewCity.setOnClickListener { createNewCity() }
-        binding.titleCurrentLocation.setOnClickListener { openWeatherCurrentLocation() }
         binding.currentLocation.apply {
             setOnClickListener { openWeatherCurrentLocation() }
             alpha = ALPHA_NOT_UPDATED_DATA
         }
-        binding.linearLayout.updateAllPaddingByWindowInserts()
     }
 
     override fun onStart() {
@@ -166,10 +164,7 @@ class WeatherFragment: Fragment() {
                     } else {
                         binding.currentLocation.visibility = View.VISIBLE
                         binding.currentLocation.text = (weatherCurrentLocation!!.nameCity
-                                + "\n" + weatherCurrentLocation!!.weatherCurrent.temperature)
-
-                        binding.titleCurrentLocation.text =
-                            (this@WeatherFragment.getString(R.string.weather_current_location))
+                                + " " + weatherCurrentLocation!!.weatherCurrent.temperature)
                     }
                 }
 
@@ -192,9 +187,7 @@ class WeatherFragment: Fragment() {
     }
 
     private fun showLocationDefinition() {
-        binding.currentLocation.visibility = View.GONE
-        binding.titleCurrentLocation.text =
-            this@WeatherFragment.getString(R.string.location_definition)
+        binding.currentLocation.text = null
     }
 
     private fun locationServiceCollector() {
@@ -233,7 +226,7 @@ class WeatherFragment: Fragment() {
     }
 
     private fun openWeatherCurrentLocation() {
-        if (binding.titleCurrentLocation.text == this.getString(R.string.location_definition)
+        if (binding.currentLocation.text.isNullOrBlank()
             || binding.currentLocation.alpha == ALPHA_NOT_UPDATED_DATA) {
             if (CheckStatusNetwork.isNetworkAvailable()) {
                 locationService.startLocationService(this)

@@ -13,7 +13,6 @@ import com.example.weather.databinding.FragmentPrecipitationMapBinding
 import com.example.weather.ui.map.tile.CustomTileProvider
 import com.example.weather.utils.extensions.getFragmentComponent
 import com.example.weather.utils.extensions.showToast
-import com.example.weather.utils.extensions.updateAllPaddingByWindowInserts
 import com.example.weather.utils.resource.event.EventStatus
 import com.example.weather.viewmodel.PrecipitationMapViewModel
 import com.google.android.gms.maps.CameraUpdateFactory
@@ -82,8 +81,6 @@ class PrecipitationMapFragment: Fragment(), OnMapReadyCallback {
         super.onViewCreated(view, savedInstanceState)
 
         tileDataCollector()
-
-        binding.constrainLayout.updateAllPaddingByWindowInserts()
     }
 
     override fun onMapReady(googleMap: GoogleMap) {

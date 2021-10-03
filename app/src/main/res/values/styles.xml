@@ -4,26 +4,24 @@
         <item name="colorPrimaryDark">@color/black</item>
         <item name="colorAccent">@color/black</item>
 
-        <item name="android:windowTranslucentStatus">true</item>
-        <item name="android:windowTranslucentNavigation">true</item>
-        <item name="android:windowBackground">@drawable/activity_background</item>
+        <item name="android:windowBackground">@color/light_black</item>
 
         <!-- fragment -->
-        <item name="fragment_background">@drawable/activity_background</item>
+        <item name="fragment_background">@drawable/fragment_detailed_weather_background</item>
 
         <!-- text -->
-        <item name="text_primary_color">@color/light_black</item>
+        <item name="text_primary_color">@color/white</item>
 
         <!-- image -->
-        <item name="image_tint">@color/black</item>>
+        <item name="image_tint">@color/white</item>>
         <item name="image_swap_theme_tint">@color/gray</item>
 
         <!-- separate line -->
-        <item name="separate_line_background">@color/light_grey_60</item>
+        <item name="separate_line_background">@color/gray</item>
 
         <!-- edit text -->
-        <item name="edit_text_background_tint">@color/gray</item>
-        <item name="edit_text_color_hint">@color/light_grey_60</item>
+        <item name="edit_text_background_tint">@color/dark_grey</item>
+        <item name="edit_text_color_hint">@color/white_35</item>
 
         <!-- weather scale -->
         <item name="background_scale_color">@color/white</item>

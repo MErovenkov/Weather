@@ -27,6 +27,6 @@
         app:backgroundColor="?attr/background_scale_color"
         app:markupText="@array/textScalePrecipitation"
         app:scaleColors="@drawable/gradient_line_precipitation"
-        app:textColor="?attr/text_primary_color"
+        app:textColor="@color/black"
         app:textSize="13sp" />
 </androidx.constraintlayout.widget.ConstraintLayout>

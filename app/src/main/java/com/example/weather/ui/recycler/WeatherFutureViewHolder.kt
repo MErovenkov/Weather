@@ -13,7 +13,7 @@ class WeatherFutureViewHolder(private val recyclerDetailedWeatherBinding: Recycl
             recyclerDetailedWeatherBinding.temperatureMax.text = data.temperatureMax
             recyclerDetailedWeatherBinding.temperatureMin.text = data.temperatureMin
             recyclerDetailedWeatherBinding.iconWeather.setImageResource(resources
-                .getIdentifier("ic_future_w${data.nameIconWeather}","drawable",
+                .getIdentifier("ic_w${data.nameIconWeather}","drawable",
                     "com.example.weather"))
         }
     }

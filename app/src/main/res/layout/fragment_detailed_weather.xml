@@ -9,7 +9,7 @@
     android:background="?attr/fragment_background"
     tools:context=".ui.fragment.DetailedWeatherFragment">
 
-    <LinearLayout
+    <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/linearLayout"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
@@ -24,7 +24,10 @@
             android:fontFamily="@font/merriweather"
             android:textAlignment="center"
             android:textColor="?attr/text_primary_color"
-            android:textSize="32sp"/>
+            android:textSize="32sp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
 
         <TextView
             android:id="@+id/current_temperature"
@@ -34,37 +37,55 @@
             android:fontFamily="@font/merriweather"
             android:textAlignment="center"
             android:textColor="?attr/text_primary_color"
-            android:textSize="26sp" />
+            android:textSize="26sp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/city_name" />
 
         <ImageView
             android:id="@+id/icon_current_weather"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginBottom="5dp"
+            android:layout_height="100dp"
+            android:layout_marginTop="5dp"
             android:elevation="10dp"
-            app:tint="?attr/image_tint" />
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/current_temperature"
+            app:tint="?attr/image_tint"/>
 
         <ImageView
             android:id="@+id/icon_precipitation_map"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="start"
+            android:layout_marginTop="10dp"
             android:src="@drawable/ic_precipitation_map"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/icon_current_weather"
             app:tint="?attr/image_tint" />
 
         <View
-            android:transitionName="separation_line"
             android:layout_width="match_parent"
             android:layout_height="1dp"
             android:background="?attr/separate_line_background"
-            android:elevation="4dp"/>
+            android:elevation="4dp"
+            android:transitionName="separation_line"
+            app:layout_constraintBottom_toTopOf="@+id/recycler_view"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent" />
 
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/recycler_view"
+            app:layout_constraintHeight_percent="0.25"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
+            android:layout_height="0dp"
             android:requiresFadingEdge="vertical"
             android:fadingEdgeLength="25dp"
-            android:overScrollMode="ifContentScrolls"/>
-    </LinearLayout>
+            android:overScrollMode="ifContentScrolls"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent" />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
 </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
