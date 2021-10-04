@@ -9,7 +9,7 @@ Uses the open api openweathermap.
 
 ## Demonstration of the main functionality
 
-![DemonstrationGif](https://j.gifs.com/57WLLv.gif)
+![DemonstrationGif](https://j.gifs.com/vQjZZX.gif)
 
 ## The application is written using
 
