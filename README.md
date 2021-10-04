@@ -10,7 +10,7 @@ ___
 
 ## Demonstration of the main functionality
 
-![DemonstrationGif](https://gifyu.com/image/Xc3g)
+![DemonstrationGif](https://s9.gifyu.com/images/demo-5.gif)
 ___
 
 ## The application is written using:
