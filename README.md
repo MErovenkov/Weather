@@ -9,9 +9,9 @@ Uses the open api openweathermap.
 
 ## Demonstration of the main functionality
 
-![DemonstrationGif](https://s9.gifyu.com/images/demo-5.gif)
+![DemonstrationGif](https://ibb.co/G5tBZvz)
 
-## The application is written using:
+## The application is written using
 
 1) MVVM
 2) OrmLite
@@ -28,9 +28,9 @@ Uses the open api openweathermap.
 ## Addition
 
 Implemented in separate branches:
-1)Google Analytics
-2)AppMetrica
-3)RxJava
+1) Google Analytics
+2) AppMetrica
+3) RxJava
 
 ## Warning
 
