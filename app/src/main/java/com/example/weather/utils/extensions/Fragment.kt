@@ -8,6 +8,7 @@ import android.location.LocationManager
 import android.view.inputmethod.InputMethodManager
 import android.widget.Toast
 import androidx.core.app.ActivityCompat
+import androidx.core.view.WindowCompat
 import androidx.fragment.app.Fragment
 import com.example.weather.R
 
@@ -15,6 +16,7 @@ import com.example.weather.R
  * Fragment extension
  */
 fun Fragment.hideKeyboard() {
+    WindowCompat.setDecorFitsSystemWindows(requireActivity().window, true)
     (requireActivity().getSystemService(Activity.INPUT_METHOD_SERVICE) as InputMethodManager)
         .hideSoftInputFromWindow(activity?.currentFocus?.windowToken, 0)
 }
