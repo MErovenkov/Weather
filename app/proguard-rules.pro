@@ -8,10 +8,10 @@
 -repackageclasses
 
 # OrmLite
--keepclassmembers class com.example.weather.data.repository.dao.OrmLiteHelper {
+-keepclassmembers class com.merovenkov.weather.data.repository.dao.OrmLiteHelper {
     public <init>(android.content.Context);
 }
 
--keepclassmembers class com.example.weather.data.model.WeatherFuture {
-    public com.example.weather.data.model.WeatherCity weatherCity;
+-keepclassmembers class com.merovenkov.weather.data.model.WeatherFuture {
+    public com.merovenkov.weather.data.model.WeatherCity weatherCity;
 }
