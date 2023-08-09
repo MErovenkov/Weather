@@ -14,7 +14,7 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"/>
 
-    <com.example.weather.ui.widget.WeatherScale
+    <com.merovenkov.weather.ui.widget.WeatherScale
         android:layout_width="280dp"
         android:layout_height="wrap_content"
         android:paddingTop="2dp"

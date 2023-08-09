@@ -6,7 +6,7 @@
     app:startDestination="@id/weatherFragment">
     <fragment
         android:id="@+id/weatherFragment"
-        android:name="com.example.weather.ui.fragment.WeatherFragment"
+        android:name="com.merovenkov.weather.ui.fragment.WeatherFragment"
         android:label="weatherFragment"
         tools:layout="@layout/fragment_weather">
         <action
@@ -16,7 +16,7 @@
 
     <fragment
         android:id="@+id/detailedWeatherFragment"
-        android:name="com.example.weather.ui.fragment.DetailedWeatherFragment"
+        android:name="com.merovenkov.weather.ui.fragment.DetailedWeatherFragment"
         android:label="detailedWeatherFragment"
         tools:layout="@layout/fragment_detailed_weather" >
         <action
@@ -29,7 +29,7 @@
 
     <fragment
         android:id="@+id/precipitationMapFragment"
-        android:name="com.example.weather.ui.fragment.PrecipitationMapFragment"
+        android:name="com.merovenkov.weather.ui.fragment.PrecipitationMapFragment"
         android:label="precipitationMapFragment"
         tools:layout="@layout/fragment_precipitation_map" >
         <action

@@ -6,7 +6,7 @@ plugins {
 }
 
 android {
-    compileSdkVersion 30
+    compileSdkVersion 33
     buildToolsVersion "30.0.3"
 
     Properties properties = new Properties()
@@ -15,9 +15,9 @@ android {
     }
 
     defaultConfig {
-        applicationId "com.example.weather"
+        applicationId "com.merovenkov.weather"
         minSdkVersion 21
-        targetSdkVersion 30
+        targetSdkVersion 33
         versionCode 1
         versionName "1.0"
 
@@ -64,6 +64,7 @@ android {
     buildFeatures {
         viewBinding true
     }
+    namespace 'com.merovenkov.weather'
 }
 
 dependencies {
